@@ -1,6 +1,16 @@
-import * as BASE from "./EntityBase";
-import { collide } from "./Shape";
-import { SpriteManager } from "./SpriteManager";
+import * as BASE from "../entity/Entity";
+import { collide } from "../sprite/Shape";
+import { SpriteManager } from "../sprite/SpriteManager";
+
+export class SpecialEffects {
+
+    public time_rate : number = 1;
+
+    constructor(){
+        
+    }
+
+};
 
 type CollidePoll = {
     id: BASE.CollideGroup,
@@ -22,6 +32,8 @@ export class EntityPool {
     private groups: CollidePoll[] = [];
     private pending: BASE.Entity[] = [];
     private update_stage: UpdateStage = UpdateStage.PRE_INIT;
+
+    public special_effects : SpecialEffects = new SpecialEffects();
 
     constructor() {
         EntityPool.INSTANCE = this;

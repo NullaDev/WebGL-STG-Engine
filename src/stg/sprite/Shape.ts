@@ -1,4 +1,4 @@
-import { Entity } from "./EntityBase";
+import { Entity } from "../entity/Entity";
 
 
 export abstract class Shape {

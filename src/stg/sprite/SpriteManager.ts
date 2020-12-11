@@ -1,6 +1,6 @@
-import { GLTEXTURE, loadTexture, loadImage, drawRects } from "../main/gl";
-import { Entity } from "./EntityBase";
-import { Sprite, SPRITES } from "./sprites";
+import { GLTEXTURE, loadTexture, loadImage, drawRects } from "../../main/gl";
+import { Entity } from "../entity/Entity";
+import { SPRITES } from "./sprites";
 
 export class SpriteManager {
 
