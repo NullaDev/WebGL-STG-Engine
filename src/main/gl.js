@@ -118,16 +118,17 @@ const verang = [3, -3, -1, 3, 1, -1];
 const texx = [0, 0, 1, 0, 1, 1];
 const texy = [0, 1, 1, 0, 0, 1];
 
-function drawRects(px, py, pr, dir, size, tx, ty, tw, th, texture) {
+function drawRects(xyrwh, size, texture) {
     const ver = new Float32Array(size * 12);
     const tex = new Float32Array(size * 12);
     const pid4 = Math.PI / 4;
     for (var i = 0; i < size; i++) {
         for (var j = 0; j < 6; j++) {
-            ver[i * 12 + j * 2 + 0] = px[i] + pr * Math.cos(dir[i] + verang[j] * pid4);
-            ver[i * 12 + j * 2 + 1] = py[i] + pr * Math.sin(dir[i] + verang[j] * pid4);
-            tex[i * 12 + j * 2 + 0] = tx + texx[j] * tw;
-            tex[i * 12 + j * 2 + 1] = ty + texy[j] * th;
+            const a = xyrwh[i * 5 + 2] + verang[j] * pid4;
+            ver[i * 12 + j * 2 + 0] = xyrwh[i * 9 + 0] + xyrwh[i * 9 + 3] * Math.cos(a) - xyrwh[i * 9 + 4] * Math.sin(a);
+            ver[i * 12 + j * 2 + 1] = xyrwh[i * 9 + 1] + xyrwh[i * 9 + 3] * Math.sin(a) + xyrwh[i * 9 + 4] * Math.cos(a);
+            tex[i * 12 + j * 2 + 0] = xyrwh[i * 9 + 5] + texx[j] * xyrwh[i * 9 + 7];
+            tex[i * 12 + j * 2 + 1] = xyrwh[i * 9 + 6] + texy[j] * xyrwh[i * 9 + 8];
         }
     }
     draw(ver, tex, texture, size * 6);

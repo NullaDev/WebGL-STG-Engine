@@ -7,6 +7,7 @@
         "webgl": "0.0.7"
     },
     "scripts": {
-        "make": "make -C src"
+        "make": "make -C src",
+        "local": "http-server"
     }
 }
