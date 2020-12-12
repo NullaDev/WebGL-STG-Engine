@@ -19,19 +19,28 @@ export const template_config_bullet: BulletConfig = {
     auto_direction: true
 }
 
-export abstract class Bullet<S extends ShapePoint>
+export class Bullet<S extends ShapePoint>
     extends SIPoint<S>
     implements Entity<Bullet<S>, RENDER_TYPE.RECT, S, SSPoint<S>> {
 
     public state: State = State.PRE_ENTRY;
     public config: BulletConfig;
-    
+
     public vx: number;
     public vy: number;
 
     constructor(shaped_shape: SSPoint<S>, bc: BulletConfig) {
         super(shaped_shape);
         this.config = bc;
+    }
+
+    public simpleInit(x0: number, y0: number, v: number, a: number): Bullet {
+        this.px = x0;
+        this.py = y0;
+        this.vx = v * Math.cos(a);
+        this.vy = v * Math.sin(a);
+        this.dir = a;
+        return this;
     }
 
     public update(_: Bullet<S>) {

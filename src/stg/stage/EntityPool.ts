@@ -4,10 +4,10 @@ import { SpriteManager } from "../sprite/SpriteManager";
 
 export class SpecialEffects {
 
-    public time_rate : number = 1;
+    public time_rate: number = 1;
 
-    constructor(){
-        
+    constructor() {
+
     }
 
 };
@@ -27,13 +27,13 @@ enum UpdateStage {
 
 export class EntityPool {
 
-    public static INSTANCE : EntityPool;
+    public static INSTANCE: EntityPool;
 
     private groups: CollidePoll[] = [];
     private pending: BASE.EntityAny[] = [];
     private update_stage: UpdateStage = UpdateStage.PRE_INIT;
 
-    public special_effects : SpecialEffects = new SpecialEffects();
+    public special_effects: SpecialEffects = new SpecialEffects();
 
     constructor() {
         EntityPool.INSTANCE = this;
@@ -92,7 +92,9 @@ export class EntityPool {
         var map: Map<number, Map<string, BASE.EntityAny[]>> = new Map();
         for (var pool of this.groups) {
             for (var entity of pool.list) {
-                if (entity.config.render_layer && !map.has(entity.config.render_layer))
+                if (!entity.config.render_layer)
+                    continue;
+                if (!map.has(entity.config.render_layer))
                     map.set(entity.config.render_layer, new Map());
                 const submap = map.get(entity.config.render_layer);
                 if (!submap.has(entity.shaped_sprite.sprite))
@@ -102,8 +104,8 @@ export class EntityPool {
         }
         var rlist: { rl: number, v: Map<string, BASE.EntityAny[]> }[] = [];
         map.forEach((v0, k0) => rlist.push({ rl: k0, v: v0 }));
-        rlist.sort((a,b)=>a.rl - b.rl);
-        rlist.forEach(rl=>rl.v.forEach((v1,k1)=>SpriteManager.get(k1).draw(v1)));
+        rlist.sort((a, b) => a.rl - b.rl);
+        rlist.forEach(rl => rl.v.forEach((v1, k1) => SpriteManager.get(k1).draw(v1)));
     }
 
 }

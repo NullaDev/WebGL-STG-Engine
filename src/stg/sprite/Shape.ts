@@ -102,6 +102,14 @@ export class SIPoint<S extends ShapePoint> extends ShapedInstance<SIPoint<S>, RE
 
 }
 
+export class SINull extends ShapedInstance<SINull, null, null, null> {
+
+    constructor() {
+        super(null, null);
+    }
+
+}
+
 export function collide(e0: EntityAny, e1: EntityAny): boolean {
     if (e0 instanceof SIPoint && e0.shaped_sprite.shape instanceof ShapeCircle)
         return e1.distanceTo(e0.px, e0.py) < e0.shaped_sprite.shape.radius;
