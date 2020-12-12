@@ -1,4 +1,5 @@
-import { ShapedSprite } from "../sprite/sprites";
+import { Shape, ShapedInstance, ShapedSprite } from "../sprite/Shape";
+import { RenderType, RENDER_TYPE } from "../sprite/SpriteManager";
 
 export type CollideGroup = number;
 export type CollideMask = number;
@@ -44,16 +45,19 @@ export function clone<T>(t: T): T {
     return Object.assign({}, t);
 }
 
-export interface Entity {
+export type EntityAny = Entity<any, any, Shape, ShapedSprite<any, Shape>>;
+
+export interface Entity<
+        E extends Entity<E, RT, S, SS> & RenderType<E, RT>,
+        RT extends RENDER_TYPE, 
+        S extends Shape, 
+        SS extends ShapedSprite<RT, S>> 
+    extends ShapedInstance<E, RT, S, SS> {
     config: Config,
     state: State,
-    sprite: ShapedSprite,
-    px: number,
-    py: number,
-    dir: number,
-    update: (self: Entity) => void,
-    attack: (self: Entity, target: Entity) => void,
-    postUpdate: (self: Entity) => void,
+    update: (self: Entity<E, RT, S, SS>) => void,
+    attack: (self: Entity<E, RT, S, SS>, target: EntityAny) => void,
+    postUpdate: (self: Entity<E, RT, S, SS>) => void,
 }
 
 export const template_config_player: Config = {

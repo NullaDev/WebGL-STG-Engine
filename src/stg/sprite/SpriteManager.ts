@@ -1,6 +1,26 @@
-import { GLTEXTURE, loadTexture, loadImage, drawRects } from "../../main/gl";
-import { Entity } from "../entity/Entity";
+import { GLTEXTURE, loadTexture, loadImage, drawRects, drawSnake } from "../../main/gl";
+import { EntityAny } from "../entity/Entity";
+import { SSCurve } from "./Shape";
 import { SPRITES } from "./sprites";
+
+export enum RENDER_TYPE {
+    RECT,
+    STRIP
+}
+
+export interface RenderType<T extends RenderType<T, R>, R extends RENDER_TYPE> {
+    renderType: R;
+};
+
+export interface RECT extends RenderType<RECT, RENDER_TYPE.RECT> {
+    rectCount(): number;
+    render(arr: Float32Array, ind: number): void;
+}
+
+export interface STRIP extends RenderType<STRIP, RENDER_TYPE.STRIP> {
+    render(): Array<Float32Array>;
+    getSprite(): SSCurve<any>;
+}
 
 export class SpriteManager {
 
@@ -28,22 +48,25 @@ export class SpriteManager {
         return (SpriteManager.INS[url] = new SpriteManager(url));
     }
 
-    public drawRect(list: Entity[]) {
-        const xyrwh = new Float32Array(list.length * 9);
-        list.forEach((e, i) => {
-            xyrwh[i * 5 + 0] = e.px;
-            xyrwh[i * 5 + 1] = e.py;
-            xyrwh[i * 5 + 2] = e.dir;
-            xyrwh[i * 5 + 3] = e.sprite.w;
-            xyrwh[i * 5 + 4] = e.sprite.h;
-            const sprite = SPRITES[e.sprite.sprite];
-            xyrwh[i * 5 + 5] = sprite.tx;
-            xyrwh[i * 5 + 6] = sprite.ty;
-            xyrwh[i * 5 + 7] = sprite.tw;
-            xyrwh[i * 5 + 8] = sprite.th;
-
-        });
+    public draw(list: EntityAny[]) {
+        const rectn = list.reduce((n, e) => e.renderType == RENDER_TYPE.RECT ? n + (<RECT><RenderType<RECT, RENDER_TYPE.RECT>>e).rectCount() : n, 0);
+        const xyrwh = new Float32Array(rectn * 9);
+        var i = 0;
+        for (var e of list)
+            if (e.renderType == RENDER_TYPE.RECT) {
+                const r = <RECT><RenderType<RECT, RENDER_TYPE.RECT>>e;
+                r.render(xyrwh, i);
+                i += r.rectCount();
+            }
         drawRects(xyrwh, list.length, this.img);
+        for (var e of list)
+            if (e.renderType == RENDER_TYPE.STRIP) {
+                const s = <STRIP><RenderType<STRIP, RENDER_TYPE.STRIP>>e;
+                const ss = s.getSprite();
+                const sp = SPRITES[ss.sprite];
+                for (var a of s.render())
+                    drawSnake(a, ss.w, a.length / 2, sp.tx, sp.ty, sp.tw, sp.th, this.img);
+            }
     }
 
 }

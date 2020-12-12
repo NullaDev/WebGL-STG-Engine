@@ -15,7 +15,7 @@ export class SpecialEffects {
 type CollidePoll = {
     id: BASE.CollideGroup,
     mask: BASE.CollideMask,
-    list: BASE.Entity[],
+    list: BASE.EntityAny[],
 }
 
 enum UpdateStage {
@@ -30,7 +30,7 @@ export class EntityPool {
     public static INSTANCE : EntityPool;
 
     private groups: CollidePoll[] = [];
-    private pending: BASE.Entity[] = [];
+    private pending: BASE.EntityAny[] = [];
     private update_stage: UpdateStage = UpdateStage.PRE_INIT;
 
     public special_effects : SpecialEffects = new SpecialEffects();
@@ -51,7 +51,7 @@ export class EntityPool {
         return ret;
     }
 
-    public add(e: BASE.Entity) {
+    public add(e: BASE.EntityAny) {
         if (this.update_stage != UpdateStage.ADD_BACK)
             this.pending.push(e);
         else
@@ -67,10 +67,10 @@ export class EntityPool {
                 if (this.groups[i].mask & j) {
                     // group i can attack group j
                     for (var ei of this.groups[i].list) {
-                        if (ei.state != BASE.State.ALIVE || !ei.sprite || !ei.sprite.shape)
+                        if (ei.state != BASE.State.ALIVE || !ei.shaped_sprite || !ei.shaped_sprite.shape)
                             continue;
                         for (var ej of this.groups[j].list) {
-                            if (ej.state != BASE.State.ALIVE || !ej.sprite || !ej.sprite.shape)
+                            if (ej.state != BASE.State.ALIVE || !ej.shaped_sprite || !ej.shaped_sprite.shape)
                                 continue;
                             if (collide(ei, ej))
                                 ei.attack(ei, ej);
@@ -89,21 +89,21 @@ export class EntityPool {
     }
 
     public async render() {
-        var map: Map<number, Map<string, BASE.Entity[]>> = new Map();
+        var map: Map<number, Map<string, BASE.EntityAny[]>> = new Map();
         for (var pool of this.groups) {
             for (var entity of pool.list) {
                 if (!map.has(entity.config.render_layer))
                     map.set(entity.config.render_layer, new Map());
                 const submap = map.get(entity.config.render_layer);
-                if (!submap.has(entity.sprite.sprite))
-                    submap.set(entity.sprite.sprite, []);
-                submap.get(entity.sprite.sprite).push(entity);
+                if (!submap.has(entity.shaped_sprite.sprite))
+                    submap.set(entity.shaped_sprite.sprite, []);
+                submap.get(entity.shaped_sprite.sprite).push(entity);
             }
         }
-        var rlist: { rl: number, v: Map<string, BASE.Entity[]> }[] = [];
+        var rlist: { rl: number, v: Map<string, BASE.EntityAny[]> }[] = [];
         map.forEach((v0, k0) => rlist.push({ rl: k0, v: v0 }));
         rlist.sort((a,b)=>a.rl - b.rl);
-        rlist.forEach(rl=>rl.v.forEach((v1,k1)=>SpriteManager.get(k1).drawRect(v1)));
+        rlist.forEach(rl=>rl.v.forEach((v1,k1)=>SpriteManager.get(k1).draw(v1)));
     }
 
 }

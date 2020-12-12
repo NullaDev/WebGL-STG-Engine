@@ -1,4 +1,4 @@
-import { Shape, ShapeCircle } from "./Shape";
+import { ShapeCircle, ShapedSprite, SSPoint } from "./Shape";
 
 export type Sprite = {
     sprite: string,
@@ -7,13 +7,6 @@ export type Sprite = {
     tw: number,
     th: number
 };
-
-export type ShapedSprite = {
-    sprite: string,
-    shape : Shape,
-    w: number,
-    h: number
-}
 
 export const SPRITES: { [key: string]: Sprite } = {
     "round_red":
@@ -26,8 +19,8 @@ export const SPRITES: { [key: string]: Sprite } = {
     }
 }
 
-export const SHAPES: { [key: string]: ShapedSprite } = {
-    "small_round_red": {
+export const SHAPES: { [key: string]: ShapedSprite<any, any> } = {
+    "small_round_red": <SSPoint<ShapeCircle>>{
         "sprite": "round_red",
         "shape" : new ShapeCircle(1),
         "w": 1,
