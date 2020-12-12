@@ -1,4 +1,4 @@
-import { setup, loadImage, loadTexture, clear, drawSnake, drawRects } from "./main/gl";
+import { setup, loadImage, loadTexture, clear, drawSnake, drawRects } from "./stg/sprite/gl";
 
 import { EntityPool } from "./stg/stage/EntityPool"
 

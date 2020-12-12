@@ -92,7 +92,7 @@ export class EntityPool {
         var map: Map<number, Map<string, BASE.EntityAny[]>> = new Map();
         for (var pool of this.groups) {
             for (var entity of pool.list) {
-                if (!map.has(entity.config.render_layer))
+                if (entity.config.render_layer && !map.has(entity.config.render_layer))
                     map.set(entity.config.render_layer, new Map());
                 const submap = map.get(entity.config.render_layer);
                 if (!submap.has(entity.shaped_sprite.sprite))

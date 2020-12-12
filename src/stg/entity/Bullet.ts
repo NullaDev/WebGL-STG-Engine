@@ -1,11 +1,12 @@
 import { CG_BULLET, Config, Entity, EntityAny, RL_BULLET, State } from "./Entity";
 import { EntityPool } from "../stage/EntityPool";
 import { SCR_HALF_HEIGHT, SCR_HALF_WIDTH } from "../stage/Screen";
-import { ShapeCircle, ShapePoint, SIPoint, SSPoint } from "../sprite/Shape";
+import { ShapePoint, SIPoint, SSPoint } from "../sprite/Shape";
 import { RENDER_TYPE } from "../sprite/SpriteManager";
 
 export type BulletConfig = Config & {
     kill_on_exit: boolean,
+    kill_by_bomb: boolean,
     auto_direction: boolean
 }
 
@@ -14,6 +15,7 @@ export const template_config_bullet: BulletConfig = {
     collide_group: CG_BULLET,
     collide_mask: CG_BULLET,
     kill_on_exit: true,
+    kill_by_bomb: true,
     auto_direction: true
 }
 
@@ -21,15 +23,15 @@ export abstract class Bullet<S extends ShapePoint>
     extends SIPoint<S>
     implements Entity<Bullet<S>, RENDER_TYPE.RECT, S, SSPoint<S>> {
 
-    public state: State;
-    public sprite: SSPoint<S>;
+    public state: State = State.PRE_ENTRY;
     public config: BulletConfig;
-
+    
     public vx: number;
     public vy: number;
 
-    constructor(shaped_shape: SSPoint<S>) {
+    constructor(shaped_shape: SSPoint<S>, bc: BulletConfig) {
         super(shaped_shape);
+        this.config = bc;
     }
 
     public update(_: Bullet<S>) {
@@ -44,7 +46,7 @@ export abstract class Bullet<S extends ShapePoint>
     }
 
     public postUpdate(_: Bullet<S>) {
-        if (this.sprite.shape.exitScreen(this.px, this.py, this.dir, SCR_HALF_WIDTH, SCR_HALF_HEIGHT)) {
+        if (this.shaped_sprite.shape.exitScreen(this.px, this.py, this.dir, SCR_HALF_WIDTH, SCR_HALF_HEIGHT)) {
             if (this.config.kill_on_exit)
                 this.state = State.LEAVING;
             // Event: OnExitScreen

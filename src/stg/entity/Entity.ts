@@ -19,13 +19,14 @@ export const CM_BULLET: CollideMask = 1;
 export const CM_BOMB: CollideMask = 14;
 export const CM_GHOST: CollideMask = 0;
 
-export const RL_BG: RenderLayer = 0;
-export const RL_BOSS: RenderLayer = 100;
-export const RL_ENEMY: RenderLayer = 200;
-export const RL_BULLET: RenderLayer = 300;
-export const RL_BOMB: RenderLayer = 400;
-export const RL_PLAYER: RenderLayer = 500;
-export const RL_UI: RenderLayer = 600;
+export const RL_INVISIBLE: RenderLayer = 0;
+export const RL_BG: RenderLayer = 100;
+export const RL_BOSS: RenderLayer = 200;
+export const RL_ENEMY: RenderLayer = 300;
+export const RL_BULLET: RenderLayer = 400;
+export const RL_BOMB: RenderLayer = 500;
+export const RL_PLAYER: RenderLayer = 600;
+export const RL_UI: RenderLayer = 700;
 export const RL_MAX: RenderLayer = 1000;
 
 export type Config = {
@@ -45,13 +46,13 @@ export function clone<T>(t: T): T {
     return Object.assign({}, t);
 }
 
-export type EntityAny = Entity<any, any, Shape, ShapedSprite<any, Shape>>;
+export type EntityAny = Entity<any, any, Shape<any>, ShapedSprite<any, any, any, any>>;
 
 export interface Entity<
         E extends Entity<E, RT, S, SS> & RenderType<E, RT>,
         RT extends RENDER_TYPE, 
-        S extends Shape, 
-        SS extends ShapedSprite<RT, S>> 
+        S extends Shape<E>, 
+        SS extends ShapedSprite<SS, RT, E, S>> 
     extends ShapedInstance<E, RT, S, SS> {
     config: Config,
     state: State,

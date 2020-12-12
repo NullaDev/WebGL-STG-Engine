@@ -1,3 +1,5 @@
+import { scrCoord_to_GLCoord_x, scrCoord_to_GLCoord_y } from "../stage/Screen";
+
 const vertexCode = `
 attribute vec2 coord;
 attribute vec2 tex;
@@ -145,6 +147,13 @@ const verang = [3, -3, -1, 3, 1, -1];
 const texx = [0, 0, 1, 0, 1, 1];
 const texy = [0, 1, 1, 0, 0, 1];
 
+function scrCoord_to_GLCoord(fa) {
+    for (var i = 0; i < fa.length / 2; i++) {
+        fa[i * 2] = scrCoord_to_GLCoord_x(fa[i * 2]);
+        fa[i * 2 + 1] = scrCoord_to_GLCoord_y(fa[i * 2 + 1]);
+    }
+}
+
 export function drawRects(xyrwh, size, texture) {
     const ver = new Float32Array(size * 12);
     const tex = new Float32Array(size * 12);
@@ -158,6 +167,7 @@ export function drawRects(xyrwh, size, texture) {
             tex[i * 12 + j * 2 + 1] = xyrwh[i * 9 + 6] + texy[j] * xyrwh[i * 9 + 8];
         }
     }
+    scrCoord_to_GLCoord(ver);
     draw(ver, tex, texture, size * 6);
 }
 
@@ -186,6 +196,7 @@ export function drawSnake(xy, w, size, tx, ty, tw, th, texture) {
         ver[i * 6 + 4] = ox + (oy - py) / l * w;
         ver[i * 6 + 5] = oy - (ox - px) / l * w;
     }
+    scrCoord_to_GLCoord(ver);
     tot -= len[0] / 2 + len[size - 1] / 2;
 
     var sta = -len[0] / 2;
