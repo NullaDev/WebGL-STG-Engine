@@ -252,3 +252,14 @@ export function drawSnake(xy, w, size, tx, ty, tw, th, texture) {
     gl.drawElements(gl.TRIANGLE_STRIP, size * 2 - 2, gl.UNSIGNED_SHORT, 0);
 
 }
+
+window.debug_info = {};
+window.debug_info.global_gl = global_gl;
+window.debug_info.gl_func = {
+    setup: setup,
+    clear: clear,
+    draw: draw,
+    drawStrip: drawStrip,
+    drawRects: drawRects,
+    drawSnake: drawSnake
+}

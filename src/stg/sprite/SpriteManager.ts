@@ -27,14 +27,14 @@ export class SpriteManager {
     private static INS: { [key: string]: SpriteManager } = {};
     private path: string;
 
-    private img: GLTEXTURE = -1;
+    private img: GLTEXTURE = null;
 
     constructor(url: string) {
         this.path = url;
     }
 
     public loaded(): boolean {
-        return this.img >= 0;
+        return this.img;
     }
 
     public async load(): Promise<void> {

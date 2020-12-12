@@ -1,14 +1,22 @@
 import { Bullet, template_config_bullet } from "./entity/Bullet";
 import { Repeat, RepeatSupplier, Scheduler } from "./schedule/Scheuler";
-import { small_round_red } from "./sprite/sprites";
+import { small_round_red } from "./sprite/shaped_sprites";
+import { SpriteManager } from "./sprite/SpriteManager";
+import { SPRITES } from "./sprite/sprites";
 import { EntityPool } from "./stage/EntityPool";
 
-const pool = new EntityPool();
+var pool: EntityPool = null;;
 
-const repeat = (item: Repeat, n: number = Infinity) => new RepeatSupplier(item, n);
+export async function init() {
+    pool = new EntityPool();
 
-{
+    eval("window.debug_info.pool = pool");
+
+    const repeat = (item: Repeat, n: number = Infinity) => new RepeatSupplier(item, n);
+
     const n = 12;
+    console.log(SPRITES[small_round_red.sprite].sprite);
+    await SpriteManager.get(SPRITES[small_round_red.sprite].sprite).load();
 
     pool.add(new Scheduler([
         120,
@@ -18,16 +26,15 @@ const repeat = (item: Repeat, n: number = Infinity) => new RepeatSupplier(item, 
                     small_round_red,
                     template_config_bullet)
                     .simpleInit(0, 0, 1, Math.PI * 2 / n * i)),
-                10
+                1
             ], n),
             120
-        ], Infinity)
+        ], 1)
     ]));
+
 }
 
 export function update() {
     pool.update();
     pool.render();
 }
-
-setInterval(update, 16);

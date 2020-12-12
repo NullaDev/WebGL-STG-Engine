@@ -1,6 +1,7 @@
 import * as BASE from "../entity/Entity";
 import { collide } from "../sprite/Shape";
 import { SpriteManager } from "../sprite/SpriteManager";
+import { SPRITES } from "../sprite/sprites";
 
 export class SpecialEffects {
 
@@ -32,6 +33,7 @@ export class EntityPool {
     private groups: CollidePoll[] = [];
     private pending: BASE.EntityAny[] = [];
     private update_stage: UpdateStage = UpdateStage.PRE_INIT;
+    private time: number = 0;
 
     public special_effects: SpecialEffects = new SpecialEffects();
 
@@ -52,14 +54,13 @@ export class EntityPool {
     }
 
     public add(e: BASE.EntityAny) {
-        if (this.update_stage != UpdateStage.ADD_BACK)
+        if (this.update_stage != UpdateStage.ADD_BACK && this.update_stage != UpdateStage.PRE_INIT)
             this.pending.push(e);
         else
             this.groups[e.config.collide_group].list.push(e);
     }
 
     public update() {
-        EntityPool.INSTANCE = this;
         this.update_stage = UpdateStage.UPDATE;
         this.groups.forEach(pool => pool.list.forEach(e => e.update(e)));
         for (var i = 0; i < this.groups.length; i++) {
@@ -83,9 +84,9 @@ export class EntityPool {
         this.groups.forEach(pool => pool.list.forEach(e => e.postUpdate(e)));
         this.groups.forEach(pool => pool.list = pool.list.filter(e => e.state != BASE.State.DEAD));
         this.update_stage = UpdateStage.ADD_BACK;
-        this.pending.forEach(this.add);
+        this.pending.forEach(e => this.add(e));
         this.pending = [];
-        EntityPool.INSTANCE = null;
+        this.time++;
     }
 
     public async render() {
@@ -105,7 +106,7 @@ export class EntityPool {
         var rlist: { rl: number, v: Map<string, BASE.EntityAny[]> }[] = [];
         map.forEach((v0, k0) => rlist.push({ rl: k0, v: v0 }));
         rlist.sort((a, b) => a.rl - b.rl);
-        rlist.forEach(rl => rl.v.forEach((v1, k1) => SpriteManager.get(k1).draw(v1)));
+        rlist.forEach(rl => rl.v.forEach((v1, k1) => SpriteManager.get(SPRITES[k1].sprite).draw(v1)));
     }
 
 }

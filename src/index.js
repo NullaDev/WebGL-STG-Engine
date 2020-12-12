@@ -1,6 +1,5 @@
 import { setup, loadImage, loadTexture, clear, drawSnake, drawRects } from "./stg/sprite/gl";
-
-import { EntityPool } from "./stg/stage/EntityPool"
+import {init, update} from "./stg/test"
 
 async function main() {
 
@@ -21,7 +20,12 @@ async function main() {
     canvas.height = winr * devicePixelRatio;
 
     setup();
-    await testCurve();
+    await init();
+    window.debug_info.frame_rate = 16;
+    setInterval(()=>{
+        clear();
+        update();
+    },window.debug_info.frame_rate);
 
 }
 

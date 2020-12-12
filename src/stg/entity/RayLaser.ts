@@ -1,4 +1,4 @@
-import { Shape, ShapedInstance, ShapedSprite, ShapePoint, SIPoint, SSPoint } from "../sprite/Shape";
+import { Shape, ShapedInstance, ShapedSprite} from "../sprite/Shape";
 import { RECT, RENDER_TYPE } from "../sprite/SpriteManager";
 import { SPRITES } from "../sprite/sprites";
 import { EntityPool } from "../stage/EntityPool";
