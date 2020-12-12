@@ -30,7 +30,7 @@ const global_gl = {
     }
 }
 
-function setup() {
+export function setup() {
     var canvas = document.getElementById('glcanvas');
     var gl = canvas.getContext('webgl');
     if (gl === null) {
@@ -63,7 +63,7 @@ function setup() {
     gl.viewport(0, 0, canvas.width, canvas.height);
 }
 
-function loadImage(src) {
+export function loadImage(src) {
     return new Promise((resolve, reject) => {
         let img = new Image()
         img.onload = () => resolve(img)
@@ -72,7 +72,7 @@ function loadImage(src) {
     })
 }
 
-function draw(ver_arr, tex_arr, texture, size) {
+export function draw(ver_arr, tex_arr, texture, size) {
     const gl = global_gl.gl;
     const ver_buffer = gl.createBuffer();
     const coord = global_gl.shader.attribute.coord;
@@ -95,7 +95,34 @@ function draw(ver_arr, tex_arr, texture, size) {
     gl.drawArrays(gl.TRIANGLES, 0, size);
 }
 
-function loadTexture(image) {
+export function drawStrip(ver_arr, tex_arr, ind_arr, texture, size) {
+    const gl = global_gl.gl;
+    const ver_buffer = gl.createBuffer();
+    const coord = global_gl.shader.attribute.coord;
+    gl.bindBuffer(gl.ARRAY_BUFFER, ver_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, ver_arr, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(coord);
+
+    const tex_buffer = gl.createBuffer();
+    const tex = global_gl.shader.attribute.tex;
+    gl.bindBuffer(gl.ARRAY_BUFFER, tex_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, tex_arr, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(tex, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(tex);
+
+    const ind_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ind_buffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, ind_arr, gl.STATIC_DRAW);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(global_gl.shader.uniform.uSampler, 0);
+
+    gl.drawElements(gl.TRIANGLE_STRIP, size, gl.UNSIGNED_SHORT, 0);
+}
+
+export function loadTexture(image) {
     const gl = global_gl.gl;
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -107,7 +134,7 @@ function loadTexture(image) {
     return texture;
 }
 
-function clear() {
+export function clear() {
     const gl = global_gl.gl;
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -118,7 +145,7 @@ const verang = [3, -3, -1, 3, 1, -1];
 const texx = [0, 0, 1, 0, 1, 1];
 const texy = [0, 1, 1, 0, 0, 1];
 
-function drawRects(xyrwh, size, texture) {
+export function drawRects(xyrwh, size, texture) {
     const ver = new Float32Array(size * 12);
     const tex = new Float32Array(size * 12);
     const pid4 = Math.PI / 4;
@@ -132,4 +159,85 @@ function drawRects(xyrwh, size, texture) {
         }
     }
     draw(ver, tex, texture, size * 6);
+}
+
+export function drawSnake(xy, w, size, tx, ty, tw, th, texture) {
+    const ver = new Float32Array(size * 6);
+    const len = new Float32Array(size);
+    const tex = new Float32Array(size * 6);
+    const ind = new Int16Array((size - 1) * 2);
+    var tot = 0;
+    for (var i = 0; i < size - 1; i++) {
+        const px = xy[i * 2];
+        const py = xy[i * 2 + 1];
+        const nx = xy[i * 2 + 2];
+        const ny = xy[i * 2 + 3];
+        const ox = (px + nx) / 2;
+        const oy = (py + ny) / 2;
+
+        const l = Math.sqrt((nx - px) * (nx - px) + (ny - py) * (ny - py));
+        len[i] = l;
+        tot += l;
+
+        ver[i * 6 + 0] = px;
+        ver[i * 6 + 1] = py;
+        ver[i * 6 + 2] = ox - (oy - py) / l * w;
+        ver[i * 6 + 3] = oy + (ox - px) / l * w;
+        ver[i * 6 + 4] = ox + (oy - py) / l * w;
+        ver[i * 6 + 5] = oy - (ox - px) / l * w;
+    }
+    tot -= len[0] / 2 + len[size - 1] / 2;
+
+    var sta = -len[0] / 2;
+    for (var i = 1; i < size; i++) {
+        tex[i * 6 + 0] = tx + tw * sta / tot;
+        tex[i * 6 + 1] = ty + th / 2;
+        sta += len[i] / 2;
+        tex[i * 6 + 2] = tx + tw * sta / tot;
+        tex[i * 6 + 3] = ty;
+        tex[i * 6 + 4] = tx + tw * sta / tot;
+        tex[i * 6 + 5] = ty + th;
+        sta += len[i] / 2;
+    }
+    for (var i = 0; i < size - 1; i++) {
+        ind[i * 2 + 0] = i * 3 + 1;
+        ind[i * 2 + 1] = i * 3 + 3;
+    }
+    ind[size * 2 - 3]--;
+
+    const gl = global_gl.gl;
+    const ver_buffer = gl.createBuffer();
+    const coord = global_gl.shader.attribute.coord;
+    gl.bindBuffer(gl.ARRAY_BUFFER, ver_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, ver, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(coord);
+
+    const tex_buffer = gl.createBuffer();
+    const texc = global_gl.shader.attribute.tex;
+    gl.bindBuffer(gl.ARRAY_BUFFER, tex_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, tex, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(texc, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(texc);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(global_gl.shader.uniform.uSampler, 0);
+
+    const ind_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ind_buffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, ind, gl.STATIC_DRAW);
+
+    gl.drawElements(gl.TRIANGLE_STRIP, size * 2 - 2, gl.UNSIGNED_SHORT, 0);
+
+    for (var i = 0; i < size - 1; i++) {
+        ind[i * 2 + 0] = i * 3;
+        ind[i * 2 + 1] = i * 3 + 2;
+    }
+    ind[0]++;
+
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, ind, gl.STATIC_DRAW);
+
+    gl.drawElements(gl.TRIANGLE_STRIP, size * 2 - 2, gl.UNSIGNED_SHORT, 0);
+
 }

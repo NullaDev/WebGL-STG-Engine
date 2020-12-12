@@ -2,6 +2,7 @@
     "name": "test-webgl-webasm",
     "version": "0.0.1",
     "repository": "https://github.com/NullaDev/Test-WebGL-WebAsm.git",
+    "private": true,
     "dependencies": {
         "webassembly": "^0.11.0",
         "webgl": "0.0.7"
@@ -9,5 +10,9 @@
     "scripts": {
         "make": "make -C src",
         "local": "http-server"
+    },
+    "devDependencies": {
+        "webpack": "^5.10.1",
+        "webpack-cli": "^4.2.0"
     }
 }
