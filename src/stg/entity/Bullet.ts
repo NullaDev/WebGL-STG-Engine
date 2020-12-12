@@ -34,7 +34,7 @@ export class Bullet<S extends ShapePoint>
         this.config = bc;
     }
 
-    public simpleInit(x0: number, y0: number, v: number, a: number): Bullet {
+    public simpleInit(x0: number, y0: number, v: number, a: number): Bullet<S> {
         this.px = x0;
         this.py = y0;
         this.vx = v * Math.cos(a);
