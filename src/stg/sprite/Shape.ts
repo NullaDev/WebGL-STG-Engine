@@ -62,9 +62,9 @@ export class ShapeLine extends Shape {
 
 }
 
-export function collide(e0: Entity, e1: Entity) {
+export function collide(e0: Entity, e1: Entity): boolean {
     if (e0.sprite.shape instanceof ShapeCircle)
-        return e1.sprite.shape.distanceTo(e1.px, e1.py, e1.dir, e0.px, e0.py) - e0.sprite.shape.radius;
+        return e1.sprite.shape.distanceTo(e1.px, e1.py, e1.dir, e0.px, e0.py) < e0.sprite.shape.radius;
     if (e1.sprite.shape instanceof ShapeCircle)
         return collide(e1, e0);
     throw new Error("non-circle non-circle collision not found");

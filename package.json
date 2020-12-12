@@ -8,10 +8,13 @@
         "webgl": "0.0.7"
     },
     "scripts": {
-        "make": "make -C src",
+        "c_make": "make -C src",
+        "build": "webpack",
         "local": "http-server"
     },
     "devDependencies": {
+        "ts-loader": "^8.0.12",
+        "typescript": "^4.1.3",
         "webpack": "^5.10.1",
         "webpack-cli": "^4.2.0"
     }

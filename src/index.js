@@ -1,5 +1,7 @@
 import { setup, loadImage, loadTexture, clear, drawSnake, drawRects } from "./main/gl";
 
+import { EntityPool } from "./stg/stage/EntityPool"
+
 async function main() {
 
     var winw = window.innerWidth;

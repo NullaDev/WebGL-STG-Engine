@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "outDir": "./tsc",
+        "noImplicitAny": true,
+        "removeComments": false, // TODO dev only
+        "preserveConstEnums": true, // TODO dev only
+        "module": "es6",
+        "target": "es5",
+        "allowJs": true
+    },
+    "include": [
+        "src/index.js",
+        "src/stg/**/*",
+        "src/main/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+    ]
+}
