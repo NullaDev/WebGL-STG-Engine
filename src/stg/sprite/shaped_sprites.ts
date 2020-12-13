@@ -7,8 +7,8 @@ export const small_round_red: SSPoint<ShapeCircle> = {
     renderType: RENDER_TYPE.RECT,
     sprite: "round_red",
     shape: new ShapeCircle(1),
-    w: 1,
-    h: 1
+    w: 4,
+    h: 4
 };
 
 export const ray_laser_red: SSRay = {

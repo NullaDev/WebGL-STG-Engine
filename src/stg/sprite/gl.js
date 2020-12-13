@@ -160,11 +160,12 @@ export function drawRects(xyrwh, size, texture) {
     const pid4 = Math.PI / 4;
     for (var i = 0; i < size; i++) {
         for (var j = 0; j < 6; j++) {
-            const a = xyrwh[i * 5 + 2] + verang[j] * pid4;
+            const a = xyrwh[i * 9 + 2] + verang[j] * pid4;
             ver[i * 12 + j * 2 + 0] = xyrwh[i * 9 + 0] + xyrwh[i * 9 + 3] * Math.cos(a) - xyrwh[i * 9 + 4] * Math.sin(a);
             ver[i * 12 + j * 2 + 1] = xyrwh[i * 9 + 1] + xyrwh[i * 9 + 3] * Math.sin(a) + xyrwh[i * 9 + 4] * Math.cos(a);
             tex[i * 12 + j * 2 + 0] = xyrwh[i * 9 + 5] + texx[j] * xyrwh[i * 9 + 7];
             tex[i * 12 + j * 2 + 1] = xyrwh[i * 9 + 6] + texy[j] * xyrwh[i * 9 + 8];
+            
         }
     }
     scrCoord_to_GLCoord(ver);

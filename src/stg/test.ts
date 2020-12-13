@@ -14,27 +14,35 @@ export async function init() {
 
     const repeat = (item: Repeat, n: number = Infinity) => new RepeatSupplier(item, n);
 
-    const n = 12;
-    console.log(SPRITES[small_round_red.sprite].sprite);
     await SpriteManager.get(SPRITES[small_round_red.sprite].sprite).load();
+
+    const n = 8;
 
     pool.add(new Scheduler([
         120,
-        repeat([
-            repeat((i) => [
+        repeat((i0) => [
+            repeat((i1) => [
                 () => pool.add(new Bullet(
                     small_round_red,
                     template_config_bullet)
-                    .simpleInit(0, 0, 1, Math.PI * 2 / n * i)),
-                1
+                    .simpleInit(0, 0, 2, 0.002 * i0 * i0 + Math.PI * 2 / n * i1)),
             ], n),
-            120
-        ], 1)
+            3
+        ], Infinity)
     ]));
 
 }
 
+var time = 0;
+
 export function update() {
+    var t0 = +new Date();
+    if (Math.abs(t0 - time - 16) > 2)
+        console.log("interval:", t0 - time);
+    time = t0;
     pool.update();
     pool.render();
+    var t1 = +new Date();
+    if (t1 - t0 > 15)
+        console.log("consume: ", t1 - t0);
 }

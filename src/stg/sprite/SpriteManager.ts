@@ -19,7 +19,7 @@ export interface RECT extends RenderType<RECT, RENDER_TYPE.RECT> {
 
 export interface STRIP extends RenderType<STRIP, RENDER_TYPE.STRIP> {
     render(): Array<Float32Array>;
-    getSprite(): SSCurve<any,any>;
+    getSprite(): SSCurve<any, any>;
 }
 
 export class SpriteManager {
