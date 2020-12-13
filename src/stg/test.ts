@@ -6,19 +6,13 @@ import { SpriteManager } from "./sprite/SpriteManager";
 import { SPRITES } from "./sprite/sprites";
 import { EntityPool } from "./stage/EntityPool";
 
-var pool: EntityPool = null;;
-
 export async function init() {
-    pool = new EntityPool();
-
+    var pool = new EntityPool();
     eval("window.debug_info.pool = pool");
 
     const repeat = (item: Repeat, n: number = Infinity) => new RepeatSupplier(item, n);
-
     await SpriteManager.get(SPRITES[small_round_red.sprite].sprite).load();
-
     const n = 8;
-
     pool.add(new Scheduler([
         120,
         repeat((i0) => [
@@ -32,25 +26,4 @@ export async function init() {
         ], Infinity)
     ]));
 
-}
-
-var started = false;
-
-export function start() {
-    if (started)
-        return;
-    started = true;
-    update();
-}
-
-export function terminate() {
-    started = false;
-}
-
-function update() {
-    pool.update();
-    clear();
-    pool.render();
-    if (started)
-        requestAnimationFrame(update);
 }
