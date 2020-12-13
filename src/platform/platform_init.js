@@ -1,3 +1,5 @@
+'use strict'
+
 import * as gl from "../stg/sprite/gl";
 import { EntityPool } from "../stg/stage/EntityPool";
 
@@ -42,15 +44,51 @@ export function setup_canvas() {
 
 var started = false;
 
-export function start() {
+export function mainloop_start() {
     if (started)
         return;
     started = true;
-    stg_update();
+    mainloop_update();
 }
 
-export function terminate() {
+export function mainloop_terminate() {
     started = false;
+}
+
+function mainloop_update() {
+    stg_update();
+    keys_update();
+    if (started)
+        requestAnimationFrame(mainloop_update);
+}
+
+var mouse = { x: 0, y: 0 };
+var keys = {};
+
+document.onmousemove = (event) => {
+    mouse.x = event.pageX;
+    mouse.y = event.pageY;
+}
+
+document.addEventListener('keydown', (event) => {
+    keys[event.key] = 3;
+}, false);
+
+document.addEventListener('keyup', (event) => {
+    keys[event.key] = 1;
+}, false);
+
+function keys_update() {
+    for (var key in keys) {
+        if (keys[key] == 3)
+            keys[key] = 2;
+        if (keys[key] == 1)
+            keys[key] = 0;
+    }
+}
+
+export function key_pressed(key) {
+    return keys[key] > 2;
 }
 
 function stg_update() {
@@ -61,6 +99,4 @@ function stg_update() {
         gl.clear();
         pool.render();
     }
-    if (started)
-        requestAnimationFrame(stg_update);
 }

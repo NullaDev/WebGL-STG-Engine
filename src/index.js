@@ -2,14 +2,15 @@ import * as stg from "./stg/test"
 import * as pf from "./platform/platform_init"
 
 async function main() {
-    await pf.test_fps();
+    pf.test_fps();
     pf.setup_canvas();
     await stg.init();
-    pf.start();
+    pf.mainloop_start();
     window.debug_info.stg = {
+        fps: pf.test_fps,
         init: stg.init,
-        start: pf.start,
-        terminate: pf.terminate
+        start: pf.mainloop_start,
+        terminate: pf.mainloop_terminate,
     };
 }
 

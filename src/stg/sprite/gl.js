@@ -1,3 +1,5 @@
+'use strict'
+
 import { scrCoord_to_GLCoord_x, scrCoord_to_GLCoord_y } from "../stage/Screen";
 
 const vertexCode = `
