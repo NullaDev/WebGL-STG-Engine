@@ -1,5 +1,6 @@
 import { Bullet, template_config_bullet } from "./entity/Bullet";
 import { Repeat, RepeatSupplier, Scheduler } from "./schedule/Scheuler";
+import { clear } from "./sprite/gl";
 import { small_round_red } from "./sprite/shaped_sprites";
 import { SpriteManager } from "./sprite/SpriteManager";
 import { SPRITES } from "./sprite/sprites";
@@ -33,16 +34,23 @@ export async function init() {
 
 }
 
-var time = 0;
+var started = false;
 
-export function update() {
-    var t0 = +new Date();
-    if (Math.abs(t0 - time - 16) > 2)
-        console.log("interval:", t0 - time);
-    time = t0;
+export function start() {
+    if (started)
+        return;
+    started = true;
+    update();
+}
+
+export function terminate() {
+    started = false;
+}
+
+function update() {
     pool.update();
+    clear();
     pool.render();
-    var t1 = +new Date();
-    if (t1 - t0 > 15)
-        console.log("consume: ", t1 - t0);
+    if (started)
+        requestAnimationFrame(update);
 }
