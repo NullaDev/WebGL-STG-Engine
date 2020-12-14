@@ -11,6 +11,14 @@ export const small_round_red: SSPoint<ShapeCircle> = {
     h: 4
 };
 
+export const self_machine: SSPoint<ShapeCircle> = {
+    renderType: RENDER_TYPE.RECT,
+    sprite: "round_blue",
+    shape: new ShapeCircle(1),
+    w: 4,
+    h: 4
+};
+
 export const ray_laser_red: SSRay = {
     renderType: RENDER_TYPE.RECT,
     sprite: "",

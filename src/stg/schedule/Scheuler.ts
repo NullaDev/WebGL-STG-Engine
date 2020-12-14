@@ -1,4 +1,4 @@
-import { CG_GHOST, CM_GHOST, Config, Entity, EntityAny, RL_INVISIBLE, State } from "../entity/Entity";
+import { CG_GHOST, CM_GHOST, Config, Entity, RL_INVISIBLE, State } from "../entity/Entity";
 import { SINull } from "../sprite/Shape";
 import { EntityPool } from "../stage/EntityPool";
 

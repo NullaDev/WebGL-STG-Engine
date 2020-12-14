@@ -53,6 +53,7 @@ Update Cycle:
     - `LineCurve`: Curve as a collection of connected points
   - `ShapeLine`: Line denoted by 2 endpoints and radius
 - `ShapedSprite`: A shape template connected with a sprite
+  - Defines relative size of sprite and shape
   - Properties: `shape`, `sprite`, `renderType`
   - `SSPoint`: shape is a `ShapePoint`, single sprite
   - `SSCurve`: shape is a `ShapeCurve`
@@ -61,7 +62,13 @@ Update Cycle:
   - contains methods for rendering and collision 
   - `SIPoint`
   - `SICurve`
-
+  - `SINull`
+- `Entity`
+  - `Scheduler`
+  - `SelfMachine`
+  - `Bullet`
+  - `RayLaser`
+  
 
 ### Page
 

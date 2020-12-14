@@ -7,9 +7,15 @@ export type Sprite = {
 };
 
 export const SPRITES: { [key: string]: Sprite } = {
-    "round_red":
-    {
+    "round_red": {
         "sprite": "assets/missile_red.png",
+        "tx": 0,
+        "ty": 0,
+        "tw": 1,
+        "th": 1
+    },
+    "round_blue": {
+        "sprite": "assets/missile_blue.png",
         "tx": 0,
         "ty": 0,
         "tw": 1,
