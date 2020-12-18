@@ -12,9 +12,9 @@ enum PlayerState {
 export type PlayerAction = {
     pos_x: number,
     pos_y: number,
-    key_z: number,
-    key_x: number,
-    key_c: number
+    key_z: boolean,
+    key_x: boolean,
+    key_c: boolean
 }
 
 export class SelfMachine extends SIPoint<ShapeCircle> implements Entity<SelfMachine, RENDER_TYPE.RECT, ShapeCircle, SSPoint<ShapeCircle>>{

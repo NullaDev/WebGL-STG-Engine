@@ -1,13 +1,13 @@
 'use strict'
 
 import * as gl from "../stg/sprite/gl";
-import { EntityPool } from "../stg/stage/EntityPool";
+import { page_update } from "page";
 
 var test_n = 240;
 var fps_start = 0;
 var fps_total = 0;
 var resolver = null;
-var last_update_rate = 1;
+export var last_update_rate = 1;
 
 export function test_fps() {
     fps_start = performance.now();
@@ -56,14 +56,14 @@ export function mainloop_terminate() {
 }
 
 function mainloop_update() {
-    stg_update();
+    page_update();
     keys_update();
     if (started)
         requestAnimationFrame(mainloop_update);
 }
 
-var mouse = { x: 0, y: 0 };
-var keys = {};
+export var mouse = { x: 0, y: 0 };
+export var keys = {};
 
 document.onmousemove = (event) => {
     mouse.x = event.pageX;
@@ -87,16 +87,5 @@ function keys_update() {
     }
 }
 
-export function key_pressed(key) {
-    return keys[key] > 2;
-}
-
-function stg_update() {
-    var pool = EntityPool.INSTANCE;
-    if (pool) {
-        for (var i = 0; i < last_update_rate; i++)
-            pool.update();
-        gl.clear();
-        pool.render();
-    }
-}
+export const KEY_PRESS = 2;
+export const KEY_CLICK = 3;
