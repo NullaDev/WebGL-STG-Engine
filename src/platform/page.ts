@@ -40,7 +40,11 @@ function update_input() {
     }
     var pos_x = 0;
     var pos_y = 0;
-    if (platform.keys["Shift"] >= platform.KEY_PRESS) {
+    const mover =
+        platform.keys["Shift"] >= platform.KEY_PRESS ||
+        platform.keys["_touch"] >= platform.KEY_PRESS ||
+        platform.keys["_press"] >= platform.KEY_PRESS;
+    if (mover) {
         if (!ref_mouse) {
             ref_mouse = true;
             ref_scr_x = platform.mouse.x;
@@ -53,11 +57,23 @@ function update_input() {
         last_x += pos_x;
         last_y += pos_y;
     }
-    if (ref_mouse && platform.keys["Shift"] < platform.KEY_PRESS)
+    else
         ref_mouse = false;
+    pos_x = pos_x / platform.canvas_width * Screen.SCR_HALF_WIN_WIDTH * 2;
+    pos_y = -pos_y / platform.canvas_height * Screen.SCR_HALF_WIN_HEIGHT * 2;
+    const speed = platform.keys["Shift"] >= platform.KEY_PRESS ? 2 : 3;
+    if (platform.keys["w"] >= platform.KEY_PRESS || platform.keys["ArrowUp"] >= platform.KEY_PRESS)
+        pos_y += speed;
+    if (platform.keys["s"] >= platform.KEY_PRESS || platform.keys["ArrowDown"] >= platform.KEY_PRESS)
+        pos_y -= speed;
+    if (platform.keys["a"] >= platform.KEY_PRESS || platform.keys["ArrowLeft"] >= platform.KEY_PRESS)
+        pos_x -= speed;
+    if (platform.keys["d"] >= platform.KEY_PRESS || platform.keys["ArrowRight"] >= platform.KEY_PRESS)
+        pos_x += speed;
+
     const act: PlayerAction = {
-        pos_x: pos_x / platform.canvas_width * Screen.SCR_HALF_WIN_WIDTH * 2,//* platform.devicePixelRatio,
-        pos_y: -pos_y / platform.canvas_height * Screen.SCR_HALF_WIN_HEIGHT * 2,//* platform.devicePixelRatio,
+        pos_x: pos_x,
+        pos_y: pos_y,
         key_z: platform.keys["z"] >= platform.KEY_PRESS,
         key_x: platform.keys["x"] == platform.KEY_CLICK,
         key_c: platform.keys["c"] == platform.KEY_CLICK

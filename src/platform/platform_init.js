@@ -32,7 +32,60 @@ function fps_update() {
     resolver(last_update_rate);
 }
 
+export var mouse = { x: 0, y: 0 };
+export var keys = {};
+
+function setup_listener() {
+    document.onmousemove = (event) => {
+        mouse.x = event.pageX;
+        mouse.y = event.pageY;
+    }
+
+    document.ontouchstart = (event) => {
+        keys["_touch"] = 3;
+        mouse.x = event.pageX;
+        mouse.y = event.pageY;
+        event.preventDefault();
+    }
+
+    document.ontouchend = (event) => {
+        keys["_touch"] = 1;
+        mouse.x = event.pageX;
+        mouse.y = event.pageY;
+        event.preventDefault();
+    }
+
+    document.ontouchmove = (event) => {
+        mouse.x = event.pageX;
+        mouse.y = event.pageY;
+        event.preventDefault();
+    }
+
+    document.onmousedown = (event) => {
+        keys["_press"] = 3;
+    }
+
+    document.onmouseup = (event) => {
+        keys["_press"] = 1;
+    }
+
+    document.addEventListener('keydown', (event) => {
+        var key = event.key;
+        if (key.length == 1)
+            key = key.toLowerCase();
+        keys[key] = 3;
+    }, false);
+
+    document.addEventListener('keyup', (event) => {
+        var key = event.key;
+        if (key.length == 1)
+            key = key.toLowerCase();
+        keys[key] = 1;
+    }, false);
+}
+
 export function setup_canvas() {
+    setup_listener();
     var winw = window.innerWidth;
     var winh = window.innerHeight;
     var winr = Math.min(winw, winh) * 0.8;
@@ -44,6 +97,7 @@ export function setup_canvas() {
     devicePixelRatio = window.devicePixelRatio || 1;
     canvas.width = winr * devicePixelRatio;
     canvas.height = winr * devicePixelRatio;
+    canvas.requestPointerLock();
     gl.setup();
 }
 
@@ -66,22 +120,6 @@ function mainloop_update() {
     if (started)
         requestAnimationFrame(mainloop_update);
 }
-
-export var mouse = { x: 0, y: 0 };
-export var keys = {};
-
-document.onmousemove = (event) => {
-    mouse.x = event.pageX;
-    mouse.y = event.pageY;
-}
-
-document.addEventListener('keydown', (event) => {
-    keys[event.key] = 3;
-}, false);
-
-document.addEventListener('keyup', (event) => {
-    keys[event.key] = 1;
-}, false);
 
 function keys_update() {
     for (var key in keys) {
