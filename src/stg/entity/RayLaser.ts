@@ -1,4 +1,4 @@
-import { Shape, ShapedInstance, ShapedSprite} from "../sprite/Shape";
+import { Shape, ShapedInstance, ShapedSprite } from "../sprite/Shape";
 import { RECT, RENDER_TYPE } from "../sprite/SpriteManager";
 import { SPRITES } from "../sprite/sprites";
 import { EntityPool } from "../stage/EntityPool";
@@ -6,7 +6,7 @@ import { Config, Entity, EntityAny, State } from "./Entity";
 
 export class ShapeRay extends Shape<SIRay> {
 
-    public static INS : ShapeRay = new ShapeRay();
+    public static INS: ShapeRay = new ShapeRay();
 
     public distanceTo(self: SIRay, x: number, y: number): number {
         const x0 = self.px;
@@ -114,5 +114,9 @@ export class RayLaser extends SIRay
 
     public attack(_: RayLaser, e: EntityAny) {
         // Event: OnAttack(e)
+    }
+
+    public damaged(_: RayLaser, source: EntityAny) {
+        return false;
     }
 }

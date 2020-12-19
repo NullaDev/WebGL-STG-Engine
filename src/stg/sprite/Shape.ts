@@ -38,8 +38,14 @@ export class ShapeCircle extends ShapePoint {
         return Math.abs(sx) > rw + this.radius || Math.abs(sy) > rh + this.radius;
     }
 
-    protected _distanceTo(x: number, y: number): number {
-        return Math.sqrt(x * x + y * y) - this.radius;
+    public distanceTo(self: SIPoint<any>, px: number, py: number): number {
+        px -= self.px;
+        py -= self.py;
+        return Math.sqrt(px * px + py * py) - this.radius;
+    }
+
+    public _distanceTo(px:number, py:number){
+        return Math.sqrt(px * px + py * py) - this.radius;
     }
 
 }

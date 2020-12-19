@@ -65,7 +65,7 @@ export class EntityPool {
         this.groups.forEach(pool => pool.list.forEach(e => e.update(e)));
         for (var i = 0; i < this.groups.length; i++) {
             for (var j = 0; j < this.groups.length; j++) {
-                if (this.groups[i].mask & j) {
+                if (this.groups[i].mask & (1 << j)) {
                     // group i can attack group j
                     for (var ei of this.groups[i].list) {
                         if (ei.state != BASE.State.ALIVE || !ei.shaped_sprite || !ei.shaped_sprite.shape)
@@ -93,7 +93,7 @@ export class EntityPool {
         var map: Map<number, Map<string, BASE.EntityAny[]>> = new Map();
         for (var pool of this.groups) {
             for (var entity of pool.list) {
-                if (!entity.config.render_layer)
+                if (!entity.config.render_layer || !entity.shaped_sprite || !entity.shaped_sprite.sprite)
                     continue;
                 if (!map.has(entity.config.render_layer))
                     map.set(entity.config.render_layer, new Map());

@@ -6,7 +6,7 @@ import { RENDER_TYPE } from "./SpriteManager";
 export const small_round_red: SSPoint<ShapeCircle> = {
     renderType: RENDER_TYPE.RECT,
     sprite: "round_red",
-    shape: new ShapeCircle(1),
+    shape: new ShapeCircle(3),
     w: 4,
     h: 4
 };
@@ -14,7 +14,7 @@ export const small_round_red: SSPoint<ShapeCircle> = {
 export const self_machine: SSPoint<ShapeCircle> = {
     renderType: RENDER_TYPE.RECT,
     sprite: "round_blue",
-    shape: new ShapeCircle(1),
+    shape: new ShapeCircle(3),
     w: 4,
     h: 4
 };

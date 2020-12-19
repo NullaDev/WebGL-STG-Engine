@@ -1,4 +1,7 @@
+export var devicePixelRatio: number;
 export var last_update_rate: number;
+export var canvas_width: number;
+export var canvas_height: number;
 export function test_fps(): Promise<number>;
 export function setup_canvas(): void;
 export function mainloop_start(): void;

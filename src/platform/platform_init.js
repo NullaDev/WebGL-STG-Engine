@@ -1,13 +1,16 @@
 'use strict'
 
 import * as gl from "../stg/sprite/gl";
-import { page_update } from "page";
+import { page_update } from "./page";
 
 var test_n = 240;
 var fps_start = 0;
 var fps_total = 0;
 var resolver = null;
+export var devicePixelRatio = 1;
 export var last_update_rate = 1;
+export var canvas_width;
+export var canvas_height;
 
 export function test_fps() {
     fps_start = performance.now();
@@ -34,9 +37,11 @@ export function setup_canvas() {
     var winh = window.innerHeight;
     var winr = Math.min(winw, winh) * 0.8;
     var canvas = document.getElementById("glcanvas");
+    canvas_width = winr;
+    canvas_height = winr;
     canvas.style.width = winr + "px";
     canvas.style.height = winr + "px";
-    var devicePixelRatio = window.devicePixelRatio || 1;
+    devicePixelRatio = window.devicePixelRatio || 1;
     canvas.width = winr * devicePixelRatio;
     canvas.height = winr * devicePixelRatio;
     gl.setup();

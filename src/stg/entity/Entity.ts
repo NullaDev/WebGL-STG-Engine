@@ -49,16 +49,17 @@ export function clone<T>(t: T): T {
 export type EntityAny = Entity<any, any, Shape<any>, ShapedSprite<any, any, any, any>>;
 
 export interface Entity<
-        E extends Entity<E, RT, S, SS> & RenderType<E, RT>,
-        RT extends RENDER_TYPE, 
-        S extends Shape<E>, 
-        SS extends ShapedSprite<SS, RT, E, S>> 
+    E extends Entity<E, RT, S, SS> & RenderType<E, RT>,
+    RT extends RENDER_TYPE,
+    S extends Shape<E>,
+    SS extends ShapedSprite<SS, RT, E, S>>
     extends ShapedInstance<E, RT, S, SS> {
     config: Config,
     state: State,
     update: (self: Entity<E, RT, S, SS>) => void,
     attack: (self: Entity<E, RT, S, SS>, target: EntityAny) => void,
     postUpdate: (self: Entity<E, RT, S, SS>) => void,
+    damaged: (self: Entity<E, RT, S, SS>, source: EntityAny) => boolean
 }
 
 export const template_config_player: Config = {

@@ -12,6 +12,7 @@ async function main() {
         start: pf.mainloop_start,
         terminate: pf.mainloop_terminate,
     };
+    window.debug_info.platform = pf;
 }
 
 window.onload = main;

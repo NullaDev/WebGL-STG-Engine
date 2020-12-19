@@ -1,5 +1,5 @@
-export const SCR_HALF_WIDTH = 192;
-export const SCR_HALF_HEIGHT = 224;
+export const SCR_HALF_WIDTH = 250;
+export const SCR_HALF_HEIGHT = 250;
 
 export const SCR_HALF_WIN_WIDTH = 250;
 export const SCR_HALF_WIN_HEIGHT = 250;

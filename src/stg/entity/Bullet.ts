@@ -1,4 +1,4 @@
-import { CG_BULLET, Config, Entity, EntityAny, RL_BULLET, State } from "./Entity";
+import { CG_BOMB, CG_BULLET, CG_PLAYER, Config, Entity, EntityAny, RL_BULLET, State } from "./Entity";
 import { EntityPool } from "../stage/EntityPool";
 import { SCR_HALF_HEIGHT, SCR_HALF_WIDTH } from "../stage/Screen";
 import { ShapePoint, SIPoint, SSPoint } from "../sprite/Shape";
@@ -44,7 +44,7 @@ export class Bullet<S extends ShapePoint>
     }
 
     public update(_: Bullet<S>) {
-        if (this.state = State.PRE_ENTRY)
+        if (this.state == State.PRE_ENTRY)
             this.state = State.ALIVE;
         const rate = EntityPool.INSTANCE.special_effects.time_rate;
         // Event: OnUpdate(time_rate);
@@ -69,5 +69,14 @@ export class Bullet<S extends ShapePoint>
 
     public attack(_: Bullet<S>, e: EntityAny) {
         // Event: OnAttack(e)
+        e.damaged(e, this);
+    }
+
+    public damaged(_: Bullet<S>, s: EntityAny) {
+        if (this.config.kill_by_bomb && (s.config.collide_group == CG_BOMB || s.config.collide_group == CG_PLAYER)) {
+            this.state = State.LEAVING;
+            return true;
+        }
+        return false;
     }
 }
