@@ -1,7 +1,6 @@
 import * as BASE from "../entity/Entity";
 import { collide } from "../sprite/Shape";
 import { SpriteManager } from "../sprite/SpriteManager";
-import { SPRITES } from "../sprite/sprites";
 
 export class SpecialEffects {
 
@@ -93,20 +92,21 @@ export class EntityPool {
         var map: Map<number, Map<string, BASE.EntityAny[]>> = new Map();
         for (var pool of this.groups) {
             for (var entity of pool.list) {
-                if (!entity.config.render_layer || !entity.shaped_sprite || !entity.shaped_sprite.sprite)
+                if (!entity.config.render_layer || !entity.shaped_sprite?.sprite)
                     continue;
                 if (!map.has(entity.config.render_layer))
                     map.set(entity.config.render_layer, new Map());
                 const submap = map.get(entity.config.render_layer);
-                if (!submap.has(entity.shaped_sprite.sprite))
-                    submap.set(entity.shaped_sprite.sprite, []);
-                submap.get(entity.shaped_sprite.sprite).push(entity);
+                const path = entity.shaped_sprite?.sprite?.sprite?.path;
+                if (!submap.has(path))
+                    submap.set(path, []);
+                submap.get(path).push(entity);
             }
         }
         var rlist: { rl: number, v: Map<string, BASE.EntityAny[]> }[] = [];
         map.forEach((v0, k0) => rlist.push({ rl: k0, v: v0 }));
         rlist.sort((a, b) => a.rl - b.rl);
-        rlist.forEach(rl => rl.v.forEach((v1, k1) => SpriteManager.get(SPRITES[k1].sprite).draw(v1)));
+        rlist.forEach(rl => rl.v.forEach((v1, k1) => SpriteManager.get(k1).draw(v1)));
     }
 
 }

@@ -1,7 +1,6 @@
 import { GLTEXTURE, loadTexture, loadImage, drawRects, drawSnake } from "./gl";
 import { EntityAny } from "../entity/Entity";
 import { SSCurve } from "./Curve";
-import { SPRITES } from "./sprites";
 
 export enum RENDER_TYPE {
     RECT,
@@ -63,7 +62,7 @@ export class SpriteManager {
             if (e.renderType == RENDER_TYPE.STRIP) {
                 const s = <STRIP><RenderType<STRIP, RENDER_TYPE.STRIP>>e;
                 const ss = s.getSprite();
-                const sp = SPRITES[ss.sprite];
+                const sp = ss.sprite;
                 for (var a of s.render())
                     drawSnake(a, ss.w, a.length / 2, sp.tx, sp.ty, sp.tw, sp.th, this.img);
             }

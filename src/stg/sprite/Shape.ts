@@ -1,6 +1,6 @@
 import { EntityAny } from "../entity/Entity";
 import { RECT, RenderType, RENDER_TYPE } from "./SpriteManager";
-import { SPRITES } from "./sprites";
+import { Sprite } from "../sprite/sprites";
 
 export abstract class Shape<SI> {
 
@@ -44,16 +44,17 @@ export class ShapeCircle extends ShapePoint {
         return Math.sqrt(px * px + py * py) - this.radius;
     }
 
-    public _distanceTo(px:number, py:number){
+    public _distanceTo(px: number, py: number) {
         return Math.sqrt(px * px + py * py) - this.radius;
     }
 
 }
 
 export class ShapedSprite<T extends ShapedSprite<T, RT, SI, S>, RT extends RENDER_TYPE, SI, S extends Shape<SI>> {
-    public sprite: string;
+    public sprite: Sprite;
     public shape: S;
     public renderType: RT;
+    public alpha: number;
 }
 
 export class SSPoint<S extends ShapePoint> extends ShapedSprite<SSPoint<S>, RENDER_TYPE.RECT, SIPoint<S>, S> {
@@ -98,11 +99,11 @@ export class SIPoint<S extends ShapePoint> extends ShapedInstance<SIPoint<S>, RE
         xyrwh[i * 9 + 2] = this.dir;
         xyrwh[i * 9 + 3] = this.shaped_sprite.w;
         xyrwh[i * 9 + 4] = this.shaped_sprite.h;
-        const sprite = SPRITES[this.shaped_sprite.sprite];
-        xyrwh[i * 9 + 5] = sprite.tx;
-        xyrwh[i * 9 + 6] = sprite.ty;
-        xyrwh[i * 9 + 7] = sprite.tw;
-        xyrwh[i * 9 + 8] = sprite.th;
+        const sprite = this.shaped_sprite.sprite;
+        xyrwh[i * 9 + 5] = sprite.tx / sprite.sprite.w;
+        xyrwh[i * 9 + 6] = sprite.ty / sprite.sprite.h;
+        xyrwh[i * 9 + 7] = sprite.tw / sprite.sprite.w;
+        xyrwh[i * 9 + 8] = sprite.th / sprite.sprite.h;
     }
 
 }

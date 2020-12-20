@@ -2,6 +2,7 @@
 
 import * as gl from "../stg/sprite/gl";
 import { page_update } from "./page";
+import * as Screen from "../stg/stage/Screen";
 
 var test_n = 240;
 var fps_start = 0;
@@ -88,16 +89,15 @@ export function setup_canvas() {
     setup_listener();
     var winw = window.innerWidth;
     var winh = window.innerHeight;
-    var winr = Math.min(winw, winh) * 0.8;
+    var winr = Math.min(winw / Screen.SCR_HALF_WIDTH, winh / Screen.SCR_HALF_HEIGHT) * 0.95;
     var canvas = document.getElementById("glcanvas");
-    canvas_width = winr;
-    canvas_height = winr;
-    canvas.style.width = winr + "px";
-    canvas.style.height = winr + "px";
+    canvas_width = winr * Screen.SCR_HALF_WIDTH;
+    canvas_height = winr * Screen.SCR_HALF_HEIGHT;
+    canvas.style.width = canvas_width + "px";
+    canvas.style.height = canvas_height + "px";
     devicePixelRatio = window.devicePixelRatio || 1;
-    canvas.width = winr * devicePixelRatio;
-    canvas.height = winr * devicePixelRatio;
-    canvas.requestPointerLock();
+    canvas.width = canvas_width * devicePixelRatio;
+    canvas.height = canvas_height * devicePixelRatio;
     gl.setup();
 }
 

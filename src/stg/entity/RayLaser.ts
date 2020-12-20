@@ -1,6 +1,5 @@
 import { Shape, ShapedInstance, ShapedSprite } from "../sprite/Shape";
 import { RECT, RENDER_TYPE } from "../sprite/SpriteManager";
-import { SPRITES } from "../sprite/sprites";
 import { EntityPool } from "../stage/EntityPool";
 import { Config, Entity, EntityAny, State } from "./Entity";
 
@@ -65,7 +64,7 @@ export class SIRay extends ShapedInstance<SIRay, RENDER_TYPE.RECT, ShapeRay, SSR
         xyrwh[i * 5 + 2] = this.dir;
         xyrwh[i * 5 + 3] = w / 2;
         xyrwh[i * 5 + 4] = l / 2;
-        const sprite = SPRITES[this.shaped_sprite.sprite];
+        const sprite = this.shaped_sprite.sprite;
         xyrwh[i * 5 + 5] = sprite.tx;
         xyrwh[i * 5 + 6] = sprite.ty;
         xyrwh[i * 5 + 7] = sprite.tw;

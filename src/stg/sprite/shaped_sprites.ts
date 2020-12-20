@@ -2,35 +2,17 @@ import { ShapeRay, SSRay } from "../entity/RayLaser";
 import { SSCurve } from "./Curve";
 import { ShapeCircle, SSPoint } from "./Shape";
 import { RENDER_TYPE } from "./SpriteManager";
+import { Sprite } from "./sprites";
 
-export const small_round_red: SSPoint<ShapeCircle> = {
-    renderType: RENDER_TYPE.RECT,
-    sprite: "round_red",
-    shape: new ShapeCircle(3),
-    w: 4,
-    h: 4
-};
+const radius = [[2], [2.4, 2.4, 4, 4, 2.4, 2.4, 2.4, 2.8, 2.4, 2.4, 4, 2.4, 2.4, 2.4, 2.4, 2.4], [6, 7, 8.5, 7, 6, 7, 0, 10], [14, 14]];
 
-export const self_machine: SSPoint<ShapeCircle> = {
-    renderType: RENDER_TYPE.RECT,
-    sprite: "round_blue",
-    shape: new ShapeCircle(3),
-    w: 4,
-    h: 4
-};
-
-export const ray_laser_red: SSRay = {
-    renderType: RENDER_TYPE.RECT,
-    sprite: "",
-    shape: ShapeRay.INS,
-    w: 1,
-    l: 1
-};
-
-//abstract
-export const curve_laser_red: SSCurve<any, any> = {
-    renderType: RENDER_TYPE.STRIP,
-    sprite: "",
-    shape: null,
-    w: 1
-};
+export function getSSCircle(sprite: Sprite, magn: number, alpha: number): SSPoint<ShapeCircle> {
+    return {
+        sprite: sprite,
+        shape: new ShapeCircle(radius[sprite.category][sprite.type] * magn),
+        w: sprite.tw,
+        h: sprite.th,
+        renderType: RENDER_TYPE.RECT,
+        alpha: alpha
+    };
+}

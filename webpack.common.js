@@ -1,9 +1,6 @@
 const path = require('path');
 
 module.exports = {
-    mode: 'development', // dev only
-    devtool: 'inline-source-map', // dev only
-    
     entry: './src/index.js',
     module: {
         rules: [

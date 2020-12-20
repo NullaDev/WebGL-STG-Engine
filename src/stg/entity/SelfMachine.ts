@@ -1,5 +1,4 @@
 import { ShapeCircle, SIPoint, SSPoint } from "../sprite/Shape";
-import { self_machine } from "../sprite/shaped_sprites";
 import { RENDER_TYPE } from "../sprite/SpriteManager";
 import * as Screen from "../stage/Screen";
 import { Config, Entity, EntityAny, State, template_config_player, clone } from "./Entity";
@@ -39,6 +38,7 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
     state: State = State.ALIVE;
     readonly proto: PlayerPrototype;
     readonly ability: PlayerAbility;
+    readonly sprite: SSPoint<ShapeCircle>;
 
     miss: boolean = false;
     bomb: boolean = false;
@@ -46,11 +46,12 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
     miss_time: number = 0;
     invince_time: number = 0;
 
-    constructor(proto: PlayerPrototype, abi: PlayerAbility, x: number, y: number) {
-        super(clone(self_machine));
+    constructor(ss: SSPoint<ShapeCircle>, proto: PlayerPrototype, abi: PlayerAbility, x: number, y: number) {
+        super(clone(ss));
         SelfMachine.INSTANCE = this;
         this.proto = proto;
         this.ability = abi;
+        this.sprite = ss;
         this.px = x;
         this.py = y;
         this.dir = 0;
@@ -104,12 +105,12 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
                 this.shaped_sprite.sprite = null;
             }
             else {
-                this.shaped_sprite.sprite = self_machine.sprite;
+                this.shaped_sprite.sprite = this.sprite.sprite;
             }
         }
         else {
             this.invince_time = 0;
-            this.shaped_sprite.sprite = self_machine.sprite;
+            this.shaped_sprite.sprite = this.sprite.sprite;
         }
     }
 
