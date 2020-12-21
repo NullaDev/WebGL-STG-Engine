@@ -49,7 +49,7 @@ export class SpriteManager {
 
     public draw(list: EntityAny[]) {
         const rectn = list.reduce((n, e) => e.renderType == RENDER_TYPE.RECT ? n + (<RECT><RenderType<RECT, RENDER_TYPE.RECT>>e).rectCount() : n, 0);
-        const xyrwh = new Float32Array(rectn * 9);
+        const xyrwh = new Float32Array(rectn * 10);
         var i = 0;
         for (var e of list)
             if (e.renderType == RENDER_TYPE.RECT) {

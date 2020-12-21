@@ -5,18 +5,25 @@ import { scrCoord_to_GLCoord_x, scrCoord_to_GLCoord_y } from "../stage/Screen";
 const vertexCode = `
 attribute vec2 coord;
 attribute vec2 tex;
+attribute float alpha;
 varying highp vec2 vTexCoord;
-void main(void) {
+varying highp float vTexAlpha;
+void main() {
     gl_Position = vec4(coord, 0.0, 1.0);
     vTexCoord = tex;
+    vTexAlpha = alpha;
 }
 `;
 
 const fragmentCode = `
+precision highp float;
 varying highp vec2 vTexCoord;
+varying highp float vTexAlpha;
 uniform sampler2D uSampler;
-void main(void) {
-    gl_FragColor = texture2D(uSampler, vTexCoord);
+void main() {
+    vec4 col = texture2D(uSampler, vTexCoord);
+    col.a *= vTexAlpha;
+    gl_FragColor = col;
 }
 `;
 
@@ -27,6 +34,7 @@ const global_gl = {
         attribute: {
             coord: 0,
             tex: 0,
+            alpha: 0
         },
         uniform: {
             uSampler: 0,
@@ -49,6 +57,15 @@ export function setup() {
     gl.shaderSource(fragShader, fragmentCode);
     gl.compileShader(vertShader);
     gl.compileShader(fragShader);
+
+    var compiled = gl.getShaderParameter(fragShader, gl.COMPILE_STATUS);
+    if (!compiled) {
+        // There are errors, so display them
+        var errors = gl.getShaderInfoLog(fragShader);
+        console.log(errors);
+        return;
+    }
+
     var shaderProgram = gl.createProgram();
     gl.attachShader(shaderProgram, vertShader);
     gl.attachShader(shaderProgram, fragShader);
@@ -58,6 +75,7 @@ export function setup() {
     shader.program = shaderProgram;
     shader.attribute.coord = gl.getAttribLocation(shaderProgram, 'coord');
     shader.attribute.tex = gl.getAttribLocation(shaderProgram, 'tex');
+    shader.attribute.alpha = gl.getAttribLocation(shaderProgram, 'alpha');
     shader.uniform.uSampler = gl.getUniformLocation(shaderProgram, 'uSampler');
 
     gl.enable(gl.BLEND);
@@ -76,8 +94,9 @@ export function loadImage(src) {
     })
 }
 
-export function draw(ver_arr, tex_arr, texture, size) {
+export function draw(ver_arr, tex_arr, alp_arr, texture, size) {
     const gl = global_gl.gl;
+
     const ver_buffer = gl.createBuffer();
     const coord = global_gl.shader.attribute.coord;
     gl.bindBuffer(gl.ARRAY_BUFFER, ver_buffer);
@@ -91,6 +110,13 @@ export function draw(ver_arr, tex_arr, texture, size) {
     gl.bufferData(gl.ARRAY_BUFFER, tex_arr, gl.STATIC_DRAW);
     gl.vertexAttribPointer(tex, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(tex);
+
+    const alp_buffer = gl.createBuffer();
+    const alp = global_gl.shader.attribute.alpha;
+    gl.bindBuffer(gl.ARRAY_BUFFER, alp_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, alp_arr, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(alp, 1, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(alp);
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -136,8 +162,6 @@ export function loadTexture(image) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.generateMipmap(gl.TEXTURE_2D);
-
     return texture;
 }
 
@@ -148,7 +172,7 @@ export function clear() {
     gl.clearColor(0.0, 0.0, 1.0, 1.0);
 }
 
-const verang = [3, -3, -1, 3, 1, -1];
+const verang = [1, -2, -1, 1, 0, -1];
 const texx = [0, 0, 1, 0, 1, 1];
 const texy = [0, 1, 1, 0, 0, 1];
 
@@ -162,19 +186,20 @@ function scrCoord_to_GLCoord(fa) {
 export function drawRects(xyrwh, size, texture) {
     const ver = new Float32Array(size * 12);
     const tex = new Float32Array(size * 12);
-    const pid4 = Math.PI / 4;
+    const alp = new Float32Array(size * 6);
+    const pid2 = Math.PI / 2;
     for (var i = 0; i < size; i++) {
         for (var j = 0; j < 6; j++) {
-            const a = xyrwh[i * 9 + 2] + verang[j] * pid4;
-            ver[i * 12 + j * 2 + 0] = xyrwh[i * 9 + 0] + xyrwh[i * 9 + 3] * Math.cos(a) - xyrwh[i * 9 + 4] * Math.sin(a);
-            ver[i * 12 + j * 2 + 1] = xyrwh[i * 9 + 1] + xyrwh[i * 9 + 3] * Math.sin(a) + xyrwh[i * 9 + 4] * Math.cos(a);
-            tex[i * 12 + j * 2 + 0] = xyrwh[i * 9 + 5] + texx[j] * xyrwh[i * 9 + 7];
-            tex[i * 12 + j * 2 + 1] = xyrwh[i * 9 + 6] + texy[j] * xyrwh[i * 9 + 8];
-
+            const a = xyrwh[i * 10 + 2] + verang[j] * pid2;
+            ver[i * 12 + j * 2 + 0] = xyrwh[i * 10 + 0] + xyrwh[i * 10 + 3] * Math.cos(a) - xyrwh[i * 10 + 4] * Math.sin(a);
+            ver[i * 12 + j * 2 + 1] = xyrwh[i * 10 + 1] + xyrwh[i * 10 + 3] * Math.sin(a) + xyrwh[i * 10 + 4] * Math.cos(a);
+            tex[i * 12 + j * 2 + 0] = xyrwh[i * 10 + 5] + texx[j] * xyrwh[i * 10 + 7];
+            tex[i * 12 + j * 2 + 1] = xyrwh[i * 10 + 6] + texy[j] * xyrwh[i * 10 + 8];
+            alp[i * 6 + j] = xyrwh[i * 10 + 9];
         }
     }
     scrCoord_to_GLCoord(ver);
-    draw(ver, tex, texture, size * 6);
+    draw(ver, tex, alp, texture, size * 6);
 }
 
 export function drawSnake(xy, w, size, tx, ty, tw, th, texture) {
