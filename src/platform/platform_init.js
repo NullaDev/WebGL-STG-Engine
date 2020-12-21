@@ -89,10 +89,10 @@ export function setup_canvas() {
     setup_listener();
     var winw = window.innerWidth;
     var winh = window.innerHeight;
-    var winr = Math.min(winw / Screen.SCR_HALF_WIDTH, winh / Screen.SCR_HALF_HEIGHT) * 0.95;
+    var winr = Math.min(winw / Screen.SCR_HALF_WIN_WIDTH, winh / Screen.SCR_HALF_WIN_HEIGHT) * 0.95;
     var canvas = document.getElementById("glcanvas");
-    canvas_width = winr * Screen.SCR_HALF_WIDTH;
-    canvas_height = winr * Screen.SCR_HALF_HEIGHT;
+    canvas_width = winr * Screen.SCR_HALF_WIN_WIDTH;
+    canvas_height = winr * Screen.SCR_HALF_WIN_HEIGHT;
     canvas.style.width = canvas_width + "px";
     canvas.style.height = canvas_height + "px";
     devicePixelRatio = window.devicePixelRatio || 1;

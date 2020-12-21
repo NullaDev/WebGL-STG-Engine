@@ -96,9 +96,9 @@ export class SIPoint<S extends ShapePoint> extends ShapedInstance<SIPoint<S>, RE
     render(xyrwh: Float32Array, i: number): void {
         xyrwh[i * 9 + 0] = this.px;
         xyrwh[i * 9 + 1] = this.py;
-        xyrwh[i * 9 + 2] = this.dir;
-        xyrwh[i * 9 + 3] = this.shaped_sprite.w;
-        xyrwh[i * 9 + 4] = this.shaped_sprite.h;
+        xyrwh[i * 9 + 2] = this.dir - 3 * Math.PI / 4;
+        xyrwh[i * 9 + 3] = this.shaped_sprite.w / 2;
+        xyrwh[i * 9 + 4] = this.shaped_sprite.h / 2;
         const sprite = this.shaped_sprite.sprite;
         xyrwh[i * 9 + 5] = sprite.tx / sprite.sprite.w;
         xyrwh[i * 9 + 6] = sprite.ty / sprite.sprite.h;

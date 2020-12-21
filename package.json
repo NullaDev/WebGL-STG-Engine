@@ -10,7 +10,7 @@
     "scripts": {
         "c_make": "make -C src",
         "build": "webpack --config webpack.prod.js",
-        "serve": "webpack serve --open --config webpack.dev.js",
+        "serve": "webpack serve --config webpack.dev.js",
         "local": "http-server"
     },
     "devDependencies": {
