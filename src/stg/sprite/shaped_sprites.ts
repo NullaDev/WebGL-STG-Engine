@@ -9,9 +9,9 @@ const radius = [[1.4], [2.4, 2.4, 4, 4, 2.4, 2.4, 2.4, 2.8, 2.4, 2.4, 4, 2.4, 2.
 export function getSSCircle(sprite: Sprite, magn: number, alpha: number): SSPoint<ShapeCircle> {
     return {
         sprite: sprite,
-        shape: new ShapeCircle(radius[sprite.category][sprite.type] * magn),
-        w: sprite.tw,
-        h: sprite.th,
+        shape: new ShapeCircle(radius[sprite.category][sprite.type] * magn / 2),
+        w: sprite.tw / 2,
+        h: sprite.th / 2,
         renderType: RENDER_TYPE.RECT,
         alpha: alpha
     };

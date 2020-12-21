@@ -55,7 +55,7 @@ export function get_small(type: S_Type, color: S_Color, mode: Sprite_Mode): Spri
 
 export function get_middle(type: M_Type, color: M_Color, mode: Sprite_Mode): Sprite {
     const tx = (type < 7 ? 1 : 258) + color * 32;
-    const ty = type == 0 ? 209 : type < 7 ? 225 + type * 32 : 257;
+    const ty = type == 0 ? 209 : type < 7 ? 226 + type * 32 : 257;
     return {
         sprite: res_000,
         tx: tx,
