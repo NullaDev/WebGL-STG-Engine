@@ -11,6 +11,7 @@ export const CG_ENEMY: CollideGroup = 2;
 export const CG_BULLET: CollideGroup = 3;
 export const CG_BOMB: CollideGroup = 4;
 export const CG_GHOST: CollideGroup = 5;
+export const CG_SHOOT: CollideGroup = 6;
 
 export const CM_PLAYER: CollideMask = 0;
 export const CM_BOSS: CollideMask = 1;
@@ -18,15 +19,17 @@ export const CM_ENEMY: CollideMask = 1;
 export const CM_BULLET: CollideMask = 1;
 export const CM_BOMB: CollideMask = 14;
 export const CM_GHOST: CollideMask = 0;
+export const CM_SHOOT: CollideMask = 6;
 
 export const RL_INVISIBLE: RenderLayer = 0;
 export const RL_BG: RenderLayer = 100;
-export const RL_BOSS: RenderLayer = 200;
-export const RL_ENEMY: RenderLayer = 300;
-export const RL_BULLET: RenderLayer = 400;
-export const RL_BOMB: RenderLayer = 500;
-export const RL_PLAYER: RenderLayer = 600;
-export const RL_UI: RenderLayer = 700;
+export const RL_SHOOT: RenderLayer = 200;
+export const RL_BOSS: RenderLayer = 300;
+export const RL_ENEMY: RenderLayer = 400;
+export const RL_BULLET: RenderLayer = 500;
+export const RL_BOMB: RenderLayer = 600;
+export const RL_PLAYER: RenderLayer = 700;
+export const RL_UI: RenderLayer = 800;
 export const RL_MAX: RenderLayer = 1000;
 
 export type Config = {

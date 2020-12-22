@@ -7,7 +7,8 @@ import { RENDER_TYPE } from "../util/SpriteManager";
 export type BulletConfig = Config & {
     kill_on_exit: boolean,
     kill_by_bomb: boolean,
-    auto_direction: boolean
+    auto_direction: boolean,
+    life: number
 }
 
 export const template_config_bullet: BulletConfig = {
@@ -16,7 +17,8 @@ export const template_config_bullet: BulletConfig = {
     collide_mask: CG_BULLET,
     kill_on_exit: true,
     kill_by_bomb: true,
-    auto_direction: true
+    auto_direction: true,
+    life: 0
 }
 
 // return true if velocity is enabled, return false to disable velocity
@@ -54,9 +56,7 @@ export const motion_orbit: (center: SIPoint<any>, a0: number, w: number, r: numb
         return false;
     });
 
-export class Bullet<S extends ShapePoint>
-    extends SIPoint<S>
-    implements Entity<Bullet<S>, RENDER_TYPE.RECT, S, SSPoint<S>> {
+export class Bullet<S extends ShapePoint> extends SIPoint<S> implements Entity<Bullet<S>, RENDER_TYPE.RECT, S, SSPoint<S>> {
 
     public state: State = State.PRE_ENTRY;
     public config: BulletConfig;
@@ -64,12 +64,20 @@ export class Bullet<S extends ShapePoint>
     public vx: number;
     public vy: number;
 
+    public time: number;
+
     public motion: Motion = motion_default;
     public motion_stat: any = null;
 
     constructor(shaped_shape: SSPoint<S>, bc: BulletConfig) {
         super(shaped_shape);
         this.config = bc;
+        this.time = 0;
+    }
+
+    public setMotion(m: Motion) {
+        this.motion = m;
+        return this.simpleInit(0, 0, 0, 0);
     }
 
     public simpleInit(x0: number, y0: number, v: number, a: number): Bullet<S> {
@@ -85,6 +93,7 @@ export class Bullet<S extends ShapePoint>
         if (this.state == State.PRE_ENTRY)
             this.state = State.ALIVE;
         const rate = EntityPool.INSTANCE.special_effects.time_rate;
+        this.time += rate;
         if (this.motion(this, rate)) {
             this.px += this.vx * rate;
             this.py += this.vy * rate;
@@ -94,11 +103,13 @@ export class Bullet<S extends ShapePoint>
     }
 
     public postUpdate(_: Bullet<S>) {
-        if (this.shaped_sprite.shape.exitScreen(this.px, this.py, this.dir, SCR_HALF_WIDTH, SCR_HALF_HEIGHT)) {
+        if (this.shaped_sprite?.shape?.exitScreen(this.px, this.py, this.dir, SCR_HALF_WIDTH, SCR_HALF_HEIGHT)) {
             if (this.config.kill_on_exit)
                 this.state = State.LEAVING;
             // Event: OnExitScreen
         }
+        if (this.config.life && this.time >= this.config.life)
+            this.state = State.LEAVING;
         // Event: OnPostUpdate
         if (this.state == State.LEAVING) {
             // Event: OnDestroy
