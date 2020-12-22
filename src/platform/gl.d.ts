@@ -1,3 +1,4 @@
+import { Sprite_Mode } from "../stg/util/sprites";
 
 export type GLTEXTURE = any;
 export type IMAGE = any;
@@ -7,6 +8,8 @@ export function clear(): void;
 
 export function loadImage(url: string): Promise<IMAGE>;
 export function loadTexture(image: IMAGE): GLTEXTURE;
+
+export function setMode(mode: Sprite_Mode): void;
 
 export function draw(vec: Float32Array, tex: Float32Array, texture: GLTEXTURE, size: number): void;
 export function drawStrip(vec: Float32Array, tex: Float32Array, ind: Int16Array, texture: GLTEXTURE, size: number): void;

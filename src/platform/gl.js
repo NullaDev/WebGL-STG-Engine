@@ -1,6 +1,7 @@
 'use strict'
 
 import { scrCoord_to_GLCoord_x, scrCoord_to_GLCoord_y } from "./Screen";
+import { Sprite_Mode } from "../stg/util/sprites"
 
 const vertexCode = `
 attribute vec2 coord;
@@ -83,6 +84,13 @@ export function setup() {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.disable(gl.DEPTH_TEST);
     gl.viewport(0, 0, canvas.width, canvas.height);
+}
+
+export function setMode(mode) {
+    if (mode == Sprite_Mode.Overlay)
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    else if (mode == Sprite_Mode.AddBlend)
+        gl.blendFunc(gl.SRC_ALPHA, gl.SRC_ALPHA);
 }
 
 export function loadImage(src) {

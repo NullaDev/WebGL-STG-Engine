@@ -1,5 +1,3 @@
-import { ShapeRay, SSRay } from "../entity/RayLaser";
-import { SSCurve } from "./Curve";
 import { ShapeCircle, SSPoint } from "./Shape";
 import { RENDER_TYPE } from "./SpriteManager";
 import { Sprite } from "./sprites";

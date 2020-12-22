@@ -1,6 +1,7 @@
-import { GLTEXTURE, loadTexture, loadImage, drawRects, drawSnake } from "../../platform/gl";
+import * as gl from "../../platform/gl";
 import { EntityAny } from "../entity/Entity";
 import { SSCurve } from "./Curve";
+import { Sprite_Mode } from "./sprites";
 
 export enum RENDER_TYPE {
     RECT,
@@ -26,7 +27,7 @@ export class SpriteManager {
     private static INS: { [key: string]: SpriteManager } = {};
     private path: string;
 
-    private img: GLTEXTURE = null;
+    private img: gl.GLTEXTURE = null;
 
     constructor(url: string) {
         this.path = url;
@@ -37,8 +38,8 @@ export class SpriteManager {
     }
 
     public async load(): Promise<void> {
-        const img = await loadImage(this.path);
-        this.img = loadTexture(img);
+        const img = await gl.loadImage(this.path);
+        this.img = gl.loadTexture(img);
     }
 
     public static get(url: string): SpriteManager {
@@ -48,24 +49,34 @@ export class SpriteManager {
     }
 
     public draw(list: EntityAny[]) {
-        const rectn = list.reduce((n, e) => e.renderType == RENDER_TYPE.RECT ? n + (<RECT><RenderType<RECT, RENDER_TYPE.RECT>>e).rectCount() : n, 0);
-        const xyrwh = new Float32Array(rectn * 10);
-        var i = 0;
-        for (var e of list)
-            if (e.renderType == RENDER_TYPE.RECT) {
-                const r = <RECT><RenderType<RECT, RENDER_TYPE.RECT>>e;
-                r.render(xyrwh, i);
-                i += r.rectCount();
-            }
-        drawRects(xyrwh, list.length, this.img);
+        this.drawRect(list, Sprite_Mode.Overlay);
+        this.drawRect(list, Sprite_Mode.AddBlend);
         for (var e of list)
             if (e.renderType == RENDER_TYPE.STRIP) {
                 const s = <STRIP><RenderType<STRIP, RENDER_TYPE.STRIP>>e;
                 const ss = s.getSprite();
                 const sp = ss.sprite;
                 for (var a of s.render())
-                    drawSnake(a, ss.w, a.length / 2, sp.tx, sp.ty, sp.tw, sp.th, this.img);
+                    gl.drawSnake(a, ss.w, a.length / 2, sp.tx, sp.ty, sp.tw, sp.th, this.img);
             }
+    }
+
+    private drawRect(list: EntityAny[], mode: Sprite_Mode) {
+        var rectn = list.reduce((n, e) =>
+            e.renderType == RENDER_TYPE.RECT && e.shaped_sprite.sprite.mode == mode ?
+                n + (<RECT><RenderType<RECT, RENDER_TYPE.RECT>>e).rectCount() : n, 0);
+        if (rectn)
+            gl.setMode(mode);
+        else return;
+        var xyrwh = new Float32Array(rectn * 10);
+        var i = 0;
+        for (var e of list)
+            if (e.renderType == RENDER_TYPE.RECT && e.shaped_sprite.sprite.mode == mode) {
+                const r = <RECT><RenderType<RECT, RENDER_TYPE.RECT>>e;
+                r.render(xyrwh, i);
+                i += r.rectCount();
+            }
+        gl.drawRects(xyrwh, list.length, this.img);
     }
 
 }
