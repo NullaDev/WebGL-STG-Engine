@@ -1,6 +1,6 @@
 import * as BASE from "../entity/Entity";
-import { collide } from "../sprite/Shape";
-import { SpriteManager } from "../sprite/SpriteManager";
+import { collide } from "../util/Shape";
+import { SpriteManager } from "../util/SpriteManager";
 
 export class SpecialEffects {
 

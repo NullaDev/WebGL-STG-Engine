@@ -1,6 +1,6 @@
 import { EntityAny } from "../entity/Entity";
 import { RECT, RenderType, RENDER_TYPE } from "./SpriteManager";
-import { Sprite } from "../sprite/sprites";
+import { Sprite } from "./sprites";
 
 export abstract class Shape<SI> {
 

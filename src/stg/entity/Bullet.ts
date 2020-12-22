@@ -1,8 +1,8 @@
 import { CG_BOMB, CG_BULLET, CG_PLAYER, Config, Entity, EntityAny, RL_BULLET, State } from "./Entity";
 import { EntityPool } from "../stage/EntityPool";
-import { SCR_HALF_HEIGHT, SCR_HALF_WIDTH } from "../stage/Screen";
-import { ShapePoint, SIPoint, SSPoint } from "../sprite/Shape";
-import { RENDER_TYPE } from "../sprite/SpriteManager";
+import { SCR_HALF_HEIGHT, SCR_HALF_WIDTH } from "../../platform/Screen";
+import { ShapePoint, SIPoint, SSPoint } from "../util/Shape";
+import { RENDER_TYPE } from "../util/SpriteManager";
 
 export type BulletConfig = Config & {
     kill_on_exit: boolean,

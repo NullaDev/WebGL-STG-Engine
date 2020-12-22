@@ -1,9 +1,9 @@
 import { Bullet, template_config_bullet } from "./entity/Bullet";
 import { PlayerAbility, PlayerPrototype, SelfMachine } from "./entity/SelfMachine";
-import { Repeat, RepeatSupplier, Scheduler } from "./schedule/Scheuler";
-import { SpriteManager } from "./sprite/SpriteManager";
-import * as Res from "./sprite/sprites";
-import * as SRes from "./sprite/shaped_sprites";
+import { Repeat, RepeatSupplier, Scheduler } from "./stage/Scheuler";
+import { SpriteManager } from "./util/SpriteManager";
+import * as Res from "./util/sprites";
+import * as SRes from "./util/shaped_sprites";
 import { EntityPool } from "./stage/EntityPool";
 import { StageInit } from "./stage/StageInit";
 

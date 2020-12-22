@@ -1,6 +1,6 @@
 'use strict'
 
-import { scrCoord_to_GLCoord_x, scrCoord_to_GLCoord_y } from "../stage/Screen";
+import { scrCoord_to_GLCoord_x, scrCoord_to_GLCoord_y } from "./Screen";
 
 const vertexCode = `
 attribute vec2 coord;

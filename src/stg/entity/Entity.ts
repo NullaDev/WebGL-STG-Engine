@@ -1,5 +1,5 @@
-import { Shape, ShapedInstance, ShapedSprite } from "../sprite/Shape";
-import { RenderType, RENDER_TYPE } from "../sprite/SpriteManager";
+import { Shape, ShapedInstance, ShapedSprite } from "../util/Shape";
+import { RenderType, RENDER_TYPE } from "../util/SpriteManager";
 
 export type CollideGroup = number;
 export type CollideMask = number;

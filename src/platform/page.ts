@@ -1,8 +1,8 @@
 
 import { EntityPool } from "../stg/stage/EntityPool";
 import { PlayerAction, SelfMachine } from "../stg/entity/SelfMachine";
-import * as gl from "../stg/sprite/gl";
-import * as Screen from "../stg/stage/Screen";
+import * as gl from "./gl";
+import * as Screen from "./Screen";
 import * as platform from "./platform_init";
 
 var paused = false;

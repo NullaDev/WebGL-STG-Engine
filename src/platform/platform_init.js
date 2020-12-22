@@ -1,8 +1,8 @@
 'use strict'
 
-import * as gl from "../stg/sprite/gl";
+import * as gl from "./gl";
 import { page_update } from "./page";
-import * as Screen from "../stg/stage/Screen";
+import * as Screen from "./Screen";
 
 var test_n = 240;
 var fps_start = 0;

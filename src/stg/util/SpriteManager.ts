@@ -1,4 +1,4 @@
-import { GLTEXTURE, loadTexture, loadImage, drawRects, drawSnake } from "./gl";
+import { GLTEXTURE, loadTexture, loadImage, drawRects, drawSnake } from "../../platform/gl";
 import { EntityAny } from "../entity/Entity";
 import { SSCurve } from "./Curve";
 

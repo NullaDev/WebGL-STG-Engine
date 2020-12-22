@@ -1,6 +1,6 @@
-import { ShapeCircle, SIPoint, SSPoint } from "../sprite/Shape";
-import { RENDER_TYPE } from "../sprite/SpriteManager";
-import * as Screen from "../stage/Screen";
+import { ShapeCircle, SIPoint, SSPoint } from "../util/Shape";
+import { RENDER_TYPE } from "../util/SpriteManager";
+import * as Screen from "../../platform/Screen";
 import { Config, Entity, EntityAny, State, template_config_player, clone } from "./Entity";
 
 export type PlayerAction = {

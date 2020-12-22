@@ -1,5 +1,5 @@
 import { SelfMachine } from "../entity/SelfMachine";
-import { Scheduler } from "../schedule/Scheuler";
+import { Scheduler } from "./Scheuler";
 
 export type StageInit = {
     load_sprite: () => Promise<void>,
