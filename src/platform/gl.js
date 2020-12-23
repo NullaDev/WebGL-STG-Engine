@@ -24,6 +24,7 @@ uniform sampler2D uSampler;
 void main() {
     vec4 col = texture2D(uSampler, vTexCoord);
     col.a *= vTexAlpha;
+    col.rgb *= col.a;
     gl_FragColor = col;
 }
 `;
@@ -80,8 +81,8 @@ export function setup() {
     shader.uniform.uSampler = gl.getUniformLocation(shaderProgram, 'uSampler');
 
     gl.enable(gl.BLEND);
-    gl.blendEquation(gl.FUNC_ADD);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
+    gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.disable(gl.DEPTH_TEST);
     gl.viewport(0, 0, canvas.width, canvas.height);
 }
@@ -89,9 +90,9 @@ export function setup() {
 export function setMode(mode) {
     const gl = global_gl.gl;
     if (mode == Sprite_Mode.Overlay)
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     else if (mode == Sprite_Mode.AddBlend)
-        gl.blendFunc(gl.SRC_ALPHA, gl.SRC_ALPHA);
+        gl.blendFuncSeparate(gl.ONE, gl.ONE, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 }
 
 export function loadImage(src) {

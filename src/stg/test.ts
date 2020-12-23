@@ -131,7 +131,7 @@ const stage_002 = (time_scale: number) => {
         repeat((i0) => [
             repeat((i1) => [
                 () => EntityPool.INSTANCE.add(new RayLaser(rlss, cf, motion(w0 * (i0 % 2 * 2 - 1)))
-                    .init(0, 0, Math.PI * 2 / n * i1, 400))
+                    .init(0, 0, Math.PI * 2 / n * i1, 200))
             ], n),
             120 * time_scale
         ])
