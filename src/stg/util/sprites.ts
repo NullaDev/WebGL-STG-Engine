@@ -1,5 +1,3 @@
-import { SIPoint } from "./Shape";
-
 export enum Sprite_Mode { Overlay, AddBlend }
 export enum Category { Special, Small, Medium, Large }
 
