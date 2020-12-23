@@ -181,7 +181,8 @@ export function clear() {
     gl.clearColor(0.0, 0.0, 1.0, 1.0);
 }
 
-const verang = [1, -2, -1, 1, 0, -1];
+const verx = [-1, -1, 1, -1, 1, 1];
+const very = [-1, 1, 1, -1, -1, 1];
 const texx = [0, 0, 1, 0, 1, 1];
 const texy = [0, 1, 1, 0, 0, 1];
 
@@ -199,9 +200,11 @@ export function drawRects(xyrwh, size, texture) {
     const pid2 = Math.PI / 2;
     for (var i = 0; i < size; i++) {
         for (var j = 0; j < 6; j++) {
-            const a = xyrwh[i * 10 + 2] + verang[j] * pid2;
-            ver[i * 12 + j * 2 + 0] = xyrwh[i * 10 + 0] + xyrwh[i * 10 + 3] * Math.cos(a) - xyrwh[i * 10 + 4] * Math.sin(a);
-            ver[i * 12 + j * 2 + 1] = xyrwh[i * 10 + 1] + xyrwh[i * 10 + 3] * Math.sin(a) + xyrwh[i * 10 + 4] * Math.cos(a);
+            const a = xyrwh[i * 10 + 2];
+            const w = xyrwh[i * 10 + 3] * verx[j];
+            const h = xyrwh[i * 10 + 4] * very[j];
+            ver[i * 12 + j * 2 + 0] = xyrwh[i * 10 + 0] + w * Math.cos(a) - h * Math.sin(a);
+            ver[i * 12 + j * 2 + 1] = xyrwh[i * 10 + 1] + w * Math.sin(a) + h * Math.cos(a);
             tex[i * 12 + j * 2 + 0] = xyrwh[i * 10 + 5] + texx[j] * xyrwh[i * 10 + 7];
             tex[i * 12 + j * 2 + 1] = xyrwh[i * 10 + 6] + texy[j] * xyrwh[i * 10 + 8];
             alp[i * 6 + j] = xyrwh[i * 10 + 9];

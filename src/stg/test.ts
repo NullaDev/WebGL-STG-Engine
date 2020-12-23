@@ -8,6 +8,7 @@ import { EntityPool } from "./stage/EntityPool";
 import { StageInit } from "./stage/StageInit";
 import { ShapeCircle, ShapePoint, SIPoint, SSPoint } from "./util/Shape";
 import { clone } from "./entity/Entity";
+import { RayLaser, RayLaserConfig, RayLaserMotion } from "./entity/RayLaser";
 
 const sm_proto: PlayerPrototype = {
     updateShoot(shoot: boolean) {
@@ -75,7 +76,6 @@ const stage_001 = (time_scale: number) => {
         ease: (a: number) => (1 - Math.cos(Math.PI * a)) / 2
     }
 
-
     const nx = 1, n0 = 47, n1 = 30, r0 = 70;
     const t1 = 1 * time_scale;
     const v0 = 3 / time_scale, dr = -v0 / r0, w0 = 0.06 / time_scale;
@@ -108,10 +108,40 @@ const stage_001 = (time_scale: number) => {
     ]);
 }
 
+const stage_002 = (time_scale: number) => {
+    const rlss = SRes.getRayLaser(Res.get_small(Res.S_Type.Laser, Res.S_Color.Red, Res.Sprite_Mode.AddBlend));
+    const cf: RayLaserConfig = {
+        render_layer: template_config_bullet.render_layer,
+        collide_group: template_config_bullet.collide_group,
+        collide_mask: template_config_bullet.collide_mask,
+        warning_time: 30 * time_scale,
+        open_time: 10 * time_scale,
+        alive_time: 60 * time_scale,
+        close_time: 10 * time_scale,
+        listener: null
+    };
+
+    const motion: (w: number) => RayLaserMotion = (w: number) => (self: RayLaser, time_rate: number) => self.dir += time_rate * w;
+
+    const n = 17;
+    const w0 = Math.PI * 2 / 120 / time_scale;
+
+    return new Scheduler([
+        30 * time_scale,
+        repeat((i0) => [
+            repeat((i1) => [
+                () => EntityPool.INSTANCE.add(new RayLaser(rlss, cf, motion(w0 * (i0 % 2 * 2 - 1)))
+                    .init(0, 0, Math.PI * 2 / n * i1, 400))
+            ], n),
+            120 * time_scale
+        ])
+    ]);
+}
+
 const sinit: StageInit = {
     load_sprite: () => SpriteManager.get(Res.res_000.path).load(),
     add_player: () => new SelfMachine(SRes.getSSCircle(Res.self_machine_foreground, 1), sm_proto, sm_abi, 0, -192),
-    add_schedule: stage_001
+    add_schedule: stage_002
 }
 
 export async function init() {

@@ -21,11 +21,13 @@ export class ShapeRay extends Shape<SIRay> {
         const y0 = self.py;
         const x1 = self.px + self.len * Math.cos(self.dir);
         const y1 = self.py + self.len * Math.sin(self.dir);
-        const rl = Math.sqrt((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1));
+        const rl = Math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2);
         const dis = Math.abs((x1 - x0) * (y0 - y) - (x0 - x) * (y1 - y0));
-        const d0 = Math.sqrt((x0 - x) * (x0 - x) + (y0 - y) * (y0 - y));
-        const d1 = Math.sqrt((x1 - x) * (x1 - x) + (y1 - y) * (y1 - y));
-        return Math.min(dis / rl, d0, d1) - self.shaped_sprite.w_ratio * self.w;
+        const d0 = Math.sqrt((x0 - x) ** 2 + (y0 - y) ** 2);
+        const d1 = Math.sqrt((x1 - x) ** 2 + (y1 - y) ** 2);
+        if (Math.max(d0, d1) ** 2 > Math.min(d0, d1) ** 2 + rl ** 2)
+            return Math.min(d0, d1) - self.shaped_sprite.hitbox_width * self.w;
+        return Math.min(dis / rl, d0, d1) - self.shaped_sprite.hitbox_width * self.w;
     }
 
 }
@@ -59,7 +61,8 @@ export type RayLaserConfig = Config & {
 export type RayLaserMotion = (self: RayLaser, time_rate: number) => void;
 
 export class SSRay extends ShapedSprite<SSRay, RENDER_TYPE.RECT, SIRay, ShapeRay> {
-    public w_ratio: number;
+    public sprite_width: number;
+    public hitbox_width: number;
     public l_ratio: number;
 }
 
@@ -73,7 +76,7 @@ export class SIRay extends ShapedInstance<SIRay, RENDER_TYPE.RECT, ShapeRay, SSR
 
     constructor(ss: SSRay) {
         super(RENDER_TYPE.RECT, ss);
-        this.w = -Infinity;
+        this.w = 0;
     }
 
     rectCount(): number {
@@ -81,10 +84,10 @@ export class SIRay extends ShapedInstance<SIRay, RENDER_TYPE.RECT, ShapeRay, SSR
     }
 
     render(xyrwh: Float32Array, i: number): void {
-        xyrwh[i * 10 + 0] = this.px + this.len * Math.cos(this.dir);
-        xyrwh[i * 10 + 1] = this.py + this.len * Math.sin(this.dir);
-        xyrwh[i * 10 + 2] = this.dir;
-        xyrwh[i * 10 + 3] = Math.max(1, this.shaped_sprite.w_ratio * this.w);
+        xyrwh[i * 10 + 0] = this.px + this.len / 2 * Math.cos(this.dir);
+        xyrwh[i * 10 + 1] = this.py + this.len / 2 * Math.sin(this.dir);
+        xyrwh[i * 10 + 2] = this.dir + Math.PI / 2;
+        xyrwh[i * 10 + 3] = Math.max(1, this.shaped_sprite.sprite_width * this.w);
         xyrwh[i * 10 + 4] = this.shaped_sprite.l_ratio / 2 * this.len;
         const sprite = this.shaped_sprite.sprite;
         xyrwh[i * 10 + 5] = sprite.tx / sprite.sprite.w;
@@ -102,7 +105,7 @@ export class RayLaser extends SIRay implements Entity<RayLaser, RENDER_TYPE.RECT
     public rstate: RayLaserState = RayLaserState.WARNING;
     public config: RayLaserConfig;
     public motion: RayLaserMotion;
-    public time: number;
+    public time: number = 0;
 
     constructor(shaped_shape: SSRay, cf: RayLaserConfig, m: RayLaserMotion) {
         super(shaped_shape);
@@ -110,29 +113,49 @@ export class RayLaser extends SIRay implements Entity<RayLaser, RENDER_TYPE.RECT
         this.motion = m;
     }
 
+    public init(px: number, py: number, dir: number, len: number) {
+        this.len = len;
+        this.dir = dir;
+        this.px = px;
+        this.py = py;
+        return this;
+    }
+
     public update(_: RayLaser) {
-        if (this.state = State.PRE_ENTRY) {
-            this.state = State.ALIVE;
+        if (this.state == State.PRE_ENTRY) {
+            this.state = State.LEAVING;
             this.config.listener?.onInit?.forEach(e => e(this));
         }
         const rate = EntityPool.INSTANCE.special_effects.time_rate;
         this.time += rate;
-        if (this.rstate == RayLaserState.WARNING && this.time >= this.config.warning_time) {
+        const tw = this.config.warning_time;
+        const to = this.config.open_time + tw;
+        const ta = this.config.alive_time + to;
+        const tc = this.config.close_time + ta;
+        if (this.rstate == RayLaserState.WARNING && this.time >= tw) {
             this.rstate = RayLaserState.OPENING;
             this.config.listener?.onStateChange?.forEach(e => e(this));
         }
-        if (this.rstate == RayLaserState.OPENING && this.time >= this.config.open_time) {
-            this.rstate = RayLaserState.OPENED;
-            this.w = 1;
-            this.config.listener?.onStateChange?.forEach(e => e(this));
+        if (this.rstate == RayLaserState.OPENING) {
+            this.w = Math.min(1, (this.time - tw) / (to - tw))
+            if (this.time >= to) {
+                this.rstate = RayLaserState.OPENED;
+                this.state = State.ALIVE;
+                this.w = 1;
+                this.config.listener?.onStateChange?.forEach(e => e(this));
+            }
         }
-        if (this.rstate == RayLaserState.OPENED && this.time >= this.config.alive_time) {
+        if (this.rstate == RayLaserState.OPENED && this.time >= ta) {
             this.rstate = RayLaserState.CLOSING;
-            this.w = -Infinity;
+            this.state = State.LEAVING;
             this.config.listener?.onStateChange?.forEach(e => e(this));
         }
-        if (this.rstate == RayLaserState.CLOSING && this.time >= this.config.close_time) {
-            this.state = State.LEAVING;
+        if (this.rstate == RayLaserState.CLOSING) {
+            this.w = Math.max(0, 1 - (this.time - ta) / (tc - ta))
+            if (this.time >= tc) {
+                this.state = State.DEAD;
+                this.config.listener?.onDestroy?.forEach(e => e(this));
+            }
         }
         this.config.listener?.onUpdate?.forEach(e => e(this, rate));
         this.motion(this, rate);
@@ -141,10 +164,6 @@ export class RayLaser extends SIRay implements Entity<RayLaser, RENDER_TYPE.RECT
 
     public postUpdate(_: RayLaser) {
         this.config.listener?.onPostUpdate?.forEach(e => e(this));
-        if (this.state == State.LEAVING) {
-            this.config.listener?.onDestroy?.forEach(e => e(this));
-            this.state = State.DEAD;
-        }
     }
 
     public attack(_: RayLaser, e: EntityAny) {

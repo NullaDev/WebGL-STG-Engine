@@ -36,11 +36,11 @@ export function get_small(type: S_Type, color: S_Color, mode: Sprite_Mode): Spri
             type < 14 ? 1 + color % 8 * 8 :
                 type < 15 ? 1 : 258 + color * 16;
     const ty =
-        type < 12 ? 1 + type * 16 :
+        type == 0 ? 4 : type < 12 ? 1 + type * 16 :
             type < 14 ? (type < 13 ? 193 : 241) + (color >> 3) * 8 :
                 color < 15 ? 515 + color * 16 : 449;
     const tw = type < 12 ? 16 : type < 14 ? 8 : type < 15 ? 256 : 16;
-    const th = type < 12 ? 16 : type < 14 ? 8 : 16;
+    const th = type == 0 ? 8 : type < 12 ? 16 : type < 14 ? 8 : 16;
     return {
         sprite: res_000,
         tx: tx,

@@ -12,8 +12,8 @@ export function getSSCircle(sprite: Sprite, magn: number): SSPoint<ShapeCircle> 
     return {
         sprite: sprite,
         shape: new ShapeCircle(radius[sprite.category][sprite.type] * magn),
-        w: sprite.tw *magn,
-        h: sprite.th *magn,
+        w: sprite.tw * magn,
+        h: sprite.th * magn,
         renderType: RENDER_TYPE.RECT
     };
 }
@@ -23,7 +23,8 @@ export function getRayLaser(sprite: Sprite): SSRay {
         sprite: sprite,
         shape: new ShapeRay(ShapeRay.line_circle),
         renderType: RENDER_TYPE.RECT,
-        w_ratio: radius[sprite.category][sprite.type] / 2,
+        sprite_width: sprite.tw * mag / 2,
+        hitbox_width: radius[sprite.category][sprite.type] * mag / 2,
         l_ratio: 1
     }
 }
