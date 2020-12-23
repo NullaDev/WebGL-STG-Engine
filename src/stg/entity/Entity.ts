@@ -59,6 +59,7 @@ export interface Entity<
     extends ShapedInstance<E, RT, S, SS> {
     config: Config,
     state: State,
+    time: number,
     update: (self: Entity<E, RT, S, SS>) => void,
     attack: (self: Entity<E, RT, S, SS>, target: EntityAny) => void,
     postUpdate: (self: Entity<E, RT, S, SS>) => void,

@@ -10,18 +10,7 @@ export abstract class Shape<SI> {
 
 export abstract class ShapePoint extends Shape<SIPoint<any>> {
 
-    protected abstract _distanceTo(x: number, y: number): number;
-
     public abstract exitScreen(sx: number, sy: number, sd: number, rw: number, rh: number): boolean;
-
-    public distanceTo(self: SIPoint<any>, px: number, py: number): number {
-        px = px - self.px;
-        py = py - self.py;
-        const sd = self.dir;
-        const sx = px * Math.cos(-sd) - py * Math.sin(-sd);
-        const sy = py * Math.cos(-sd) + px * Math.sin(-sd);
-        return this._distanceTo(sx, sy);
-    }
 
 }
 
@@ -41,11 +30,7 @@ export class ShapeCircle extends ShapePoint {
     public distanceTo(self: SIPoint<any>, px: number, py: number): number {
         px -= self.px;
         py -= self.py;
-        return Math.sqrt(px * px + py * py) - this.radius;
-    }
-
-    public _distanceTo(px: number, py: number) {
-        return Math.sqrt(px * px + py * py) - this.radius;
+        return Math.sqrt(px * px + py * py) - this.radius * self.magn;
     }
 
 }
@@ -54,7 +39,6 @@ export class ShapedSprite<T extends ShapedSprite<T, RT, SI, S>, RT extends RENDE
     public sprite: Sprite;
     public shape: S;
     public renderType: RT;
-    public alpha: number;
 }
 
 export class SSPoint<S extends ShapePoint> extends ShapedSprite<SSPoint<S>, RENDER_TYPE.RECT, SIPoint<S>, S> {
@@ -64,8 +48,7 @@ export class SSPoint<S extends ShapePoint> extends ShapedSprite<SSPoint<S>, REND
 
 export abstract class ShapedInstance<SI extends ShapedInstance<SI, RT, S, T> & RenderType<SI, RT>, RT extends RENDER_TYPE, S extends Shape<SI>, T extends ShapedSprite<T, RT, SI, S>> implements RenderType<SI, RT> {
 
-    renderType: RT;
-
+    public renderType: RT;
     public shaped_sprite: T;
 
     constructor(rt: RT, ss: T) {
@@ -84,6 +67,8 @@ export class SIPoint<S extends ShapePoint> extends ShapedInstance<SIPoint<S>, RE
     public px: number;
     public py: number;
     public dir: number;
+    public magn: number = 1;
+    public alpha: number = 1;
 
     constructor(ss: SSPoint<S>) {
         super(RENDER_TYPE.RECT, ss);
@@ -97,14 +82,14 @@ export class SIPoint<S extends ShapePoint> extends ShapedInstance<SIPoint<S>, RE
         xyrwh[i * 10 + 0] = this.px;
         xyrwh[i * 10 + 1] = this.py;
         xyrwh[i * 10 + 2] = this.dir - Math.PI / 2;
-        xyrwh[i * 10 + 3] = this.shaped_sprite.w / 2;
-        xyrwh[i * 10 + 4] = this.shaped_sprite.h / 2;
+        xyrwh[i * 10 + 3] = this.shaped_sprite.w / 2 * this.magn;
+        xyrwh[i * 10 + 4] = this.shaped_sprite.h / 2 * this.magn;
         const sprite = this.shaped_sprite.sprite;
         xyrwh[i * 10 + 5] = sprite.tx / sprite.sprite.w;
         xyrwh[i * 10 + 6] = sprite.ty / sprite.sprite.h;
         xyrwh[i * 10 + 7] = sprite.tw / sprite.sprite.w;
         xyrwh[i * 10 + 8] = sprite.th / sprite.sprite.h;
-        xyrwh[i * 10 + 9] = this.shaped_sprite.alpha;
+        xyrwh[i * 10 + 9] = this.alpha;
     }
 
 }
