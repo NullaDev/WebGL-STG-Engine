@@ -36,18 +36,25 @@ export class ShapeCircle extends ShapePoint {
 
 export class ShapeDualArc extends ShapePoint {
 
-    public static orthDis(x: number, y: number, a: number, b: number) {
+    public static orthDis(x: number, y: number, a: number, w: number) {
+        const b = w/2;
         x = Math.abs(x);
         y = Math.abs(y);
         const r = a * a / b / 2 + b / 2;
         const oy = r - b;
         if (y >= 0 && a * (y + oy) > x * oy)
-            return Math.sqrt(x ** 2 + (y + oy) ** 2) - oy;
-        return Math.sqrt((x - a) ** 2 + y ** 2);
+            return Math.sqrt(x ** 2 + (y + oy) ** 2) - oy - b;
+        return Math.sqrt((x - a) ** 2 + y ** 2) - b;
     }
 
     public len: number;
     public rad: number;
+
+    constructor(len: number, rad:number){
+        super();
+        this.len = len;
+        this.rad = rad;
+    }
 
     public exitScreen(self: SIPoint<any>, rw: number, rh: number) {
         const r = Math.sqrt(self.shaped_sprite.w ** 2 + self.shaped_sprite.h ** 2);
@@ -86,6 +93,8 @@ export abstract class ShapedInstance<SI extends ShapedInstance<SI, RT, S, T> & R
     }
 
     public distanceTo(x: number, y: number): number {
+        if(!this.shaped_sprite?.shape)
+            return Infinity;
         return this.shaped_sprite.shape.distanceTo(<SI><ShapedInstance<SI, RT, S, T>>this, x, y);
     }
 

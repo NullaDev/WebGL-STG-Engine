@@ -2,27 +2,24 @@ import { State } from "../entity/Entity";
 import { Shape, ShapedInstance, ShapedSprite } from "./Shape";
 import { RENDER_TYPE, STRIP } from "./SpriteManager";
 
-
 export abstract class ShapeCurve<S extends ShapeCurve<S, N>, N extends CurveNode> extends Shape<SICurve<S, N>> {
 
     public distanceTo(curve: SICurve<S, N>, x: number, y: number): number {
-        return curve.getStat().list.reduce((n, e) => Math.min(n, this._distanceTo(curve.list, e.start, e.len, x, y)), Infinity);
+        return curve.getStat().list.reduce((n, e) => Math.min(n, this._distanceTo(curve, e.start, e.len, x, y)), Infinity);
     }
 
-    protected abstract _distanceTo(curve: N[], start: number, len: number, x: number, y: number): number;
-
-    public abstract radius(start: number, len: number, ind: number): number;
+    protected abstract _distanceTo(curve: SICurve<S, N>, start: number, len: number, x: number, y: number): number;
 
 }
 
 export abstract class PointCurve extends ShapeCurve<PointCurve, CurveNode> {
 
-    protected _distanceTo(list: CurveNode[], start: number, len: number, x: number, y: number): number {
+    protected _distanceTo(curve: SICurve<PointCurve, CurveNode>, start: number, len: number, x: number, y: number): number {
         var min = Infinity;
         for (var i = 0; i < len; i++) {
-            var node = list[i + start];
+            var node = curve.list[i + start];
             var dis = Math.sqrt((node.px - x) * (node.px - x) + (node.py - y) * (node.py - y));
-            min = Math.min(min, dis - this.radius(start, len, i));
+            min = Math.min(min, dis - curve.shaped_sprite.radius(start, len, i));
         }
         return min;
     }
@@ -45,15 +42,15 @@ export class ShapeLine extends Shape<DDLine> {
 
 export abstract class LineCurve extends ShapeCurve<LineCurve, CurveNode> {
 
-    protected _distanceTo(list: CurveNode[], start: number, len: number, x: number, y: number): number {
+    protected _distanceTo(curve: SICurve<LineCurve, CurveNode>, start: number, len: number, x: number, y: number): number {
         var min = Infinity;
         const ddl = { x0: 0, x1: 0, y0: 0, y1: 0, r: 0 };
         for (var i = 0; i < len - 1; i++) {
-            ddl.x0 = list[start + i].px;
-            ddl.y0 = list[start + i].py;
-            ddl.x1 = list[start + i + 1].px;
-            ddl.y1 = list[start + i + 1].py;
-            ddl.r = (this.radius(start, len, i) + this.radius(start, len, i + 1)) / 2;
+            ddl.x0 = curve.list[start + i].px;
+            ddl.y0 = curve.list[start + i].py;
+            ddl.x1 = curve.list[start + i + 1].px;
+            ddl.y1 = curve.list[start + i + 1].py;
+            ddl.r = (curve.shaped_sprite.radius(start, len, i) + curve.shaped_sprite.radius(start, len, i + 1)) / 2;
             min = Math.min(min, ShapeLine.INS.distanceTo(ddl, x, y));
         }
         return min;
@@ -63,6 +60,7 @@ export abstract class LineCurve extends ShapeCurve<LineCurve, CurveNode> {
 
 export class SSCurve<S extends ShapeCurve<S, CN>, CN extends CurveNode> extends ShapedSprite<SSCurve<S, CN>, RENDER_TYPE.STRIP, SICurve<S, CN>, S>{
     public w: number;
+    public radius: (start: number, len: number, ind: number) => number;
 }
 
 export type CurveNode = {

@@ -5,7 +5,7 @@ import { ShapePoint, SIPoint, SSPoint } from "../util/Shape";
 import { RENDER_TYPE } from "../util/SpriteManager";
 
 export interface MovePointEventListener {
-    onInit: ((self: MovePoint<any>)=>void)[],
+    onInit: ((self: MovePoint<any>) => void)[],
     onUpdate: ((self: MovePoint<any>, rate: number) => void)[],
     onPostMotion: ((self: MovePoint<any>, rate: number) => void)[],
     onPostUpdate: ((self: MovePoint<any>) => void)[],
@@ -101,10 +101,15 @@ export class MovePoint<S extends ShapePoint> extends SIPoint<S> implements Entit
         return this;
     }
 
+    public init(func: (self: MovePoint<S>) => void) {
+        func(this);
+        return this;
+    }
+
     public update(_: MovePoint<S>) {
-        if (this.state == State.PRE_ENTRY){
+        if (this.state == State.PRE_ENTRY) {
             this.state = State.ALIVE;
-            this.config.listener?.onInit?.forEach(e=>e(this));
+            this.config.listener?.onInit?.forEach(e => e(this));
         }
         const rate = EntityPool.INSTANCE.special_effects.time_rate;
         this.time += rate;

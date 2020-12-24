@@ -1,3 +1,4 @@
+import { SCR_HALF_HEIGHT, SCR_HALF_WIDTH } from "../../platform/Screen";
 import { MovePoint, MovePointEventListener } from "./MovePoint";
 import { RayLaserEventListener } from "./RayLaser";
 
@@ -27,7 +28,7 @@ export type Adder<Config> = (config: Config) => (lst: MovePointEventListener) =>
 
 type CS_REF = {
     in_screen: boolean;
-    ref_count: 0;
+    ref_count: number;
 };
 
 export type ReflectConfig = {
@@ -38,6 +39,16 @@ export type ReflectConfig = {
     max: number,
     inner_bound: boolean,
     outer_bound: boolean
+}
+
+export const reflect_config_default: ReflectConfig = {
+    w0: -SCR_HALF_WIDTH,
+    w1: SCR_HALF_WIDTH,
+    h0: -SCR_HALF_HEIGHT,
+    h1: SCR_HALF_HEIGHT,
+    max: Infinity,
+    inner_bound: true,
+    outer_bound: false
 }
 
 export const reflect_linear: Adder<ReflectConfig> = (config: ReflectConfig) => (lst: MovePointEventListener) => {
@@ -100,6 +111,9 @@ export const reflect_linear: Adder<ReflectConfig> = (config: ReflectConfig) => (
         }
     })
 }
+
+export const reflect_disable: (config:ReflectConfig)=>(e:MovePoint<any>)=> void = 
+    (config:ReflectConfig)=>(e:MovePoint<any>)=>(<CS_REF>e.custom_fields).ref_count = config.max
 
 type CS_REF_M = {
     ori_px: number,

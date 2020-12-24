@@ -40,13 +40,21 @@ export type MoverConfig = {
 export class Mover extends ScheduleEntry {
 
     public static random(target: SIPoint<any>, config: MoverConfig) {
-        const minx = Math.max(config.px0 - target.px, -config.dx1);
-        const maxx = Math.min(config.px1 - target.px, config.dx1);
-        const miny = Math.max(config.py0 - target.py, -config.dy1);
-        const maxy = Math.min(config.py1 - target.py, config.dy1);
-        const dx = minx + Math.random() * (maxx - minx);
-        const dy = miny + Math.random() * (maxy - miny);
-        return new Mover(target, config.duration, dx, dy, config.ease);
+        return new Mover((self: Mover) => {
+            const minx = Math.max(config.px0 - target.px, -config.dx1);
+            const maxx = Math.min(config.px1 - target.px, config.dx1);
+            const miny = Math.max(config.py0 - target.py, -config.dy1);
+            const maxy = Math.min(config.py1 - target.py, config.dy1);
+            const dx = minx + Math.random() * (maxx - minx);
+            const dy = miny + Math.random() * (maxy - miny);
+            self.target = target;
+            self.duration = config.duration;
+            self.dx = dx;
+            self.dy = dy;
+            self.x0 = target.px;
+            self.y0 = target.py;
+            self.ease = config.ease;
+        });
     }
 
     public target: SIPoint<any>;
@@ -57,19 +65,16 @@ export class Mover extends ScheduleEntry {
     public y0: number;
     public ease: (a: number) => number;
     public time: number = 0;
+    public init: (self: Mover) => void;
 
-    constructor(target: SIPoint<any>, duration: number, dx: number, dy: number, ease: (a: number) => number) {
+    constructor(init: (self: Mover) => void) {
         super();
-        this.target = target;
-        this.duration = duration;
-        this.dx = dx;
-        this.dy = dy;
-        this.x0 = target.px;
-        this.y0 = target.py;
-        this.ease = ease;
+        this.init = init;
     }
 
     public update(time_rate: number): number {
+        if (this.time == 0)
+            this.init(this);
         this.time += time_rate;
         const a = Math.min(1, this.time / this.duration);
         const b = this.ease(a);
@@ -103,9 +108,9 @@ export abstract class ScheduleSupplier {
 
 }
 
-export type Input = number | (() => void) | ScheduleEntry | ScheduleSupplier;
-
 type Item = ScheduleEntry | ScheduleSupplier;
+
+export type Input = number | (() => void) | Item;
 
 function parse(input: Input[]): Item[] {
     return input.map(e =>

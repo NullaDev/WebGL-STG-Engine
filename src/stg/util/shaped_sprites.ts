@@ -1,7 +1,8 @@
 import { ShapeRay, SSRay } from "../entity/RayLaser";
-import { ShapeCircle, SSPoint } from "./Shape";
+import { CurveNode, ShapeCurve, SSCurve } from "./Curve";
+import { ShapeCircle, ShapeDualArc, SSPoint } from "./Shape";
 import { RENDER_TYPE } from "./SpriteManager";
-import { Sprite, get_small, S_Type, S_Color, Sprite_Mode } from "./sprites";
+import { Sprite, get_small, S_Type, S_Color, Sprite_Mode, Category } from "./sprites";
 
 export enum RayLaserType { Laser = S_Type.Laser, Scale = S_Type.Scale, Grain = S_Type.Grain }
 
@@ -20,6 +21,17 @@ export function getSSCircle(sprite: Sprite, magn: number): SSPoint<ShapeCircle> 
     };
 }
 
+export function getLongBullet(color: S_Color, mode: Sprite_Mode, len: number): SSPoint<ShapeDualArc> {
+    const sprite = get_small(S_Type.Grain, color, mode);
+    return {
+        sprite: sprite,
+        shape: new ShapeDualArc(len, radius[Category.Small][S_Type.Grain] * mag),
+        renderType: RENDER_TYPE.RECT,
+        w: sprite.tw * mag,
+        h: len * 1.25
+    }
+}
+
 export function getRayLaser(type: RayLaserType, color: S_Color, mode: Sprite_Mode): SSRay {
     const sprite = get_small(<number>type, color, mode);
     sprite.ty += type == RayLaserType.Laser ? 4 : type == RayLaserType.Grain ? 1 : type == RayLaserType.Scale ? 1 : NaN;
@@ -33,7 +45,27 @@ export function getRayLaser(type: RayLaserType, color: S_Color, mode: Sprite_Mod
                         null),
         renderType: RENDER_TYPE.RECT,
         sprite_width: sprite.tw * mag / 2,
-        hitbox_width: radius[sprite.category][sprite.type] * mag,
-        l_ratio: type == RayLaserType.Laser ? 1 : type == RayLaserType.Grain ? 1 : type == RayLaserType.Scale ? 1 : NaN
+        hitbox_width: 2.4 * mag,
+        l_ratio: type == RayLaserType.Laser ? 1 : type == RayLaserType.Grain ? 1 : type == RayLaserType.Scale ? 1.2 : NaN
     }
+}
+
+export function getCurveLaser<S extends ShapeCurve<S, CN>, CN extends CurveNode>(color: S_Color, mode: Sprite_Mode, shape: S): SSCurve<S, CN> {
+    const sprite = get_small(S_Type.Curve, color, mode);
+    const w = radius[Category.Small][S_Type.Curve];
+    return {
+        sprite: sprite,
+        shape: shape,
+        renderType: RENDER_TYPE.STRIP,
+        w: w,
+        radius: (start, len, i) => {
+            const a = w * 16;
+            if (i / len * 16 < 0.5 || i / len * 16 > 15.5)
+                return -Infinity;
+            const x = (i + 0.5) / len * w * 16;
+            const o = 255 * w / 2;
+            const y = Math.sqrt((o + w) ** 2 - x ** 2) - o;
+            return y * mag;
+        }
+    };
 }
