@@ -1,4 +1,4 @@
-import { Shape, ShapedInstance, ShapedSprite } from "../util/Shape";
+import { Shape, ShapedInstance, ShapedSprite, ShapeDualArc } from "../util/Shape";
 import { RECT, RENDER_TYPE } from "../util/SpriteManager";
 import { EntityPool } from "../stage/EntityPool";
 import { Config, Entity, EntityAny, State } from "./Entity";
@@ -28,6 +28,24 @@ export class ShapeRay extends Shape<SIRay> {
         if (Math.max(d0, d1) ** 2 > Math.min(d0, d1) ** 2 + rl ** 2)
             return Math.min(d0, d1) - self.shaped_sprite.hitbox_width * self.w;
         return Math.min(dis / rl, d0, d1) - self.shaped_sprite.hitbox_width * self.w;
+    }
+
+    public static double_arc(self: SIRay, px: number, py: number): number {
+        const x = px - self.px;
+        const y = py - self.py;
+        const rx = x * Math.cos(-self.dir) - y * Math.sin(-self.dir);
+        const ry = x * Math.sin(-self.dir) + y * Math.cos(-self.dir);
+        return ShapeDualArc.orthDis(rx - self.len / 2, ry, self.len / 2, self.w * self.shaped_sprite.hitbox_width);
+    }
+
+    public static half_arc(self: SIRay, px: number, py: number): number {
+        const x = px - self.px;
+        const y = py - self.py;
+        const rx = x * Math.cos(-self.dir) - y * Math.sin(-self.dir);
+        const ry = x * Math.sin(-self.dir) + y * Math.cos(-self.dir);
+        if (rx < 0)
+            return Math.sqrt(rx ** 2 + ry ** 2);
+        return ShapeDualArc.orthDis(rx, ry, self.len, self.w * self.shaped_sprite.hitbox_width);
     }
 
 }
@@ -84,11 +102,12 @@ export class SIRay extends ShapedInstance<SIRay, RENDER_TYPE.RECT, ShapeRay, SSR
     }
 
     render(xyrwh: Float32Array, i: number): void {
-        xyrwh[i * 10 + 0] = this.px + this.len / 2 * Math.cos(this.dir);
-        xyrwh[i * 10 + 1] = this.py + this.len / 2 * Math.sin(this.dir);
+        const l = this.shaped_sprite.l_ratio * this.len / 2;
+        xyrwh[i * 10 + 0] = this.px + l * Math.cos(this.dir);
+        xyrwh[i * 10 + 1] = this.py + l * Math.sin(this.dir);
         xyrwh[i * 10 + 2] = this.dir + Math.PI / 2;
         xyrwh[i * 10 + 3] = Math.max(1, this.shaped_sprite.sprite_width * this.w);
-        xyrwh[i * 10 + 4] = this.shaped_sprite.l_ratio / 2 * this.len;
+        xyrwh[i * 10 + 4] = l;
         const sprite = this.shaped_sprite.sprite;
         xyrwh[i * 10 + 5] = sprite.tx / sprite.sprite.w;
         xyrwh[i * 10 + 6] = sprite.ty / sprite.sprite.h;

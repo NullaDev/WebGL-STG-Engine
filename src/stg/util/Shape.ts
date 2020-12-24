@@ -10,7 +10,7 @@ export abstract class Shape<SI> {
 
 export abstract class ShapePoint extends Shape<SIPoint<any>> {
 
-    public abstract exitScreen(sx: number, sy: number, sd: number, rw: number, rh: number): boolean;
+    public abstract exitScreen(self: SIPoint<any>, rw: number, rh: number): boolean;
 
 }
 
@@ -23,14 +23,43 @@ export class ShapeCircle extends ShapePoint {
         this.radius = r;
     }
 
-    public exitScreen(sx: number, sy: number, _: number, rw: number, rh: number): boolean {
-        return Math.abs(sx) > rw + this.radius || Math.abs(sy) > rh + this.radius;
+    public exitScreen(self: SIPoint<any>, rw: number, rh: number): boolean {
+        const r = Math.sqrt(self.shaped_sprite.w ** 2 + self.shaped_sprite.h ** 2);
+        return Math.abs(self.px) > rw + r * self.magn || Math.abs(self.py) > rh + r * self.magn;
     }
 
     public distanceTo(self: SIPoint<any>, px: number, py: number): number {
-        px -= self.px;
-        py -= self.py;
-        return Math.sqrt(px * px + py * py) - this.radius * self.magn;
+        return Math.sqrt((px - self.px) ** 2 + (py - self.py) ** 2) - this.radius * self.magn;
+    }
+
+}
+
+export class ShapeDualArc extends ShapePoint {
+
+    public static orthDis(x: number, y: number, a: number, b: number) {
+        x = Math.abs(x);
+        y = Math.abs(y);
+        const r = a * a / b / 2 + b / 2;
+        const oy = r - b;
+        if (y >= 0 && a * (y + oy) > x * oy)
+            return Math.sqrt(x ** 2 + (y + oy) ** 2) - oy;
+        return Math.sqrt((x - a) ** 2 + y ** 2);
+    }
+
+    public len: number;
+    public rad: number;
+
+    public exitScreen(self: SIPoint<any>, rw: number, rh: number) {
+        const r = Math.sqrt(self.shaped_sprite.w ** 2 + self.shaped_sprite.h ** 2);
+        return Math.abs(self.px) > rw + r * self.magn || Math.abs(self.py) > rh + r * self.magn;
+    }
+
+    public distanceTo(self: SIPoint<any>, px: number, py: number) {
+        const x = px - self.px;
+        const y = py - self.py;
+        const rx = x * Math.cos(-self.dir) - y * Math.sin(-self.dir);
+        const ry = x * Math.sin(-self.dir) + y * Math.cos(-self.dir);
+        return ShapeDualArc.orthDis(rx, ry, this.len / 2 * self.magn, this.rad * self.magn);
     }
 
 }

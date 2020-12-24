@@ -109,31 +109,34 @@ const stage_001 = (time_scale: number) => {
 }
 
 const stage_002 = (time_scale: number) => {
-    const rlss = SRes.getRayLaser(Res.get_small(Res.S_Type.Laser, Res.S_Color.Red, Res.Sprite_Mode.AddBlend));
+    const rlss0 = SRes.getRayLaser(Res.S_Type.Laser, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
+    const rlss1 = SRes.getRayLaser(Res.S_Type.Scale, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
+    const rlss2 = SRes.getRayLaser(Res.S_Type.Grain, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
+    const rlsss = [rlss0, rlss1, rlss2];
     const cf: RayLaserConfig = {
         render_layer: template_config_bullet.render_layer,
         collide_group: template_config_bullet.collide_group,
         collide_mask: template_config_bullet.collide_mask,
         warning_time: 30 * time_scale,
         open_time: 10 * time_scale,
-        alive_time: 60 * time_scale,
+        alive_time: 6000 * time_scale,
         close_time: 10 * time_scale,
         listener: null
     };
 
     const motion: (w: number) => RayLaserMotion = (w: number) => (self: RayLaser, time_rate: number) => self.dir += time_rate * w;
 
-    const n = 17;
-    const w0 = Math.PI * 2 / 120 / time_scale;
+    const n = 18;
+    const w0 = 0*Math.PI * 2 / 240 / time_scale;
 
     return new Scheduler([
         30 * time_scale,
         repeat((i0) => [
             repeat((i1) => [
-                () => EntityPool.INSTANCE.add(new RayLaser(rlss, cf, motion(w0 * (i0 % 2 * 2 - 1)))
-                    .init(0, 0, Math.PI * 2 / n * i1, 200))
+                () => EntityPool.INSTANCE.add(new RayLaser(rlsss[i1 % 3], cf, motion(w0 * (i0 % 2 * 2 - 1)))
+                    .init(Math.cos(Math.PI * 2 / n * i1)*50,Math.sin(Math.PI * 2 / n * i1)*50 , Math.PI * 2 / n * i1, 100))
             ], n),
-            120 * time_scale
+            6000 * time_scale
         ])
     ]);
 }

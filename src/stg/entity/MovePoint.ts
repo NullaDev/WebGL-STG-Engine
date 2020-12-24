@@ -119,7 +119,7 @@ export class MovePoint<S extends ShapePoint> extends SIPoint<S> implements Entit
     }
 
     public postUpdate(_: MovePoint<S>) {
-        if (this.shaped_sprite?.shape?.exitScreen(this.px, this.py, this.dir, SCR_HALF_WIDTH, SCR_HALF_HEIGHT)) {
+        if (this.shaped_sprite?.shape?.exitScreen(this, SCR_HALF_WIDTH, SCR_HALF_HEIGHT)) {
             if (this.config.kill_on_exit)
                 this.state = State.LEAVING;
             this.config.listener?.onExitScreen?.forEach(e => e(this));
