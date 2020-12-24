@@ -108,10 +108,11 @@ const stage_001 = (time_scale: number) => {
     ]);
 }
 
+// RayLaser Hitbox & Sprite Test
 const stage_002 = (time_scale: number) => {
-    const rlss0 = SRes.getRayLaser(Res.S_Type.Laser, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
-    const rlss1 = SRes.getRayLaser(Res.S_Type.Scale, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
-    const rlss2 = SRes.getRayLaser(Res.S_Type.Grain, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
+    const rlss0 = SRes.getRayLaser(SRes.RayLaserType.Laser, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
+    const rlss1 = SRes.getRayLaser(SRes.RayLaserType.Scale, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
+    const rlss2 = SRes.getRayLaser(SRes.RayLaserType.Grain, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
     const rlsss = [rlss0, rlss1, rlss2];
     const cf: RayLaserConfig = {
         render_layer: template_config_bullet.render_layer,
@@ -127,7 +128,7 @@ const stage_002 = (time_scale: number) => {
     const motion: (w: number) => RayLaserMotion = (w: number) => (self: RayLaser, time_rate: number) => self.dir += time_rate * w;
 
     const n = 18;
-    const w0 = 0*Math.PI * 2 / 240 / time_scale;
+    const w0 = 0 * Math.PI * 2 / 240 / time_scale;
 
     return new Scheduler([
         30 * time_scale,
@@ -144,7 +145,7 @@ const stage_002 = (time_scale: number) => {
 const sinit: StageInit = {
     load_sprite: () => SpriteManager.get(Res.res_000.path).load(),
     add_player: () => new SelfMachine(SRes.getSSCircle(Res.self_machine_foreground, 1), sm_proto, sm_abi, 0, -192),
-    add_schedule: stage_002
+    add_schedule: stage_001
 }
 
 export async function init() {
