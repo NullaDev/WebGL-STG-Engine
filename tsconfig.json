@@ -2,6 +2,8 @@
     "compilerOptions": {
         "outDir": "./tsc",
         "noImplicitAny": true,
+        "noImplicitThis": true,
+        "noImplicitReturns": true,
         "removeComments": true,
         "preserveConstEnums": false,
         "module": "es6",

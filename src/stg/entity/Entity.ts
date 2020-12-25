@@ -38,7 +38,7 @@ export type Config = {
     collide_mask: CollideMask,
 }
 
-export enum State {
+export const enum State {
     PRE_ENTRY,
     ALIVE,
     LEAVING,

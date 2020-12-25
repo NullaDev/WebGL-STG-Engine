@@ -1,5 +1,5 @@
-export enum Sprite_Mode { Overlay, AddBlend }
-export enum Category { Special, Small, Medium, Large }
+export const enum Sprite_Mode { Overlay, AddBlend }
+export const enum Category { Special, Small, Medium, Large }
 
 export type SpriteSource = {
     path: string,
@@ -20,12 +20,12 @@ export type Sprite = {
     omega: number
 };
 
-export enum S_Color { Grey, RedX, Red, PinkX, Pink, BlueX, Blue, CyanX, Cyan, GreenX, Green, Lemon, YellowX, Yellow, Orange, White }
-export enum S_Type { Laser, Scale, Ring, Ball, Grain, Niddle, Knife, Spell, Bullet, Germ, Star, Planet, S_Cross, S_Ball, Curve, Drop }
-export enum M_Color { Grey, Red, Pink, Blue, Cyan, Green, Yellow, White }
-export enum M_Type { Light, Star, Ball, Butterfly, Knife, Oval, LightX, Heart }
-export enum L_Color { Red, Blue, Green, Yellow }
-export enum L_Type { Ball, Rose }
+export const enum S_Color { Grey, RedX, Red, PinkX, Pink, BlueX, Blue, CyanX, Cyan, GreenX, Green, Lemon, YellowX, Yellow, Orange, White }
+export const enum S_Type { Laser, Scale, Ring, Ball, Grain, Niddle, Knife, Spell, Bullet, Germ, Star, Planet, S_Cross, S_Ball, Curve, Drop }
+export const enum M_Color { Grey, Red, Pink, Blue, Cyan, Green, Yellow, White }
+export const enum M_Type { Light, Star, Ball, Butterfly, Knife, Oval, LightX, Heart }
+export const enum L_Color { Red, Blue, Green, Yellow }
+export const enum L_Type { Ball, Rose }
 
 const s_rot = [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0];
 const m_rot = [1, 1, 1, 0, 0, 0, 1, 0];

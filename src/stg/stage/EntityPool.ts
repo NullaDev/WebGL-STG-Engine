@@ -18,7 +18,7 @@ type CollidePoll = {
     list: BASE.EntityAny[],
 }
 
-enum UpdateStage {
+const enum UpdateStage {
     PRE_INIT,
     UPDATE,
     POST_UPDATE,

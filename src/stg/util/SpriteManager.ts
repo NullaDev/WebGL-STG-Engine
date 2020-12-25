@@ -3,7 +3,7 @@ import { EntityAny } from "../entity/Entity";
 import { SSCurve } from "./Curve";
 import { Sprite_Mode } from "./sprites";
 
-export enum RENDER_TYPE {
+export const enum RENDER_TYPE {
     RECT,
     STRIP
 }

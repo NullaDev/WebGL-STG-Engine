@@ -89,9 +89,9 @@ export function setup() {
 
 export function setMode(mode) {
     const gl = global_gl.gl;
-    if (mode == Sprite_Mode.Overlay)
+    if (mode == 0)
         gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    else if (mode == Sprite_Mode.AddBlend)
+    else
         gl.blendFuncSeparate(gl.ONE, gl.ONE, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 }
 

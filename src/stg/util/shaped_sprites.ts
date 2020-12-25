@@ -4,7 +4,7 @@ import { ShapeCircle, ShapeDualArc, SSPoint } from "./Shape";
 import { RENDER_TYPE } from "./SpriteManager";
 import { Sprite, get_small, S_Type, S_Color, Sprite_Mode, Category, get_middle, M_Type, M_Color } from "./sprites";
 
-export enum RayLaserType { Laser = S_Type.Laser, Scale = S_Type.Scale, Grain = S_Type.Grain }
+export const enum RayLaserType { Laser = S_Type.Laser, Scale = S_Type.Scale, Grain = S_Type.Grain }
 
 const radius = [[1.4, 0], [2.4, 2.4, 4, 4, 2.4, 2.4, 2.4, 2.8, 2.4, 2.4, 4, 2.4, 2.4, 2.4, 2.4, 2.4], [6, 7, 8.5, 7, 6, 7, 0, 10], [14, 14]];
 

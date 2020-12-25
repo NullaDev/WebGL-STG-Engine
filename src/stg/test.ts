@@ -32,7 +32,11 @@ const sm_abi: PlayerAbility = {
 const repeat = (item: Repeat, n: number = Infinity) => new RepeatSupplier(item, n);
 const nonblock = (item: Input[]) => () => EntityPool.INSTANCE.add(new Scheduler(item));
 
-var selected_stage = null;
+const sinit: StageInit = {
+    load_sprite: () => SpriteManager.get(Res.res_000.path).load(),
+    add_player: () => new SelfMachine(SRes.getSSCircle(Res.self_machine_foreground, 1), sm_proto, sm_abi, 0, -192),
+    add_schedule: null
+}
 
 {
 
@@ -360,14 +364,8 @@ var selected_stage = null;
         ]);
     }
 
-    selected_stage = stage_005;
+    sinit.add_schedule = stage_005;
 
-}
-
-const sinit: StageInit = {
-    load_sprite: () => SpriteManager.get(Res.res_000.path).load(),
-    add_player: () => new SelfMachine(SRes.getSSCircle(Res.self_machine_foreground, 1), sm_proto, sm_abi, 0, -192),
-    add_schedule: selected_stage
 }
 
 export async function init() {

@@ -54,7 +54,7 @@ export class ShapeRay extends Shape<SIRay> {
 
 }
 
-export enum RayLaserState {
+export const enum RayLaserState {
     WARNING,
     OPENING,
     OPENED,
