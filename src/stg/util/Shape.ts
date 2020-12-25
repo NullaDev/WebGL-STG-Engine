@@ -32,11 +32,11 @@ export class ShapeCircle extends ShapePoint {
         return Math.sqrt((px - self.px) ** 2 + (py - self.py) ** 2) - this.radius * self.magn;
     }
 
-    public rawDistanceTo(ox:number, oy:number, magn:number, px: number, py: number): number {
+    public rawDistanceTo(ox: number, oy: number, magn: number, px: number, py: number): number {
         return Math.sqrt((px - ox) ** 2 + (py - oy) ** 2) - this.radius * magn;
     }
 
-    public rawExitScreen(px:number, py:number, shaped_sprite: SSPoint<ShapeCircle>, rw: number, rh: number): boolean {
+    public rawExitScreen(px: number, py: number, shaped_sprite: SSPoint<ShapeCircle>, rw: number, rh: number): boolean {
         const r = Math.sqrt(shaped_sprite.w ** 2 + shaped_sprite.h ** 2);
         return Math.abs(px) > rw + r || Math.abs(py) > rh + r;
     }
@@ -46,7 +46,7 @@ export class ShapeCircle extends ShapePoint {
 export class ShapeDualArc extends ShapePoint {
 
     public static orthDis(x: number, y: number, a: number, w: number) {
-        const b = w/2;
+        const b = w / 2;
         x = Math.abs(x);
         y = Math.abs(y);
         const r = a * a / b / 2 + b / 2;
@@ -59,7 +59,7 @@ export class ShapeDualArc extends ShapePoint {
     public len: number;
     public rad: number;
 
-    constructor(len: number, rad:number){
+    constructor(len: number, rad: number) {
         super();
         this.len = len;
         this.rad = rad;
@@ -102,10 +102,12 @@ export abstract class ShapedInstance<SI extends ShapedInstance<SI, RT, S, T> & R
     }
 
     public distanceTo(x: number, y: number): number {
-        if(!this.shaped_sprite?.shape)
+        if (!this.shaped_sprite?.shape)
             return Infinity;
         return this.shaped_sprite.shape.distanceTo(<SI><ShapedInstance<SI, RT, S, T>>this, x, y);
     }
+
+    public collideCheck: (s: EntityAny) => boolean = null;
 
 }
 
@@ -150,6 +152,10 @@ export class SINull extends ShapedInstance<SINull, null, null, null> {
 }
 
 export function collide(e0: EntityAny, e1: EntityAny): boolean {
+    if (e0.collideCheck)
+        return e0.collideCheck(e1);
+    if (e1.collideCheck)
+        return e1.collideCheck(e0);
     if (e0 instanceof SIPoint && e0.shaped_sprite.shape instanceof ShapeCircle)
         return e1.distanceTo(e0.px, e0.py) < e0.shaped_sprite.shape.radius;
     if (e1 instanceof SIPoint && e1.shaped_sprite.shape instanceof ShapeCircle)

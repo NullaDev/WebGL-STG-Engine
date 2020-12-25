@@ -32,7 +32,7 @@ export function getLongBullet(color: S_Color, mode: Sprite_Mode, len: number): S
     }
 }
 
-export function getRayLaser(type: RayLaserType, scolor: S_Color, mcolor: M_Color, mode: Sprite_Mode, head: number, end: number): SSRay {
+export function getRayLaser(type: RayLaserType, scolor: S_Color, mcolor: M_Color, mode: Sprite_Mode, head: number, end: number, magn: number): SSRay {
     const sprite = get_small(<number>type, scolor, mode);
     sprite.ty += type == RayLaserType.Laser ? 4 : type == RayLaserType.Grain ? 1 : type == RayLaserType.Scale ? 1 : NaN;
     sprite.th -= type == RayLaserType.Laser ? 8 : type == RayLaserType.Grain ? 2 : type == RayLaserType.Scale ? 1 : NaN;
@@ -44,11 +44,11 @@ export function getRayLaser(type: RayLaserType, scolor: S_Color, mcolor: M_Color
                     type == RayLaserType.Grain ? ShapeRay.double_arc :
                         null),
         renderType: RENDER_TYPE.RECT,
-        sprite_width: sprite.tw * mag / 2,
-        hitbox_width: 2.4 * mag,
+        sprite_width: sprite.tw * mag / 2 * magn,
+        hitbox_width: 2.4 * mag * magn,
         l_ratio: type == RayLaserType.Laser ? 1 : end > 0 ? 1 : type == RayLaserType.Grain ? 1.15 : type == RayLaserType.Scale ? 1.2 : NaN,
-        base: getSSCircle(get_middle(M_Type.Light, mcolor, mode), head),
-        end: getSSCircle(get_middle(M_Type.Light, mcolor, mode), end)
+        base: getSSCircle(get_middle(M_Type.Light, mcolor, mode), head * magn),
+        end: getSSCircle(get_middle(M_Type.Light, mcolor, mode), end * magn)
     }
 }
 

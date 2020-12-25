@@ -122,8 +122,8 @@ type CS_RL_REF = {
     vx: number,
     vy: number,
     ref_count: number,
-    grow: number,
     togrow: number,
+    toshrink: number
 }
 
 export type RLReflectConfig = {
@@ -139,21 +139,20 @@ export type RLReflectConfig = {
 }
 
 export const rl_reflect_config_default: RLReflectConfig = {
-    w0: -SCR_HALF_WIDTH/2,
-    w1: SCR_HALF_WIDTH/2,
-    h0: -SCR_HALF_HEIGHT/2,
-    h1: SCR_HALF_HEIGHT/2,
-    max: Infinity, maxlen: 64,
-    v: 3, body: null, cf: null
+    w0: -SCR_HALF_WIDTH,
+    w1: SCR_HALF_WIDTH,
+    h0: -SCR_HALF_HEIGHT,
+    h1: SCR_HALF_HEIGHT,
+    max: Infinity, maxlen: NaN,
+    v: NaN, body: null, cf: null
 }
 
 export const reflect_rl: RLAdder<RLReflectConfig> = (config: RLReflectConfig) => (lst: RayLaserEventListener) => {
 
     const motion: RayLaserMotion = (self: RayLaser, time_rate: number) => {
         const cs = <CS_RL_REF>self.custom_fields;
-
         if (cs.togrow > 0) {
-            const g = Math.min(cs.togrow, cs.grow * time_rate);
+            const g = Math.min(cs.togrow, config.v * time_rate);
             self.len += g;
             cs.togrow -= g;
         } else {
@@ -173,8 +172,22 @@ export const reflect_rl: RLAdder<RLReflectConfig> = (config: RLReflectConfig) =>
 
     const bmotion: RayLaserMotion = (self: RayLaser, time_rate: number) => {
         const cs = <CS_RL_REF>self.custom_fields;
-        self.px += time_rate * cs.vx;
-        self.py += time_rate * cs.vy;
+
+        if (cs.toshrink > 0) {
+            const g = Math.min(cs.toshrink, config.v * time_rate);
+            self.len -= g;
+            cs.toshrink -= g;
+            if (cs.toshrink <= 0)
+                self.state = State.DEAD;
+        }
+        if (cs.togrow > 0) {
+            const g = Math.min(cs.togrow, config.v * time_rate);
+            self.len += g;
+            cs.togrow -= g;
+        } else {
+            self.px += time_rate * cs.vx;
+            self.py += time_rate * cs.vy;
+        }
         if (self.shaped_sprite.base.shape.rawExitScreen(self.px, self.py, self.shaped_sprite.base, SCR_HALF_WIDTH, SCR_HALF_HEIGHT))
             self.state = State.DEAD;
     }
@@ -185,8 +198,8 @@ export const reflect_rl: RLAdder<RLReflectConfig> = (config: RLReflectConfig) =>
         cs.ref_count = 0;
         cs.vx = config.v * Math.cos(self.dir);
         cs.vy = config.v * Math.sin(self.dir);
-        cs.grow = config.v;
         cs.togrow = config.maxlen;
+        cs.toshrink = 0;
         self.motion = motion;
     });
 
@@ -196,35 +209,56 @@ export const reflect_rl: RLAdder<RLReflectConfig> = (config: RLReflectConfig) =>
         const ex = self.px + self.len * Math.cos(self.dir);
         const ey = self.py + self.len * Math.sin(self.dir);
         const endw = within(ex, ey);
-        if (!endw) {
-            if (cs.ref_count < config.max) {
-                const rl = new RayLaser(config.body, config.cf, bmotion);
-                rl.init(self.px, self.py, self.dir, self.len);
-                const subcs = <CS_RL_REF>rl.custom_fields;
-                subcs.vx = cs.vx;
-                subcs.vy = cs.vy;
-                EntityPool.INSTANCE.add(rl);
-            }
+        if (!endw && cs.ref_count < config.max) {
+            const rl = new RayLaser(config.body, config.cf, bmotion);
+            rl.init(self.px, self.py, self.dir, self.len);
+            const subcs = <CS_RL_REF>rl.custom_fields;
+            subcs.vx = cs.vx;
+            subcs.vy = cs.vy;
+            subcs.togrow = cs.togrow;
+            EntityPool.INSTANCE.add(rl);
+
+            var mx = 0, my = 0;
+
             if (cs.ref_count < config.max && ex <= config.w0) {
+                mx = config.w0;
+                my = self.py + (config.w0 - self.px) * cs.vy / cs.vx;
+
                 cs.ref_count++;
                 cs.vx = -cs.vx;
                 self.px = 2 * config.w0 - self.px;
             }
             if (cs.ref_count < config.max && ex >= config.w1) {
+                mx = config.w1;
+                my = self.py + (config.w1 - self.px) * cs.vy / cs.vx;
+
                 cs.ref_count++;
                 cs.vx = -cs.vx;
                 self.px = 2 * config.w1 - self.px;
             }
             if (cs.ref_count < config.max && ey <= config.h0) {
+                my = config.h0;
+                mx = self.px + (config.h0 - self.py) * cs.vx / cs.vy;
+
                 cs.ref_count++;
                 cs.vy = -cs.vy;
                 self.py = 2 * config.h0 - self.py;
             }
             if (cs.ref_count < config.max && ey >= config.h1) {
+                my = config.h1;
+                mx = self.px + (config.h1 - self.py) * cs.vx / cs.vy;
+
                 cs.ref_count++;
                 cs.vy = -cs.vy;
                 self.py = 2 * config.h1 - self.py;
             }
+            const dlen = Math.sqrt((self.px - mx) ** 2 + (self.py - my) ** 2);
+            self.len -= dlen;
+            self.px = mx;
+            self.py = my;
+            cs.togrow += dlen;
+            rl.len = dlen;
+            subcs.toshrink = dlen + subcs.togrow;
             self.dir = Math.atan2(cs.vy, cs.vx);
         }
     })

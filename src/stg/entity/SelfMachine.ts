@@ -26,6 +26,8 @@ export interface PlayerPrototype {
 
 type SME = Entity<SelfMachine, RENDER_TYPE.RECT, ShapeCircle, SSPoint<ShapeCircle>>;
 
+const granularity = 2;
+
 export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
 
     public static INSTANCE: SelfMachine = null;
@@ -47,7 +49,10 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
     miss_time: number = 0;
     invince_time: number = 0;
 
-    time:number = 0;
+    prex = 0;
+    prey = 0;
+
+    time: number = 0;
 
     constructor(ss: SSPoint<ShapeCircle>, proto: PlayerPrototype, abi: PlayerAbility, x: number, y: number) {
         super(clone(ss));
@@ -63,8 +68,12 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
     update(_: SME): void {
         if (!SelfMachine.action)
             return;
-        this.px += SelfMachine.action.pos_x;
-        this.py += SelfMachine.action.pos_y;
+        this.prex = this.px;
+        this.prey = this.py;
+        const rate = EntityPool.INSTANCE.special_effects.time_rate;
+        this.time += rate;
+        this.px += SelfMachine.action.pos_x * rate;
+        this.py += SelfMachine.action.pos_y * rate;
         if (this.px < -Screen.SCR_HALF_WIDTH)
             this.px = -Screen.SCR_HALF_WIDTH;
         if (this.px > Screen.SCR_HALF_WIDTH)
@@ -73,8 +82,8 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
             this.py = -Screen.SCR_HALF_HEIGHT;
         if (this.py > Screen.SCR_HALF_HEIGHT)
             this.py = Screen.SCR_HALF_HEIGHT;
-        this.time += EntityPool.INSTANCE.special_effects.time_rate;
-        this.dir = this.time * Math.PI * 2 / 600;
+        if (this.shaped_sprite?.sprite)
+            this.dir = this.time * this.shaped_sprite.sprite.omega;
         this.proto.updateShoot(SelfMachine.action.key_z);
         this.bomb = this.proto.updateBomb(SelfMachine.action.key_x);
         this.proto.updateSpecial(SelfMachine.action.key_c);
@@ -127,6 +136,18 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
         if (this.pre_miss == 0 && this.miss_time == 0)
             this.miss = true;
         return s.damaged(s, this);
+    }
+
+    public collideCheck = (s: EntityAny) => {
+        const len = Math.sqrt((this.px - this.prex) ** 2 + (this.py - this.prey) ** 2);
+        const num = Math.max(1, Math.ceil(len / granularity));
+        var min = Infinity;
+        for (var i = 0; i < num; i++) {
+            const x = this.px + (this.prex - this.px) * i / num;
+            const y = this.py + (this.prey - this.py) * i / num;
+            min = Math.min(min, s.distanceTo(x, y));
+        }
+        return min < this.shaped_sprite.shape.radius;
     }
 
 }

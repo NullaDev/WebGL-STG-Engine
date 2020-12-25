@@ -9,8 +9,7 @@ import { StageInit } from "./stage/StageInit";
 import { ShapeCircle, ShapeDualArc, ShapePoint, SIPoint, SSPoint } from "./util/Shape";
 import { clone } from "./entity/Entity";
 import { RayLaser, RayLaserConfig, RayLaserMotion } from "./entity/RayLaser";
-import { move_point_event_listener_template, ray_laser_event_listener_template, ReflectConfig, reflect_config_default, reflect_disable, reflect_linear, reflect_rl, RLReflectConfig, rl_reflect_config_default } from "./entity/ComplexListener";
-import { SSCurve } from "./util/Curve";
+import { move_point_event_listener_template, ray_laser_event_listener_template, ReflectConfig, reflect_config_default, reflect_disable, reflect_linear, reflect_rl, rl_reflect_config_default } from "./entity/ComplexListener";
 
 const sm_proto: PlayerPrototype = {
     updateShoot(shoot: boolean) {
@@ -117,7 +116,7 @@ var selected_stage = null;
 
     // RayLaser Hitbox & Sprite Test
     const test_000 = (time_scale: number) => {
-        const rslla = (t: SRes.RayLaserType, h: number, e: number) => SRes.getRayLaser(t, Res.S_Color.Red, Res.M_Color.Red, Res.Sprite_Mode.AddBlend, h, e);
+        const rslla = (t: SRes.RayLaserType, h: number, e: number) => SRes.getRayLaser(t, Res.S_Color.Red, Res.M_Color.Red, Res.Sprite_Mode.AddBlend, h, e, 1);
         const rlsss = [
             rslla(SRes.RayLaserType.Laser, 0, 0),
             rslla(SRes.RayLaserType.Laser, 1, 1),
@@ -328,7 +327,8 @@ var selected_stage = null;
 
     // reflect laser
     const stage_005 = (time_scale: number) => {
-        const rlbody = SRes.getRayLaser(SRes.RayLaserType.Grain, Res.S_Color.Blue, Res.M_Color.Blue, Res.Sprite_Mode.AddBlend, 1, 1);
+        const magn = 0.5;
+        const rlbody = SRes.getRayLaser(SRes.RayLaserType.Grain, Res.S_Color.Blue, Res.M_Color.Blue, Res.Sprite_Mode.AddBlend, 1, 1, magn);
         const cf: RayLaserConfig = {
             render_layer: template_config_bullet.render_layer,
             collide_group: template_config_bullet.collide_group,
