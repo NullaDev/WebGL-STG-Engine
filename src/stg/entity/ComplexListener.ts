@@ -153,9 +153,11 @@ export const reflect_rl: RLAdder<RLReflectConfig> = (config: RLReflectConfig) =>
         const cs = <CS_RL_REF>self.custom_fields;
         if (cs.togrow > 0) {
             const g = Math.min(cs.togrow, config.v * time_rate);
+            time_rate -= g / config.v;
             self.len += g;
             cs.togrow -= g;
-        } else {
+        }
+        if (time_rate > 0) {
             self.px += time_rate * cs.vx;
             self.py += time_rate * cs.vy;
         }
@@ -182,9 +184,11 @@ export const reflect_rl: RLAdder<RLReflectConfig> = (config: RLReflectConfig) =>
         }
         if (cs.togrow > 0) {
             const g = Math.min(cs.togrow, config.v * time_rate);
+            time_rate -= g / config.v;
             self.len += g;
             cs.togrow -= g;
-        } else {
+        }
+        if (time_rate > 0) {
             self.px += time_rate * cs.vx;
             self.py += time_rate * cs.vy;
         }

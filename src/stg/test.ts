@@ -327,7 +327,7 @@ var selected_stage = null;
 
     // reflect laser
     const stage_005 = (time_scale: number) => {
-        const magn = 0.5;
+        const magn = 0.75;
         const rlbody = SRes.getRayLaser(SRes.RayLaserType.Grain, Res.S_Color.Blue, Res.M_Color.Blue, Res.Sprite_Mode.AddBlend, 1, 1, magn);
         const cf: RayLaserConfig = {
             render_layer: template_config_bullet.render_layer,
@@ -349,11 +349,13 @@ var selected_stage = null;
         rlcf.cf = bcf;
         reflect_rl(rlcf)(cf.listener);
 
+        const a0 = Math.random() * 2 * Math.PI;
+
         return new Scheduler([
             30 * time_scale,
             repeat((i0) => [
-                () => EntityPool.INSTANCE.add(new RayLaser(rlbody, cf, null).init(0, 0, Math.PI * 2 * 0.03 * i0, 0)),
-                10 * time_scale
+                () => EntityPool.INSTANCE.add(new RayLaser(rlbody, cf, null).init(0, 0, a0 + Math.PI * 2 *0.0234 * i0, 0)),
+                3 * time_scale
             ])
         ]);
     }
