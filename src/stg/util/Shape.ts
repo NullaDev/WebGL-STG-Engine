@@ -36,6 +36,11 @@ export class ShapeCircle extends ShapePoint {
         return Math.sqrt((px - ox) ** 2 + (py - oy) ** 2) - this.radius * magn;
     }
 
+    public rawExitScreen(px:number, py:number, shaped_sprite: SSPoint<ShapeCircle>, rw: number, rh: number): boolean {
+        const r = Math.sqrt(shaped_sprite.w ** 2 + shaped_sprite.h ** 2);
+        return Math.abs(px) > rw + r || Math.abs(py) > rh + r;
+    }
+
 }
 
 export class ShapeDualArc extends ShapePoint {

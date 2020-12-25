@@ -1,6 +1,8 @@
 import { SCR_HALF_HEIGHT, SCR_HALF_WIDTH } from "../../platform/Screen";
+import { EntityPool } from "../stage/EntityPool";
+import { State } from "./Entity";
 import { MovePoint, MovePointEventListener } from "./MovePoint";
-import { RayLaserEventListener } from "./RayLaser";
+import { RayLaser, RayLaserConfig, RayLaserEventListener, RayLaserMotion, RayLaserState, SSRay } from "./RayLaser";
 
 export const move_point_event_listener_template: MovePointEventListener = {
     onInit: [],
@@ -25,6 +27,7 @@ export const ray_laser_event_listener_template: RayLaserEventListener = {
 }
 
 export type Adder<Config> = (config: Config) => (lst: MovePointEventListener) => void;
+export type RLAdder<Config> = (config: Config) => (lst: RayLaserEventListener) => void;
 
 type CS_REF = {
     in_screen: boolean;
@@ -112,8 +115,122 @@ export const reflect_linear: Adder<ReflectConfig> = (config: ReflectConfig) => (
     })
 }
 
-export const reflect_disable: (config:ReflectConfig)=>(e:MovePoint<any>)=> void = 
-    (config:ReflectConfig)=>(e:MovePoint<any>)=>(<CS_REF>e.custom_fields).ref_count = config.max
+export const reflect_disable: (config: ReflectConfig) => (e: MovePoint<any>) => void =
+    (config: ReflectConfig) => (e: MovePoint<any>) => (<CS_REF>e.custom_fields).ref_count = config.max
+
+type CS_RL_REF = {
+    vx: number,
+    vy: number,
+    ref_count: number,
+    grow: number,
+    togrow: number,
+}
+
+export type RLReflectConfig = {
+    w0: number,
+    w1: number,
+    h0: number,
+    h1: number,
+    max: number,
+    v: number,
+    maxlen: number,
+    body: SSRay,
+    cf: RayLaserConfig,
+}
+
+export const rl_reflect_config_default: RLReflectConfig = {
+    w0: -SCR_HALF_WIDTH/2,
+    w1: SCR_HALF_WIDTH/2,
+    h0: -SCR_HALF_HEIGHT/2,
+    h1: SCR_HALF_HEIGHT/2,
+    max: Infinity, maxlen: 64,
+    v: 3, body: null, cf: null
+}
+
+export const reflect_rl: RLAdder<RLReflectConfig> = (config: RLReflectConfig) => (lst: RayLaserEventListener) => {
+
+    const motion: RayLaserMotion = (self: RayLaser, time_rate: number) => {
+        const cs = <CS_RL_REF>self.custom_fields;
+
+        if (cs.togrow > 0) {
+            const g = Math.min(cs.togrow, cs.grow * time_rate);
+            self.len += g;
+            cs.togrow -= g;
+        } else {
+            self.px += time_rate * cs.vx;
+            self.py += time_rate * cs.vy;
+        }
+        if (self.shaped_sprite.end.shape.rawExitScreen(
+            self.px + self.len * Math.cos(self.dir),
+            self.py + self.len * Math.sin(self.dir),
+            self.shaped_sprite.base, SCR_HALF_WIDTH, SCR_HALF_HEIGHT) &&
+            self.shaped_sprite.base.shape.rawExitScreen(
+                self.px, self.py, self.shaped_sprite.base, SCR_HALF_WIDTH, SCR_HALF_HEIGHT))
+            self.state = State.DEAD;
+    }
+
+    const within = (px: number, py: number) => px > config.w0 && px < config.w1 && py > config.h0 && py < config.h1
+
+    const bmotion: RayLaserMotion = (self: RayLaser, time_rate: number) => {
+        const cs = <CS_RL_REF>self.custom_fields;
+        self.px += time_rate * cs.vx;
+        self.py += time_rate * cs.vy;
+        if (self.shaped_sprite.base.shape.rawExitScreen(self.px, self.py, self.shaped_sprite.base, SCR_HALF_WIDTH, SCR_HALF_HEIGHT))
+            self.state = State.DEAD;
+    }
+
+
+    lst.onInit.push((self: RayLaser) => {
+        const cs = <CS_RL_REF>self.custom_fields;
+        cs.ref_count = 0;
+        cs.vx = config.v * Math.cos(self.dir);
+        cs.vy = config.v * Math.sin(self.dir);
+        cs.grow = config.v;
+        cs.togrow = config.maxlen;
+        self.motion = motion;
+    });
+
+    lst.onPostMotion.push((self: RayLaser, rate: number) => {
+        const cs = <CS_RL_REF>self.custom_fields;
+        const headw = within(self.px, self.py);
+        const ex = self.px + self.len * Math.cos(self.dir);
+        const ey = self.py + self.len * Math.sin(self.dir);
+        const endw = within(ex, ey);
+        if (!endw) {
+            if (cs.ref_count < config.max) {
+                const rl = new RayLaser(config.body, config.cf, bmotion);
+                rl.init(self.px, self.py, self.dir, self.len);
+                const subcs = <CS_RL_REF>rl.custom_fields;
+                subcs.vx = cs.vx;
+                subcs.vy = cs.vy;
+                EntityPool.INSTANCE.add(rl);
+            }
+            if (cs.ref_count < config.max && ex <= config.w0) {
+                cs.ref_count++;
+                cs.vx = -cs.vx;
+                self.px = 2 * config.w0 - self.px;
+            }
+            if (cs.ref_count < config.max && ex >= config.w1) {
+                cs.ref_count++;
+                cs.vx = -cs.vx;
+                self.px = 2 * config.w1 - self.px;
+            }
+            if (cs.ref_count < config.max && ey <= config.h0) {
+                cs.ref_count++;
+                cs.vy = -cs.vy;
+                self.py = 2 * config.h0 - self.py;
+            }
+            if (cs.ref_count < config.max && ey >= config.h1) {
+                cs.ref_count++;
+                cs.vy = -cs.vy;
+                self.py = 2 * config.h1 - self.py;
+            }
+            self.dir = Math.atan2(cs.vy, cs.vx);
+        }
+    })
+}
+
+/*
 
 type CS_REF_M = {
     ori_px: number,
@@ -155,3 +272,5 @@ export const reflect_map: Adder<ReflectConfig> = (config: ReflectConfig) => (lst
     });
 
 }
+
+*/

@@ -9,7 +9,7 @@ import { StageInit } from "./stage/StageInit";
 import { ShapeCircle, ShapeDualArc, ShapePoint, SIPoint, SSPoint } from "./util/Shape";
 import { clone } from "./entity/Entity";
 import { RayLaser, RayLaserConfig, RayLaserMotion } from "./entity/RayLaser";
-import { move_point_event_listener_template, ReflectConfig, reflect_config_default, reflect_disable, reflect_linear } from "./entity/ComplexListener";
+import { move_point_event_listener_template, ray_laser_event_listener_template, ReflectConfig, reflect_config_default, reflect_disable, reflect_linear, reflect_rl, RLReflectConfig, rl_reflect_config_default } from "./entity/ComplexListener";
 import { SSCurve } from "./util/Curve";
 
 const sm_proto: PlayerPrototype = {
@@ -328,10 +328,37 @@ var selected_stage = null;
 
     // reflect laser
     const stage_005 = (time_scale: number) => {
+        const rlbody = SRes.getRayLaser(SRes.RayLaserType.Grain, Res.S_Color.Blue, Res.M_Color.Blue, Res.Sprite_Mode.AddBlend, 1, 1);
+        const cf: RayLaserConfig = {
+            render_layer: template_config_bullet.render_layer,
+            collide_group: template_config_bullet.collide_group,
+            collide_mask: template_config_bullet.collide_mask,
+            warning_time: 0,
+            open_time: 0,
+            alive_time: Infinity,
+            close_time: 0,
+            listener: null
+        };
+        const bcf = clone(cf);
+        cf.listener = clone(ray_laser_event_listener_template);
+        const rlcf = clone(rl_reflect_config_default);
+        rlcf.max = 2;
+        rlcf.v = 8 / time_scale;
+        rlcf.maxlen = 128;
+        rlcf.body = rlbody;
+        rlcf.cf = bcf;
+        reflect_rl(rlcf)(cf.listener);
 
+        return new Scheduler([
+            30 * time_scale,
+            repeat((i0) => [
+                () => EntityPool.INSTANCE.add(new RayLaser(rlbody, cf, null).init(0, 0, Math.PI * 2 * 0.03 * i0, 0)),
+                10 * time_scale
+            ])
+        ]);
     }
 
-    selected_stage = test_000;
+    selected_stage = stage_005;
 
 }
 

@@ -162,6 +162,7 @@ export class RayLaser extends SIRay implements Entity<RayLaser, RENDER_TYPE.RECT
     public config: RayLaserConfig;
     public motion: RayLaserMotion;
     public time: number = 0;
+    public custom_fields: any = {};
 
     constructor(shaped_shape: SSRay, cf: RayLaserConfig, m: RayLaserMotion) {
         super(shaped_shape);
@@ -174,16 +175,15 @@ export class RayLaser extends SIRay implements Entity<RayLaser, RENDER_TYPE.RECT
         this.dir = dir;
         this.px = px;
         this.py = py;
+        this.checkState();
         return this;
     }
 
-    public update(_: RayLaser) {
+    private checkState() {
         if (this.state == State.PRE_ENTRY) {
             this.state = State.LEAVING;
             this.config.listener?.onInit?.forEach(e => e(this));
         }
-        const rate = EntityPool.INSTANCE.special_effects.time_rate;
-        this.time += rate;
         const tw = this.config.warning_time;
         const to = this.config.open_time + tw;
         const ta = this.config.alive_time + to;
@@ -213,6 +213,16 @@ export class RayLaser extends SIRay implements Entity<RayLaser, RENDER_TYPE.RECT
                 this.config.listener?.onDestroy?.forEach(e => e(this));
             }
         }
+    }
+
+    public update(_: RayLaser) {
+        if (this.state == State.PRE_ENTRY) {
+            this.state = State.LEAVING;
+            this.config.listener?.onInit?.forEach(e => e(this));
+        }
+        const rate = EntityPool.INSTANCE.special_effects.time_rate;
+        this.time += rate;
+        this.checkState();
         this.config.listener?.onUpdate?.forEach(e => e(this, rate));
         this.motion(this, rate);
         this.config.listener?.onPostMotion?.forEach(e => e(this, rate));
