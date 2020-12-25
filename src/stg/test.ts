@@ -8,8 +8,8 @@ import { EntityPool } from "./stage/EntityPool";
 import { StageInit } from "./stage/StageInit";
 import { ShapeCircle, ShapeDualArc, ShapePoint, SIPoint, SSPoint } from "./util/Shape";
 import { clone } from "./entity/Entity";
-import { RayLaser, RayLaserConfig, RayLaserMotion } from "./entity/RayLaser";
-import { move_point_event_listener_template, ray_laser_event_listener_template, ReflectConfig, reflect_config_default, reflect_disable, reflect_linear, reflect_rl, rl_reflect_config_default } from "./entity/ComplexListener";
+import { RayLaser, RayLaserConfig, RayLaserMotion, SSRay } from "./entity/RayLaser";
+import { move_point_event_listener_template, ray_laser_event_listener_template, ReflectConfig, reflect_config_default, reflect_disable, reflect_linear, reflect_rl, RLReflectConfig, rl_reflect_config_default } from "./entity/ComplexListener";
 
 const sm_proto: PlayerPrototype = {
     updateShoot(shoot: boolean) {
@@ -210,7 +210,7 @@ const sinit: StageInit = {
     const stage_003 = (time_scale: number) => {
         const ss = SRes.getSSCircle(Res.get_small(Res.S_Type.Grain, Res.S_Color.Red, Res.Sprite_Mode.Overlay), 1);
         const cf = clone(template_config_bullet);
-        cf.listener = clone(move_point_event_listener_template);
+        cf.listener = move_point_event_listener_template();
         const refcf = clone(reflect_config_default);
         refcf.max = 100;
         reflect_linear(refcf)(cf.listener);
@@ -272,8 +272,8 @@ const sinit: StageInit = {
         const sss = [ss0, ss1];
         const cf0 = clone(template_config_bullet);
         const cf1 = clone(template_config_bullet);
-        cf0.listener = clone(move_point_event_listener_template);
-        cf1.listener = clone(move_point_event_listener_template);
+        cf0.listener = move_point_event_listener_template();
+        cf1.listener = move_point_event_listener_template();
         const refcf0 = clone(reflect_config_default);
         const refcf1 = clone(reflect_config_default);
         refcf0.max = 2;
@@ -332,35 +332,53 @@ const sinit: StageInit = {
     // reflect laser
     const stage_005 = (time_scale: number) => {
         const magn = 0.75;
-        const rlbody = SRes.getRayLaser(SRes.RayLaserType.Grain, Res.S_Color.Blue, Res.M_Color.Blue, Res.Sprite_Mode.AddBlend, 1, 1, magn);
-        const cf: RayLaserConfig = {
-            render_layer: template_config_bullet.render_layer,
-            collide_group: template_config_bullet.collide_group,
-            collide_mask: template_config_bullet.collide_mask,
-            warning_time: 0,
-            open_time: 0,
-            alive_time: Infinity,
-            close_time: 0,
-            listener: null
-        };
-        const bcf = clone(cf);
-        cf.listener = clone(ray_laser_event_listener_template);
-        const rlcf = clone(rl_reflect_config_default);
-        rlcf.max = 2;
-        rlcf.v = 8 / time_scale;
-        rlcf.maxlen = 128;
-        rlcf.body = rlbody;
-        rlcf.cf = bcf;
-        reflect_rl(rlcf)(cf.listener);
 
-        const a0 = Math.random() * 2 * Math.PI;
+        const gen: (c0: Res.S_Color, c1: Res.M_Color) => [SSRay, RayLaserConfig, RLReflectConfig] = (c0: Res.S_Color, c1: Res.M_Color) => {
+            const rlbody = SRes.getRayLaser(SRes.RayLaserType.Grain, c0, c1, Res.Sprite_Mode.AddBlend, 1, 1, magn);
+            const cf: RayLaserConfig = {
+                render_layer: template_config_bullet.render_layer,
+                collide_group: template_config_bullet.collide_group,
+                collide_mask: template_config_bullet.collide_mask,
+                warning_time: 0,
+                open_time: 0,
+                alive_time: Infinity,
+                close_time: 0,
+                listener: null
+            };
+            const bcf = clone(cf);
+            cf.listener = ray_laser_event_listener_template();
+            const rlcf = clone(rl_reflect_config_default);
+            rlcf.max = 2;
+            rlcf.v = 8 / time_scale;
+            rlcf.maxlen = 128;
+            rlcf.body = rlbody;
+            rlcf.cf = bcf;
+            rlcf.name = `${c0}-${c1}`;
+            reflect_rl(rlcf)(cf.listener);
+            return [rlbody, cf, rlcf];
+        }
+
+        const data = [gen(Res.S_Color.Blue, Res.M_Color.Blue), gen(Res.S_Color.Red, Res.M_Color.Red)];
+
+        const w = Math.PI * 2 / time_scale;
+        const t0 = time_scale;
+
+        const adder = (n0: number, ind: number, ni: number, wi: number, ti: number, ai: number) => repeat((i0) => [
+            repeat((i1) => [
+                () => EntityPool.INSTANCE.add(new RayLaser(data[ind][0], data[ind][1], null)
+                    .init(0, 0, ai + Math.PI * 2 / ni * i1 + wi * i0, 0)),
+            ], ni),
+            ti
+        ], n0);
 
         return new Scheduler([
             30 * time_scale,
             repeat((i0) => [
-                () => EntityPool.INSTANCE.add(new RayLaser(rlbody, cf, null).init(0, 0, a0 + Math.PI * 2 *0.0234 * i0, 0)),
-                3 * time_scale
-            ])
+                adder(20, 0, 3, (i0 % 2 * 2 - 1) * w * 0.0678, t0 * 6, Math.random() * 2 * Math.PI),
+                100 * time_scale,
+                adder(120, 1, 1, (i0 % 2 * 2 - 1) * w * 0.0234, t0, Math.random() * 2 * Math.PI),
+                100 * time_scale
+            ]),
         ]);
     }
 

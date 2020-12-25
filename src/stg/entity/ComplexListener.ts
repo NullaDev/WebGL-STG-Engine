@@ -4,7 +4,7 @@ import { State } from "./Entity";
 import { MovePoint, MovePointEventListener } from "./MovePoint";
 import { RayLaser, RayLaserConfig, RayLaserEventListener, RayLaserMotion, RayLaserState, SSRay } from "./RayLaser";
 
-export const move_point_event_listener_template: MovePointEventListener = {
+export const move_point_event_listener_template: () => MovePointEventListener = () => ({
     onInit: [],
     onUpdate: [],
     onPostMotion: [],
@@ -13,9 +13,9 @@ export const move_point_event_listener_template: MovePointEventListener = {
     onDestroy: [],
     onExitScreen: [],
     onKill: []
-}
+});
 
-export const ray_laser_event_listener_template: RayLaserEventListener = {
+export const ray_laser_event_listener_template: () => RayLaserEventListener = () => ({
     onInit: [],
     onUpdate: [],
     onPostMotion: [],
@@ -24,7 +24,7 @@ export const ray_laser_event_listener_template: RayLaserEventListener = {
     onAttack: [],
     onContact: [],
     onDestroy: []
-}
+});
 
 export type Adder<Config> = (config: Config) => (lst: MovePointEventListener) => void;
 export type RLAdder<Config> = (config: Config) => (lst: RayLaserEventListener) => void;
@@ -127,6 +127,7 @@ type CS_RL_REF = {
 }
 
 export type RLReflectConfig = {
+    name: string,
     w0: number,
     w1: number,
     h0: number,
@@ -139,6 +140,7 @@ export type RLReflectConfig = {
 }
 
 export const rl_reflect_config_default: RLReflectConfig = {
+    name: "",
     w0: -SCR_HALF_WIDTH,
     w1: SCR_HALF_WIDTH,
     h0: -SCR_HALF_HEIGHT,
@@ -195,7 +197,6 @@ export const reflect_rl: RLAdder<RLReflectConfig> = (config: RLReflectConfig) =>
         if (self.shaped_sprite.base.shape.rawExitScreen(self.px, self.py, self.shaped_sprite.base, SCR_HALF_WIDTH, SCR_HALF_HEIGHT))
             self.state = State.DEAD;
     }
-
 
     lst.onInit.push((self: RayLaser) => {
         const cs = <CS_RL_REF>self.custom_fields;

@@ -2,7 +2,7 @@ import * as stg from "./stg/test"
 import * as pf from "./platform/platform_init"
 
 async function main() {
-    pf.test_fps();
+    //pf.test_fps();
     pf.setup_canvas();
     await stg.init();
     pf.mainloop_start();
