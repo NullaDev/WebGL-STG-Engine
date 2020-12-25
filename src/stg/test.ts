@@ -117,10 +117,19 @@ var selected_stage = null;
 
     // RayLaser Hitbox & Sprite Test
     const test_000 = (time_scale: number) => {
-        const rlss0 = SRes.getRayLaser(SRes.RayLaserType.Laser, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
-        const rlss1 = SRes.getRayLaser(SRes.RayLaserType.Scale, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
-        const rlss2 = SRes.getRayLaser(SRes.RayLaserType.Grain, Res.S_Color.Red, Res.Sprite_Mode.AddBlend);
-        const rlsss = [rlss0, rlss1, rlss2];
+        const rslla = (t: SRes.RayLaserType, h: number, e: number) => SRes.getRayLaser(t, Res.S_Color.Red, Res.M_Color.Red, Res.Sprite_Mode.AddBlend, h, e);
+        const rlsss = [
+            rslla(SRes.RayLaserType.Laser, 0, 0),
+            rslla(SRes.RayLaserType.Laser, 1, 1),
+            rslla(SRes.RayLaserType.Laser, 0, 1),
+            rslla(SRes.RayLaserType.Laser, 1, 0),
+            rslla(SRes.RayLaserType.Grain, 0, 0),
+            rslla(SRes.RayLaserType.Grain, 1, 1),
+            rslla(SRes.RayLaserType.Grain, 0, 1),
+            rslla(SRes.RayLaserType.Grain, 1, 0),
+            rslla(SRes.RayLaserType.Scale, 0, 0),
+            rslla(SRes.RayLaserType.Scale, 1, 0),
+        ];
         const cf: RayLaserConfig = {
             render_layer: template_config_bullet.render_layer,
             collide_group: template_config_bullet.collide_group,
@@ -134,14 +143,14 @@ var selected_stage = null;
 
         const motion: (w: number) => RayLaserMotion = (w: number) => (self: RayLaser, time_rate: number) => self.dir += time_rate * w;
 
-        const n = 18;
+        const n = 10;
         const w0 = 0 * Math.PI * 2 / 240 / time_scale;
 
         return new Scheduler([
             30 * time_scale,
             repeat((i0) => [
                 repeat((i1) => [
-                    () => EntityPool.INSTANCE.add(new RayLaser(rlsss[i1 % 3], cf, motion(w0 * (i0 % 2 * 2 - 1)))
+                    () => EntityPool.INSTANCE.add(new RayLaser(rlsss[i1], cf, motion(w0 * (i0 % 2 * 2 - 1)))
                         .init(Math.cos(Math.PI * 2 / n * i1) * 50, Math.sin(Math.PI * 2 / n * i1) * 50, Math.PI * 2 / n * i1, 100))
                 ], n),
                 6000 * time_scale
@@ -317,8 +326,12 @@ var selected_stage = null;
         ]);
     }
 
+    // reflect laser
+    const stage_005 = (time_scale: number) => {
 
-    selected_stage = stage_004;
+    }
+
+    selected_stage = test_000;
 
 }
 

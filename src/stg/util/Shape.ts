@@ -32,6 +32,10 @@ export class ShapeCircle extends ShapePoint {
         return Math.sqrt((px - self.px) ** 2 + (py - self.py) ** 2) - this.radius * self.magn;
     }
 
+    public rawDistanceTo(ox:number, oy:number, magn:number, px: number, py: number): number {
+        return Math.sqrt((px - ox) ** 2 + (py - oy) ** 2) - this.radius * magn;
+    }
+
 }
 
 export class ShapeDualArc extends ShapePoint {

@@ -120,6 +120,8 @@ export class MovePoint<S extends ShapePoint> extends SIPoint<S> implements Entit
             if (this.config.auto_direction)
                 this.dir = Math.atan2(this.vy, this.vx);
         }
+        if(this.shaped_sprite.sprite.omega)
+            this.dir = this.time * this.shaped_sprite.sprite.omega;
         this.config.listener?.onPostMotion?.forEach(e => e(this, rate));
     }
 

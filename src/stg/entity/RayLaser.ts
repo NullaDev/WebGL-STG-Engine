@@ -1,4 +1,4 @@
-import { Shape, ShapedInstance, ShapedSprite, ShapeDualArc } from "../util/Shape";
+import { Shape, ShapeCircle, ShapedInstance, ShapedSprite, ShapeDualArc, SSPoint } from "../util/Shape";
 import { RECT, RENDER_TYPE } from "../util/SpriteManager";
 import { EntityPool } from "../stage/EntityPool";
 import { Config, Entity, EntityAny, State } from "./Entity";
@@ -13,14 +13,18 @@ export class ShapeRay extends Shape<SIRay> {
     }
 
     public distanceTo(self: SIRay, x: number, y: number): number {
-        return this.func(self, x, y);
+        return Math.min(this.func(self, x, y),
+            self.shaped_sprite.base.shape.rawDistanceTo(self.px, self.py, 1, x, y),
+            self.shaped_sprite.end.shape.rawDistanceTo(
+                self.px + self.len * Math.cos(self.dir),
+                self.py + self.len * Math.sin(self.dir), 1, x, y));
     }
 
     public static line_circle(self: SIRay, x: number, y: number): number {
-        const x0 = self.px;
-        const y0 = self.py;
-        const x1 = self.px + self.len * Math.cos(self.dir);
-        const y1 = self.py + self.len * Math.sin(self.dir);
+        const x0 = self.px + self.shaped_sprite.hitbox_width * Math.cos(self.dir);
+        const y0 = self.py + self.shaped_sprite.hitbox_width * Math.sin(self.dir);
+        const x1 = self.px + (self.len - self.shaped_sprite.hitbox_width) * Math.cos(self.dir);
+        const y1 = self.py + (self.len - self.shaped_sprite.hitbox_width) * Math.sin(self.dir);
         const rl = Math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2);
         const dis = Math.abs((x1 - x0) * (y0 - y) - (x0 - x) * (y1 - y0));
         const d0 = Math.sqrt((x0 - x) ** 2 + (y0 - y) ** 2);
@@ -82,6 +86,8 @@ export class SSRay extends ShapedSprite<SSRay, RENDER_TYPE.RECT, SIRay, ShapeRay
     public sprite_width: number;
     public hitbox_width: number;
     public l_ratio: number;
+    public base: SSPoint<ShapeCircle>;
+    public end: SSPoint<ShapeCircle>;
 }
 
 export class SIRay extends ShapedInstance<SIRay, RENDER_TYPE.RECT, ShapeRay, SSRay> implements RECT {
@@ -98,7 +104,7 @@ export class SIRay extends ShapedInstance<SIRay, RENDER_TYPE.RECT, ShapeRay, SSR
     }
 
     rectCount(): number {
-        return 1;
+        return 3;
     }
 
     render(xyrwh: Float32Array, i: number): void {
@@ -108,7 +114,38 @@ export class SIRay extends ShapedInstance<SIRay, RENDER_TYPE.RECT, ShapeRay, SSR
         xyrwh[i * 10 + 2] = this.dir + Math.PI / 2;
         xyrwh[i * 10 + 3] = Math.max(1, this.shaped_sprite.sprite_width * this.w);
         xyrwh[i * 10 + 4] = l;
-        const sprite = this.shaped_sprite.sprite;
+        var sprite = this.shaped_sprite.sprite;
+        xyrwh[i * 10 + 5] = sprite.tx / sprite.sprite.w;
+        xyrwh[i * 10 + 6] = sprite.ty / sprite.sprite.h;
+        xyrwh[i * 10 + 7] = sprite.tw / sprite.sprite.w;
+        xyrwh[i * 10 + 8] = sprite.th / sprite.sprite.h;
+        xyrwh[i * 10 + 9] = 1;
+
+        i++;
+
+        var ss = this.shaped_sprite.base;
+        xyrwh[i * 10 + 0] = this.px;
+        xyrwh[i * 10 + 1] = this.py;
+        xyrwh[i * 10 + 2] = this.dir + Math.PI / 2;
+        xyrwh[i * 10 + 3] = ss.w / 2;
+        xyrwh[i * 10 + 4] = ss.h / 2;
+        sprite = ss.sprite;
+        xyrwh[i * 10 + 5] = sprite.tx / sprite.sprite.w;
+        xyrwh[i * 10 + 6] = sprite.ty / sprite.sprite.h;
+        xyrwh[i * 10 + 7] = sprite.tw / sprite.sprite.w;
+        xyrwh[i * 10 + 8] = sprite.th / sprite.sprite.h;
+        xyrwh[i * 10 + 9] = 1;
+
+
+        i++;
+
+        ss = this.shaped_sprite.end;
+        xyrwh[i * 10 + 0] = this.px + this.len * Math.cos(this.dir);
+        xyrwh[i * 10 + 1] = this.py + this.len * Math.sin(this.dir);
+        xyrwh[i * 10 + 2] = this.dir + Math.PI / 2;
+        xyrwh[i * 10 + 3] = ss.w / 2;
+        xyrwh[i * 10 + 4] = ss.h / 2;
+        sprite = ss.sprite;
         xyrwh[i * 10 + 5] = sprite.tx / sprite.sprite.w;
         xyrwh[i * 10 + 6] = sprite.ty / sprite.sprite.h;
         xyrwh[i * 10 + 7] = sprite.tw / sprite.sprite.w;

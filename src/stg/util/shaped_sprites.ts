@@ -2,7 +2,7 @@ import { ShapeRay, SSRay } from "../entity/RayLaser";
 import { CurveNode, ShapeCurve, SSCurve } from "./Curve";
 import { ShapeCircle, ShapeDualArc, SSPoint } from "./Shape";
 import { RENDER_TYPE } from "./SpriteManager";
-import { Sprite, get_small, S_Type, S_Color, Sprite_Mode, Category } from "./sprites";
+import { Sprite, get_small, S_Type, S_Color, Sprite_Mode, Category, get_middle, M_Type, M_Color } from "./sprites";
 
 export enum RayLaserType { Laser = S_Type.Laser, Scale = S_Type.Scale, Grain = S_Type.Grain }
 
@@ -32,8 +32,8 @@ export function getLongBullet(color: S_Color, mode: Sprite_Mode, len: number): S
     }
 }
 
-export function getRayLaser(type: RayLaserType, color: S_Color, mode: Sprite_Mode): SSRay {
-    const sprite = get_small(<number>type, color, mode);
+export function getRayLaser(type: RayLaserType, scolor: S_Color, mcolor: M_Color, mode: Sprite_Mode, head: number, end: number): SSRay {
+    const sprite = get_small(<number>type, scolor, mode);
     sprite.ty += type == RayLaserType.Laser ? 4 : type == RayLaserType.Grain ? 1 : type == RayLaserType.Scale ? 1 : NaN;
     sprite.th -= type == RayLaserType.Laser ? 8 : type == RayLaserType.Grain ? 2 : type == RayLaserType.Scale ? 1 : NaN;
     return {
@@ -46,7 +46,9 @@ export function getRayLaser(type: RayLaserType, color: S_Color, mode: Sprite_Mod
         renderType: RENDER_TYPE.RECT,
         sprite_width: sprite.tw * mag / 2,
         hitbox_width: 2.4 * mag,
-        l_ratio: type == RayLaserType.Laser ? 1 : type == RayLaserType.Grain ? 1 : type == RayLaserType.Scale ? 1.2 : NaN
+        l_ratio: type == RayLaserType.Laser ? 1 : end > 0 ? 1 : type == RayLaserType.Grain ? 1.15 : type == RayLaserType.Scale ? 1.2 : NaN,
+        base: getSSCircle(get_middle(M_Type.Light, mcolor, mode), head),
+        end: getSSCircle(get_middle(M_Type.Light, mcolor, mode), end)
     }
 }
 

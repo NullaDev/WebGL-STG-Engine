@@ -16,7 +16,8 @@ export type Sprite = {
     mode: Sprite_Mode,
     category: Category,
     type: number,
-    color: number
+    color: number,
+    omega: number
 };
 
 export enum S_Color { Grey, RedX, Red, PinkX, Pink, BlueX, Blue, CyanX, Cyan, GreenX, Green, Lemon, YellowX, Yellow, Orange, White }
@@ -25,6 +26,10 @@ export enum M_Color { Grey, Red, Pink, Blue, Cyan, Green, Yellow, White }
 export enum M_Type { Light, Star, Ball, Butterfly, Knife, Oval, LightX, Heart }
 export enum L_Color { Red, Blue, Green, Yellow }
 export enum L_Type { Ball, Rose }
+
+const s_rot = [0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0];
+const m_rot = [1, 1, 1, 0, 0, 0, 1, 0];
+const rot = Math.PI * 2 / 600;
 
 export const res_000: SpriteSource = { path: "assets/bullet_000.png", w: 516, h: 772 };
 
@@ -47,7 +52,8 @@ export function get_small(type: S_Type, color: S_Color, mode: Sprite_Mode): Spri
         mode: mode,
         category: Category.Small,
         type: type,
-        color: color
+        color: color,
+        omega: s_rot[type] * rot
     };
 }
 
@@ -63,7 +69,8 @@ export function get_middle(type: M_Type, color: M_Color, mode: Sprite_Mode): Spr
         mode: mode,
         category: Category.Medium,
         type: type,
-        color: color
+        color: color,
+        omega: m_rot[type] * rot
     };
 }
 
@@ -77,7 +84,8 @@ export function get_large(type: L_Type, color: L_Color, mode: Sprite_Mode): Spri
         mode: mode,
         category: Category.Large,
         type: type,
-        color: color
+        color: color,
+        omega: rot
     };
 }
 
@@ -86,7 +94,7 @@ export const self_machine_foreground: Sprite = {
     tx: 258, ty: 17, tw: 64, th: 64,
     mode: Sprite_Mode.Overlay,
     category: Category.Special,
-    type: 0, color: 0
+    type: 0, color: 0, omega: rot
 };
 
 export const self_machine_background: Sprite = {
@@ -94,7 +102,7 @@ export const self_machine_background: Sprite = {
     tx: 322, ty: 17, tw: 64, th: 64,
     mode: Sprite_Mode.Overlay,
     category: Category.Special,
-    type: 1, color: 0
+    type: 1, color: 0, omega: rot
 };
 
 export const boss_background: Sprite = {
@@ -102,5 +110,5 @@ export const boss_background: Sprite = {
     tx: 386, ty: 81, tw: 128, th: 128,
     mode: Sprite_Mode.Overlay,
     category: Category.Special,
-    type: 2, color: 0
+    type: 2, color: 0, omega: rot
 };

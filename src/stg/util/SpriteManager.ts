@@ -76,7 +76,7 @@ export class SpriteManager {
                 r.render(xyrwh, i);
                 i += r.rectCount();
             }
-        gl.drawRects(xyrwh, list.length, this.img);
+        gl.drawRects(xyrwh, rectn, this.img);
     }
 
 }
