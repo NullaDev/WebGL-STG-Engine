@@ -40,7 +40,7 @@ export type MoverConfig = {
 export class Mover extends ScheduleEntry {
 
     public static random(target: SIPoint<any>, config: MoverConfig) {
-        return new Mover((self: Mover) => {
+        return () => new Mover((self: Mover) => {
             const minx = Math.max(config.px0 - target.px, -config.dx1);
             const maxx = Math.min(config.px1 - target.px, config.dx1);
             const miny = Math.max(config.py0 - target.py, -config.dy1);
@@ -88,9 +88,9 @@ export class Mover extends ScheduleEntry {
 
 class Adder extends ScheduleEntry {
 
-    public todo: () => number | ScheduleEntry | void;
+    public todo: ItemSup;
 
-    constructor(input: () => number | ScheduleEntry | void) {
+    constructor(input: ItemSup) {
         super();
         this.todo = input;
     }
@@ -117,14 +117,13 @@ export abstract class ScheduleSupplier {
 }
 
 type Item = ScheduleEntry | ScheduleSupplier;
-
-
-export type Input = (() => void | number | Item) | number | Item;
+type ItemSup = () => (void | number | Item);
+export type Input = ItemSup | number;
 
 function parse(input: Input[]): Item[] {
     return input.map(e =>
         typeof e == "number" ? new Wait(<number>e) :
-            typeof e == "function" ? new Adder(<() => any>e) :
+            typeof e == "function" ? new Adder(<ItemSup>e) :
                 e);
 }
 
@@ -162,6 +161,8 @@ export const template_config_scheduler: Config = {
     collide_mask: CM_GHOST
 }
 
+export type SchedulerParam = Input[] | ((parent: Scheduler) => Input[]);
+
 export class Scheduler extends SINull implements Entity<Scheduler, null, null, null> {
 
     public list: Item[];
@@ -170,9 +171,14 @@ export class Scheduler extends SINull implements Entity<Scheduler, null, null, n
     state: State = State.PRE_ENTRY;
     time: number = 0;
 
-    constructor(input: Input[] | ((parent: Scheduler) => Input[])) {
+    constructor(input: SchedulerParam) {
         super();
         this.list = parse(typeof input == "object" ? input : input(this));
+    }
+
+    public init(func: (self: Scheduler) => void) {
+        func(this);
+        return this;
     }
 
     public update(_: Scheduler) {
@@ -184,9 +190,8 @@ export class Scheduler extends SINull implements Entity<Scheduler, null, null, n
             var sss: ScheduleEntry | ScheduleSupplier = this.list[0];
             if (sss instanceof ScheduleSupplier) {
                 var list = sss.supply();
-                if (!list || !list.length) {
+                if (!list || !list.length)
                     this.list.shift();
-                }
                 else this.list = [...list, ...this.list];
             }
             else {
