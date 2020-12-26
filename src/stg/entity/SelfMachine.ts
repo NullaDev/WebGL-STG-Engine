@@ -1,8 +1,10 @@
-import { ShapeCircle, SIPoint, SSPoint } from "../util/Shape";
-import { RENDER_TYPE } from "../util/SpriteManager";
+import { ShapeCircle, ShapedInstance, SSPoint } from "../util/Shape";
+import { CUSTOM, RENDER_TYPE, SpriteManager } from "../util/SpriteManager";
 import * as Screen from "../../platform/Screen";
-import { Config, Entity, EntityAny, State, template_config_player, clone } from "./Entity";
+import { Config, Entity, EntityAny, RL_PLAYER, State, template_config_player } from "./Entity";
 import { EntityPool } from "../stage/EntityPool";
+import * as gl from "../../platform/gl"
+import * as Res from "../util/sprites"
 
 export type PlayerAction = {
     pos_x: number,
@@ -15,20 +17,65 @@ export type PlayerAction = {
 export type PlayerAbility = {
     readonly pre_miss: number,
     readonly miss_time: number,
-    readonly bomb_time: number
+    readonly bomb_time: number,
+    readonly graze_radius: number,
+    readonly max_graze: number,
+    readonly init_bomb: number,
+    readonly max_bomb: number,
+    readonly init_life: number,
+    readonly max_life: number,
+    readonly init_ability: number,
+    readonly max_ability: number
 }
 
-export interface PlayerPrototype {
-    updateShoot(shoot: boolean): boolean,
-    updateBomb(bomb: boolean): boolean,
-    updateSpecial(special: boolean): boolean
+export interface AbilityPrototype {
+    updateEnable(self: SelfMachine, enable: boolean): boolean;
+    render(layer: number, self: SelfMachine): void;
+    layers(): number[];
 }
 
-type SME = Entity<SelfMachine, RENDER_TYPE.RECT, ShapeCircle, SSPoint<ShapeCircle>>;
+export class PlayerPrototype {
+
+    constructor(
+        public shoot: AbilityPrototype,
+        public bomb: AbilityPrototype,
+        public ability: AbilityPrototype
+    ) { }
+
+    updateShoot(self: SelfMachine, shoot: boolean): boolean {
+        return this.shoot?.updateEnable(self, shoot);
+    }
+
+    updateBomb(self: SelfMachine, bomb: boolean): boolean {
+        return this.bomb?.updateEnable(self, bomb);
+
+    }
+
+    updateAbility(self: SelfMachine, ability: boolean): boolean {
+        return this.ability?.updateEnable(self, ability);
+
+    }
+
+    render(layer: number, self: SelfMachine): void {
+        this.shoot?.render(layer, self);
+        this.bomb?.render(layer, self);
+        this.ability?.render(layer, self);
+    }
+
+    layers(): number[] {
+        var ans: number[] = [];
+        if (this.shoot) ans = ans.concat(this.shoot.layers());
+        if (this.bomb) ans = ans.concat(this.bomb.layers());
+        if (this.ability) ans = ans.concat(this.ability.layers());
+        return ans;
+    }
+}
+
+type SME = Entity<SelfMachine, RENDER_TYPE.CUSTOM, any, any> & CUSTOM;
 
 const granularity = 2;
 
-export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
+export class SelfMachine extends ShapedInstance<SelfMachine, RENDER_TYPE.CUSTOM, any, any> implements SME {
 
     public static INSTANCE: SelfMachine = null;
     private static action: PlayerAction = null;
@@ -39,23 +86,32 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
 
     config: Config = template_config_player;
     state: State = State.ALIVE;
+    time: number = 0;
     readonly proto: PlayerPrototype;
     readonly ability: PlayerAbility;
     readonly sprite: SSPoint<ShapeCircle>;
 
-    miss: boolean = false;
-    bomb: boolean = false;
+    missed: boolean = false;
+    bombed: boolean = false;
+    grazed: boolean = false;
+    post_grazed: boolean = false;
     pre_miss: number = 0;
     miss_time: number = 0;
     invince_time: number = 0;
-
+    px = 0;
+    py = 0;
+    dir = 0;
     prex = 0;
     prey = 0;
 
-    time: number = 0;
+    graze_total: number = 0;
+    graze_current: number = 0;
+    bomb_count: number;
+    life_count: number;
+    ability_count: number;
 
     constructor(ss: SSPoint<ShapeCircle>, proto: PlayerPrototype, abi: PlayerAbility, x: number, y: number) {
-        super(clone(ss));
+        super(RENDER_TYPE.CUSTOM, null);
         SelfMachine.INSTANCE = this;
         this.proto = proto;
         this.ability = abi;
@@ -63,6 +119,10 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
         this.px = x;
         this.py = y;
         this.dir = 0;
+        this.bomb_count = abi.init_bomb;
+        this.life_count = abi.init_life;
+        this.ability_count = abi.init_ability;
+        this.renderType = RENDER_TYPE.CUSTOM;
     }
 
     update(_: SME): void {
@@ -72,8 +132,8 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
         this.prey = this.py;
         const rate = EntityPool.INSTANCE.special_effects.time_rate;
         this.time += rate;
-        this.px += SelfMachine.action.pos_x * rate;
-        this.py += SelfMachine.action.pos_y * rate;
+        this.px += SelfMachine.action.pos_x;
+        this.py += SelfMachine.action.pos_y;
         if (this.px < -Screen.SCR_HALF_WIDTH)
             this.px = -Screen.SCR_HALF_WIDTH;
         if (this.px > Screen.SCR_HALF_WIDTH)
@@ -82,14 +142,26 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
             this.py = -Screen.SCR_HALF_HEIGHT;
         if (this.py > Screen.SCR_HALF_HEIGHT)
             this.py = Screen.SCR_HALF_HEIGHT;
-        if (this.shaped_sprite?.sprite)
-            this.dir = this.time * this.shaped_sprite.sprite.omega;
-        this.proto.updateShoot(SelfMachine.action.key_z);
-        this.bomb = this.proto.updateBomb(SelfMachine.action.key_x);
-        this.proto.updateSpecial(SelfMachine.action.key_c);
+        this.dir = this.time * this.sprite.sprite.omega;
+        this.bombed = this.proto.updateShoot(this, SelfMachine.action.key_z);
+        this.bombed ||= this.proto.updateBomb(this, SelfMachine.action.key_x);
+        this.bombed ||= this.proto.updateAbility(this, SelfMachine.action.key_c);
     }
 
     postUpdate(_: SME): void {
+        this.post_grazed = this.grazed;
+        if (this.grazed) {
+            if (this.graze_current < this.ability.max_graze)
+                this.graze_current += EntityPool.INSTANCE.special_effects.time_rate;
+            this.graze_total++;
+            if (this.graze_current >= this.ability.max_graze) {
+                if (this.ability_count < this.ability.max_ability) {
+                    this.ability_count++;
+                    this.graze_current = 0;
+                }
+            }
+            this.grazed = false;
+        }
         if (this.miss_time > 0)
             this.miss_time--;
         if (this.pre_miss > 0) {
@@ -100,12 +172,12 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
                 this.miss_time = this.ability.miss_time;
             }
         }
-        if (this.miss) {
-            this.miss = false;
+        if (this.missed) {
+            this.missed = false;
             this.pre_miss = this.ability.pre_miss;
         }
-        if (this.bomb) {
-            this.bomb = false;
+        if (this.bombed) {
+            this.bombed = false;
             this.miss_time = this.ability.bomb_time;
             if (this.pre_miss > 0) {
                 // bomb after miss
@@ -114,17 +186,19 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
             }
         }
         if (this.miss_time > 0 || this.pre_miss > 0) {
+            this.state = State.LEAVING;
             this.invince_time++;
             if (Math.floor(this.invince_time / 6) % 2 == 0) {
-                this.shaped_sprite.sprite = null;
+                this.shaped_sprite = null;
             }
             else {
-                this.shaped_sprite.sprite = this.sprite.sprite;
+                this.shaped_sprite = this.sprite;
             }
         }
         else {
+            this.state = State.ALIVE;
             this.invince_time = 0;
-            this.shaped_sprite.sprite = this.sprite.sprite;
+            this.shaped_sprite = this.sprite;
         }
     }
 
@@ -134,7 +208,7 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
 
     public damaged(_: SME, s: EntityAny) {
         if (this.pre_miss == 0 && this.miss_time == 0)
-            this.miss = true;
+            this.missed = true;
         return s.damaged(s, this);
     }
 
@@ -147,7 +221,41 @@ export class SelfMachine extends SIPoint<ShapeCircle> implements SME {
             const y = this.py + (this.prey - this.py) * i / num;
             min = Math.min(min, s.distanceTo(x, y));
         }
+        if (min - this.shaped_sprite.shape.radius < this.ability.graze_radius)
+            this.grazed = true;
         return min < this.shaped_sprite.shape.radius;
     }
 
+    public layers() {
+        return [...this.proto.layers(), RL_PLAYER];
+    }
+
+    public render(layer: number) {
+        const xyrwh: number[] = [];
+        var i = 0;
+        var img = null;
+        const addRect = (x: number, y: number, dir: number, alpha: number, ss: SSPoint<any>) => {
+            xyrwh.push(x);
+            xyrwh.push(y);
+            xyrwh.push(dir + Math.PI / 2);
+            xyrwh.push(ss.w / 2);
+            xyrwh.push(ss.h / 2);
+            const sprite = ss.sprite;
+            xyrwh.push(sprite.tx / sprite.sprite.w);
+            xyrwh.push(sprite.ty / sprite.sprite.h);
+            xyrwh.push(sprite.tw / sprite.sprite.w);
+            xyrwh.push(sprite.th / sprite.sprite.h);
+            xyrwh.push(alpha);
+            i++;
+            img = SpriteManager.get(sprite.sprite.path).img;
+        }
+        this.proto.render(layer, this);
+        if (layer == RL_PLAYER && this.shaped_sprite?.sprite) {
+            addRect(this.px, this.py, this.dir, 1, this.shaped_sprite);
+            gl.setMode(Res.Sprite_Mode.Overlay);
+            gl.drawRects(new Float32Array(xyrwh), i, img);
+        }
+    }
+
 }
+

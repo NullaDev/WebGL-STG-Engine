@@ -1,7 +1,7 @@
 'use strict'
 
 import * as gl from "./gl";
-import { page_update } from "./page";
+import { page_setup, page_update } from "./page";
 import * as Screen from "./Screen";
 
 var test_n = 240;
@@ -103,10 +103,11 @@ export function setup_canvas() {
 
 var started = false;
 
-export function mainloop_start() {
+export async function mainloop_start() {
     if (started)
         return;
     started = true;
+    await page_setup();
     mainloop_update();
 }
 

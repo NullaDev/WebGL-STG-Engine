@@ -4,6 +4,8 @@ import { PlayerAction, SelfMachine } from "../stg/entity/SelfMachine";
 import * as gl from "./gl";
 import * as Screen from "./Screen";
 import * as platform from "./platform_init";
+import { GLHelper } from "./gl_ui";
+import { Sprite_Mode } from "../stg/util/sprites";
 
 var paused = false;
 var ref_mouse = false;
@@ -11,6 +13,14 @@ var ref_scr_x = 0;
 var ref_scr_y = 0;
 var last_x = 0;
 var last_y = 0;
+
+var ui_bg: gl.GLTEXTURE;
+var scene_bg: gl.GLTEXTURE;
+
+export async function page_setup() {
+    ui_bg = gl.loadTexture(await gl.loadImage("assets/ui_bg.png"), false, true);
+    scene_bg = gl.loadTexture(await gl.loadImage("assets/scene_bg.png"), false, true);
+}
 
 export function page_update() {
     stg_update();
@@ -27,7 +37,15 @@ function stg_update() {
                     pool.update();
         }
         gl.clear();
+        const helper = new GLHelper();
+        helper.bind(scene_bg);
+        Screen.renderSceneBG(helper);
+        helper.flush();
         pool.render();
+        gl.setMode(Sprite_Mode.Overlay);
+        helper.bind(ui_bg);
+        Screen.renderUIBG(helper);
+        helper.flush();
     }
 }
 

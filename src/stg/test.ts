@@ -1,6 +1,6 @@
 import { MovePoint, template_config_bullet, MovePointConfig, Motion } from "./entity/MovePoint";
 import { PlayerAbility, PlayerPrototype, SelfMachine } from "./entity/SelfMachine";
-import { Input, Mover, MoverConfig, Repeat, RepeatSupplier, Scheduler, SchedulerParam } from "./stage/Scheuler";
+import { Mover, MoverConfig, Repeat, RepeatSupplier, Scheduler, SchedulerParam } from "./stage/Scheuler";
 import { SpriteManager } from "./util/SpriteManager";
 import * as Res from "./util/sprites";
 import * as SRes from "./util/shaped_sprites";
@@ -9,24 +9,23 @@ import { StageInit } from "./stage/StageInit";
 import { ShapeCircle, ShapeDualArc, ShapePoint, SIPoint, SSPoint } from "./util/Shape";
 import { clone } from "./entity/Entity";
 import { RayLaser, RayLaserConfig, RayLaserMotion, SSRay } from "./entity/RayLaser";
-import { move_point_event_listener_template, ray_laser_event_listener_template, ReflectConfig, reflect_config_default, reflect_disable, reflect_linear, reflect_rl, RLReflectConfig, rl_reflect_config_default } from "./entity/ComplexListener";
+import { move_point_event_listener_template, ray_laser_event_listener_template, reflect_config_default, reflect_disable, reflect_linear, reflect_rl, RLReflectConfig, rl_reflect_config_default } from "./entity/ComplexListener";
+import { PlayerSlowAbility } from "./data/SlowAbility";
 
-const sm_proto: PlayerPrototype = {
-    updateShoot(shoot: boolean) {
-        return false;
-    },
-    updateBomb(bomb: boolean) {
-        return false;
-    },
-    updateSpecial(special: boolean) {
-        return false;
-    }
-};
+const sm_proto = new PlayerPrototype(null, null, new PlayerSlowAbility());
 
 const sm_abi: PlayerAbility = {
     pre_miss: 30,
     miss_time: 60,
-    bomb_time: 60
+    bomb_time: 60,
+    graze_radius: 24,
+    max_graze: 600,
+    init_bomb: 3,
+    init_life: 3,
+    init_ability: 5,
+    max_bomb: 10,
+    max_life: 10,
+    max_ability: 5
 }
 
 const repeat = (item: Repeat, n: number = Infinity) => () => new RepeatSupplier(item, n);
@@ -38,7 +37,7 @@ const sinit: StageInit = {
     add_schedule: null
 }
 
-var stage_list : ((time_scale:number)=>Scheduler)[];
+var stage_list: { name: string, init: (time_scale: number) => Scheduler }[];
 
 {
 
@@ -432,13 +431,37 @@ var stage_list : ((time_scale:number)=>Scheduler)[];
         ]);
     }
 
-    stage_list = [test_000, test_001, stage_000, stage_001, stage_002, stage_003, stage_004, stage_005]
+    stage_list = [{
+        name: "RayLaser Hitbox Test",
+        init: test_000
+    }, {
+        name: "Local Variable Test",
+        init: test_001
+    }, {
+        name: "波与粒的境界",
+        init: stage_000
+    }, {
+        name: "龙纹弹",
+        init: stage_001
+    }, {
+        name: "rotating long bullet",
+        init: stage_002
+    }, {
+        name: "reflect and delayed altering",
+        init: stage_003
+    }, {
+        name: "finite reflect",
+        init: stage_004
+    }, {
+        name: "reflect laser",
+        init: stage_005
+    },]
 
 }
 
 const stage_settings = {
     init: init,
-    stage: 7,
+    stage: 1,
     scale: 3,
     list: stage_list
 }
@@ -447,7 +470,7 @@ export async function init() {
     await sinit.load_sprite();
     var pool = new EntityPool();
     pool.add(sinit.add_player());
-    pool.add(stage_list[stage_settings.stage](stage_settings.scale));
+    pool.add(stage_list[stage_settings.stage].init(stage_settings.scale));
     eval("window.debug_info.pool = pool");
     eval("window.debug_info.stage = stage_settings");
 

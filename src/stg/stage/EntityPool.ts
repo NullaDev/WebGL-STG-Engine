@@ -1,13 +1,23 @@
 import * as BASE from "../entity/Entity";
 import { collide } from "../util/Shape";
-import { SpriteManager } from "../util/SpriteManager";
+import { CUSTOM, RenderType, RENDER_TYPE, SpriteManager } from "../util/SpriteManager";
 
 export class SpecialEffects {
 
     public time_rate: number = 1;
 
-    constructor() {
+    time_rate_next: number = 1;
 
+    constructor() {
+    }
+
+    public process() {
+        this.time_rate = this.time_rate_next;
+        this.time_rate_next = 1;
+    }
+
+    public time_slowdown(rate: number) {
+        this.time_rate_next *= rate;
     }
 
 };
@@ -83,6 +93,7 @@ export class EntityPool {
         this.groups.forEach(pool => pool.list.forEach(e => e.postUpdate(e)));
         this.groups.forEach(pool => pool.list = pool.list.filter(e => e.state != BASE.State.DEAD));
         this.update_stage = UpdateStage.ADD_BACK;
+        this.special_effects.process();
         this.pending.forEach(e => this.add(e));
         this.pending = [];
         this.time++;
@@ -90,8 +101,15 @@ export class EntityPool {
 
     public async render() {
         var map: Map<number, Map<string, BASE.EntityAny[]>> = new Map();
+        var customs: CUSTOM[] = [];
         for (var pool of this.groups) {
             for (var entity of pool.list) {
+                if (entity.renderType == RENDER_TYPE.CUSTOM) {
+                    const custom = <CUSTOM><RenderType<CUSTOM, RENDER_TYPE.CUSTOM>>entity;
+                    customs.push(custom);
+                    custom.layers().forEach(e => map.set(e, new Map()));
+                    continue;
+                }
                 if (!entity.config.render_layer || !entity.shaped_sprite?.sprite)
                     continue;
                 if (!map.has(entity.config.render_layer))
@@ -106,7 +124,10 @@ export class EntityPool {
         var rlist: { rl: number, v: Map<string, BASE.EntityAny[]> }[] = [];
         map.forEach((v0, k0) => rlist.push({ rl: k0, v: v0 }));
         rlist.sort((a, b) => a.rl - b.rl);
-        rlist.forEach(rl => rl.v.forEach((v1, k1) => SpriteManager.get(k1).draw(v1)));
+        rlist.forEach(rl => {
+            customs.forEach(e => e.render(rl.rl));
+            rl.v.forEach((v1, k1) => SpriteManager.get(k1).draw(v1));
+        });
     }
 
 }

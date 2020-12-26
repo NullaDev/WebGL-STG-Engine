@@ -1,7 +1,4 @@
-'use strict'
-
 import { scrCoord_to_GLCoord_x, scrCoord_to_GLCoord_y } from "./Screen";
-import { Sprite_Mode } from "../stg/util/sprites"
 
 const vertexCode = `
 attribute vec2 coord;
@@ -29,7 +26,7 @@ void main() {
 }
 `;
 
-const global_gl = {
+export const global_gl = {
     gl: null,
     shader: {
         program: 0,
@@ -59,15 +56,6 @@ export function setup() {
     gl.shaderSource(fragShader, fragmentCode);
     gl.compileShader(vertShader);
     gl.compileShader(fragShader);
-
-    var compiled = gl.getShaderParameter(fragShader, gl.COMPILE_STATUS);
-    if (!compiled) {
-        // There are errors, so display them
-        var errors = gl.getShaderInfoLog(fragShader);
-        console.log(errors);
-        return;
-    }
-
     var shaderProgram = gl.createProgram();
     gl.attachShader(shaderProgram, vertShader);
     gl.attachShader(shaderProgram, fragShader);
@@ -162,16 +150,16 @@ export function drawStrip(ver_arr, tex_arr, ind_arr, texture, size) {
     gl.drawElements(gl.TRIANGLE_STRIP, size, gl.UNSIGNED_SHORT, 0);
 }
 
-export function loadTexture(image) {
+export function loadTexture(image, interpolate = true, wrap = false) {
     const gl = global_gl.gl;
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_SHORT_4_4_4_4, image)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, interpolate ? gl.LINEAR : gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, interpolate ? gl.LINEAR : gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap ? gl.REPEAT : gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap ? gl.REPEAT : gl.CLAMP_TO_EDGE);
     return texture;
 }
 
@@ -198,7 +186,6 @@ export function drawRects(xyrwh, size, texture) {
     const ver = new Float32Array(size * 12);
     const tex = new Float32Array(size * 12);
     const alp = new Float32Array(size * 6);
-    const pid2 = Math.PI / 2;
     for (var i = 0; i < size; i++) {
         for (var j = 0; j < 6; j++) {
             const a = xyrwh[i * 10 + 2];

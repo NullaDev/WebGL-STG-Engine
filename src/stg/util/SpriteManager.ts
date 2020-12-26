@@ -5,7 +5,8 @@ import { Sprite_Mode } from "./sprites";
 
 export const enum RENDER_TYPE {
     RECT,
-    STRIP
+    STRIP,
+    CUSTOM
 }
 
 export interface RenderType<T extends RenderType<T, R>, R extends RENDER_TYPE> {
@@ -22,12 +23,17 @@ export interface STRIP extends RenderType<STRIP, RENDER_TYPE.STRIP> {
     getSprite(): SSCurve<any, any>;
 }
 
+export interface CUSTOM extends RenderType<CUSTOM, RENDER_TYPE.CUSTOM> {
+    render(layer: number): void;
+    layers():number[];
+}
+
 export class SpriteManager {
 
     private static INS: { [key: string]: SpriteManager } = {};
     private path: string;
 
-    private img: gl.GLTEXTURE = null;
+    public img: gl.GLTEXTURE = null;
 
     constructor(url: string) {
         this.path = url;
