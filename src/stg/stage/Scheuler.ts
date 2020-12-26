@@ -4,7 +4,7 @@ import { EntityPool } from "./EntityPool";
 
 abstract class ScheduleEntry {
 
-    public abstract update(time_rate: number): number
+    public abstract update(time_rate: number, parent: Scheduler): number
 
 }
 
@@ -88,15 +88,23 @@ export class Mover extends ScheduleEntry {
 
 class Adder extends ScheduleEntry {
 
-    public todo: () => void;
+    public todo: () => number | ScheduleEntry | void;
 
-    constructor(input: () => void) {
+    constructor(input: () => number | ScheduleEntry | void) {
         super();
         this.todo = input;
     }
 
-    public update(time_rate: number): number {
-        this.todo();
+    public update(time_rate: number, scheduler: Scheduler): number {
+        var val = this.todo();
+        if (typeof val == "undefined")
+            return time_rate;
+        if (typeof val == "number") {
+            scheduler.list[0] = new Wait(val);
+            return scheduler.list[0].update(time_rate, scheduler);
+        }
+        scheduler.list.unshift(scheduler.list[0]);
+        scheduler.list[1] = val;
         return time_rate;
     }
 
@@ -110,12 +118,13 @@ export abstract class ScheduleSupplier {
 
 type Item = ScheduleEntry | ScheduleSupplier;
 
-export type Input = number | (() => void) | Item;
+
+export type Input = (() => void | number | Item) | number | Item;
 
 function parse(input: Input[]): Item[] {
     return input.map(e =>
         typeof e == "number" ? new Wait(<number>e) :
-            typeof e == "function" ? new Adder(<() => void>e) :
+            typeof e == "function" ? new Adder(<() => any>e) :
                 e);
 }
 
@@ -156,13 +165,14 @@ export const template_config_scheduler: Config = {
 export class Scheduler extends SINull implements Entity<Scheduler, null, null, null> {
 
     public list: Item[];
+    public custom_fields: any = {};
     config: Config = template_config_scheduler;
     state: State = State.PRE_ENTRY;
     time: number = 0;
 
-    constructor(input: Input[]) {
+    constructor(input: Input[] | ((parent: Scheduler) => Input[])) {
         super();
-        this.list = parse(input);
+        this.list = parse(typeof input == "object" ? input : input(this));
     }
 
     public update(_: Scheduler) {
@@ -180,7 +190,7 @@ export class Scheduler extends SINull implements Entity<Scheduler, null, null, n
                 else this.list = [...list, ...this.list];
             }
             else {
-                t = sss.update(t);
+                t = sss.update(t, this);
                 if (t > 0)
                     this.list.shift();
             }
@@ -201,6 +211,5 @@ export class Scheduler extends SINull implements Entity<Scheduler, null, null, n
     public damaged(_: Scheduler, s: EntityAny) {
         return false;
     }
-
 
 }
