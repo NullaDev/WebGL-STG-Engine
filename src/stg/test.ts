@@ -1,6 +1,6 @@
 import { MovePoint, template_config_bullet, MovePointConfig, Motion } from "./entity/MovePoint";
 import { PlayerAbility, PlayerPrototype, SelfMachine } from "./entity/SelfMachine";
-import { Input, Mover, MoverConfig, Repeat, RepeatSupplier, Scheduler } from "./stage/Scheuler";
+import { Check, Mover, MoverConfig, Repeat, RepeatSupplier, Scheduler, SchedulerParam } from "./stage/Scheuler";
 import { SpriteManager } from "./util/SpriteManager";
 import * as Res from "./util/sprites";
 import * as SRes from "./util/shaped_sprites";
@@ -9,7 +9,7 @@ import { StageInit } from "./stage/StageInit";
 import { ShapeCircle, ShapeDualArc, ShapePoint, SIPoint, SSPoint } from "./util/Shape";
 import { clone } from "./entity/Entity";
 import { RayLaser, RayLaserConfig, RayLaserMotion, SSRay } from "./entity/RayLaser";
-import { move_point_event_listener_template, ray_laser_event_listener_template, ReflectConfig, reflect_config_default, reflect_disable, reflect_linear, reflect_rl, RLReflectConfig, rl_reflect_config_default } from "./entity/ComplexListener";
+import { move_point_event_listener_template, ray_laser_event_listener_template, reflect_config_default, reflect_disable, reflect_linear, reflect_rl, RLReflectConfig, rl_reflect_config_default } from "./entity/ComplexListener";
 
 const sm_proto: PlayerPrototype = {
     updateShoot(shoot: boolean) {
@@ -29,8 +29,8 @@ const sm_abi: PlayerAbility = {
     bomb_time: 60
 }
 
-const repeat = (item: Repeat, n: number = Infinity) => new RepeatSupplier(item, n);
-const nonblock = (item: Input[]) => () => EntityPool.INSTANCE.add(new Scheduler(item));
+const repeat = <T extends Check<T> = false>(item: Repeat<T>, n: number = Infinity) => new RepeatSupplier<T>(item, n);
+const nonblock = <T extends Check<T> = false>(item: SchedulerParam<T>) => (s: Scheduler<T>) => EntityPool.INSTANCE.add(new Scheduler<T>(item));
 
 const sinit: StageInit = {
     load_sprite: () => SpriteManager.get(Res.res_000.path).load(),
@@ -46,7 +46,7 @@ const sinit: StageInit = {
         const sprite = Res.get_middle(Res.M_Type.Oval, Res.M_Color.Red, Res.Sprite_Mode.Overlay);
         const ss = SRes.getSSCircle(sprite, 1);
 
-        return new Scheduler([
+        return new Scheduler<boolean>([
             30 * time_scale,
             repeat((i0) => [
                 repeat((i1) => [
@@ -244,7 +244,7 @@ const sinit: StageInit = {
             repeat((i0) => [
                 () => a0 = Math.random() * Math.PI * 2,
                 repeat((i0) => [
-                    nonblock([repeat((i1) => [
+                    nonblock([repeat(() => [
                         () => EntityPool.INSTANCE.add(new MovePoint(ss, cf)
                             .setMotion((e, time_rate) => {
                                 const t1 = t0 - i0 * ti1;
@@ -363,21 +363,22 @@ const sinit: StageInit = {
         const w = Math.PI * 2 / time_scale;
         const t0 = time_scale;
 
-        const adder = (n0: number, ind: number, ni: number, wi: number, ti: number, ai: number) => repeat((i0) => [
-            repeat((i1) => [
-                () => EntityPool.INSTANCE.add(new RayLaser(data[ind][0], data[ind][1], null)
-                    .init(0, 0, ai + Math.PI * 2 / ni * i1 + wi * i0, 0)),
-            ], ni),
-            ti
-        ], n0);
-
-        return new Scheduler([
-            30 * time_scale,
+        const adder = (n0: number, ind: number, ni: number, wi: number, ti: number, ai: number) =>
             repeat((i0) => [
-                adder(20, 0, 3, (i0 % 2 * 2 - 1) * w * 0.0678, t0 * 6, Math.random() * 2 * Math.PI),
-                100 * time_scale,
-                adder(120, 1, 1, (i0 % 2 * 2 - 1) * w * 0.0234, t0, Math.random() * 2 * Math.PI),
-                100 * time_scale
+                () => repeat((i1) => [
+                    () => EntityPool.INSTANCE.add(new RayLaser(data[ind][0], data[ind][1], null)
+                        .init(0, 0, ai + Math.PI * 2 / ni * i1 + wi * i0, 0)),
+                ], ni),
+                () => ti
+            ], n0);
+
+        return new Scheduler(() => [
+            () => 30 * time_scale,
+            () => repeat((i0) => [
+                () => adder(20, 0, 3, (i0 % 2 * 2 - 1) * w * 0.0678, t0 * 6, Math.random() * 2 * Math.PI),
+                () => 100 * time_scale,
+                () => adder(120, 1, 1, (i0 % 2 * 2 - 1) * w * 0.0234, t0, Math.random() * 2 * Math.PI),
+                () => 100 * time_scale
             ]),
         ]);
     }

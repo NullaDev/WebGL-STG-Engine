@@ -2,13 +2,17 @@ import { CG_GHOST, CM_GHOST, Config, Entity, EntityAny, RL_INVISIBLE, State } fr
 import { SINull, SIPoint } from "../util/Shape";
 import { EntityPool } from "./EntityPool";
 
-abstract class ScheduleEntry {
+export type CheckEnabled = false;
 
-    public abstract update(time_rate: number, parent: Scheduler): number
+abstract class ScheduleEntry<ForceArrow extends Check<ForceArrow>> {
+
+    public type : ForceArrow;
+
+    public abstract update(time_rate: number, parent: Scheduler<ForceArrow>): number
 
 }
 
-class Wait extends ScheduleEntry {
+class Wait<ForceArrow extends Check<ForceArrow>> extends ScheduleEntry<ForceArrow> {
 
     public remain: number;
 
@@ -37,7 +41,7 @@ export type MoverConfig = {
     ease: (a: number) => number
 }
 
-export class Mover extends ScheduleEntry {
+export class Mover extends ScheduleEntry<CheckEnabled extends true ? never : unknown> {
 
     public static random(target: SIPoint<any>, config: MoverConfig) {
         return new Mover((self: Mover) => {
@@ -86,17 +90,17 @@ export class Mover extends ScheduleEntry {
     }
 }
 
-class Adder extends ScheduleEntry {
+class Adder<ForceArrow extends Check<ForceArrow>> extends ScheduleEntry<ForceArrow> {
 
-    public todo: () => number | ScheduleEntry | void;
+    public todo: ItemSup<ForceArrow>;
 
-    constructor(input: () => number | ScheduleEntry | void) {
+    constructor(input: ItemSup<ForceArrow>) {
         super();
         this.todo = input;
     }
 
-    public update(time_rate: number, scheduler: Scheduler): number {
-        var val = this.todo();
+    public update(time_rate: number, scheduler: Scheduler<ForceArrow>): number {
+        var val = this.todo(scheduler);
         if (typeof val == "undefined")
             return time_rate;
         if (typeof val == "number") {
@@ -110,47 +114,50 @@ class Adder extends ScheduleEntry {
 
 }
 
-export abstract class ScheduleSupplier {
+export abstract class ScheduleSupplier<ForceArrow extends Check<ForceArrow>> {
 
-    public abstract supply(): Item[];
+    public type : ForceArrow;
+
+    public abstract supply(): Item<ForceArrow>[];
 
 }
 
-type Item = ScheduleEntry | ScheduleSupplier;
+export type Check<ForceArrow extends Check<ForceArrow>> = CheckEnabled extends true ? (unknown extends ForceArrow ? never : boolean) : unknown;
+export type Item<ForceArrow extends Check<ForceArrow>> = ScheduleEntry<ForceArrow> | ScheduleSupplier<ForceArrow>;
+export type ItemSup<ForceArrow extends Check<ForceArrow>> = (parent: Scheduler<ForceArrow>) => (void | number | Item<ForceArrow>);
+export type Input<ForceArrow extends Check<ForceArrow>> = ForceArrow extends true ? ItemSup<true> : (ItemSup<ForceArrow> | number | Item<ForceArrow>);
+export type Repeat<ForceArrow extends Check<ForceArrow>> = ((i?: number) => Input<ForceArrow>[]) | (ForceArrow extends true ? never : Input<ForceArrow>[]);
+export type SchedulerParam<ForceArrow extends Check<ForceArrow>> = ((parent: Scheduler<ForceArrow>) => Input<ForceArrow>[]) | (ForceArrow extends true ? never : Input<ForceArrow>[]);
 
-
-export type Input = (() => void | number | Item) | number | Item;
-
-function parse(input: Input[]): Item[] {
-    return input.map(e =>
-        typeof e == "number" ? new Wait(<number>e) :
-            typeof e == "function" ? new Adder(<() => any>e) :
-                e);
+function parse<ForceArrow extends Check<ForceArrow>>(input: Input<ForceArrow>): Item<ForceArrow> {
+    if (typeof input == "number")
+        return new Wait(<number>input);
+    if (typeof input == "function")
+        return new Adder(<ItemSup<ForceArrow>>input);
+    return <Item<ForceArrow>>input;
 }
 
-export type Repeat = ((i?: number) => Input[]) | Input[];
+export class RepeatSupplier<ForceArrow extends Check<ForceArrow>> extends ScheduleSupplier<ForceArrow> {
 
-export class RepeatSupplier extends ScheduleSupplier {
-
-    todo: Repeat;
+    todo: Repeat<ForceArrow>;
     index: number = 0;
     total: number;
 
-    constructor(input: Repeat, n: number) {
+    constructor(input: Repeat<ForceArrow>, n: number) {
         super();
         this.todo = input;
         this.total = n;
     }
 
-    public supply(): Item[] {
+    public supply(): Item<ForceArrow>[] {
         if (this.index >= this.total)
             return null;
-        var ans;
+        var ans: Input<ForceArrow>[];
         if (typeof this.todo == "function")
             ans = this.todo(this.index);
         else ans = this.todo;
         this.index++;
-        return parse(ans);
+        return ans.map(parse);
     }
 
 
@@ -162,26 +169,28 @@ export const template_config_scheduler: Config = {
     collide_mask: CM_GHOST
 }
 
-export class Scheduler extends SINull implements Entity<Scheduler, null, null, null> {
+export class Scheduler<ForceArrow extends Check<ForceArrow>> extends SINull implements Entity<Scheduler<ForceArrow>, null, null, null> {
 
-    public list: Item[];
+    public type : ForceArrow;
+
+    public list: Item<ForceArrow>[];
     public custom_fields: any = {};
     config: Config = template_config_scheduler;
     state: State = State.PRE_ENTRY;
     time: number = 0;
 
-    constructor(input: Input[] | ((parent: Scheduler) => Input[])) {
+    constructor(input: SchedulerParam<ForceArrow>) {
         super();
-        this.list = parse(typeof input == "object" ? input : input(this));
+        this.list = (typeof input == "object" ? input : input(this)).map(parse);
     }
 
-    public update(_: Scheduler) {
+    public update(_: Scheduler<ForceArrow>) {
         if (this.state == State.PRE_ENTRY)
             this.state = State.ALIVE;
         var t = EntityPool.INSTANCE.special_effects.time_rate;
         this.time += t;
         while (this.list.length > 0 && t) {
-            var sss: ScheduleEntry | ScheduleSupplier = this.list[0];
+            var sss: ScheduleEntry<ForceArrow> | ScheduleSupplier<ForceArrow> = this.list[0];
             if (sss instanceof ScheduleSupplier) {
                 var list = sss.supply();
                 if (!list || !list.length) {
@@ -199,16 +208,16 @@ export class Scheduler extends SINull implements Entity<Scheduler, null, null, n
             this.state = State.LEAVING;
     }
 
-    public postUpdate(_: Scheduler) {
+    public postUpdate(_: Scheduler<ForceArrow>) {
         if (this.state == State.LEAVING)
             this.state = State.DEAD;
     }
 
-    public attack(_: Scheduler) {
+    public attack(_: Scheduler<ForceArrow>) {
 
     }
 
-    public damaged(_: Scheduler, s: EntityAny) {
+    public damaged(_: Scheduler<ForceArrow>, s: EntityAny) {
         return false;
     }
 
