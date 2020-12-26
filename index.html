@@ -14,15 +14,31 @@
         body {
             overflow-x: hidden;
         }
-        
+
         body {
             position: relative;
+        }
+
+        #left {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
         }
     </style>
 </head>
 
 <body>
-    <canvas id="glcanvas"></canvas>
+    <div id="left">
+        <input type="button" id="stage_dec" value="-">
+        <input type="button" id="stage_start" onclick="debug_info.stage.init()" value="start">
+        <input type="button" id="stage_inc" value="+">
+    </div>
+    <div id="center">
+        <canvas id="glcanvas"></canvas>
+    </div>
+    <div>
+
+    </div id="right">
     <script src="bundle.js"></script>
 
 </body>

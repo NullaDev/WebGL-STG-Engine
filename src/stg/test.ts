@@ -38,6 +38,8 @@ const sinit: StageInit = {
     add_schedule: null
 }
 
+var stage_list : ((time_scale:number)=>Scheduler)[];
+
 {
 
     // 波与粒的境界
@@ -430,14 +432,23 @@ const sinit: StageInit = {
         ]);
     }
 
-    sinit.add_schedule = test_001;
+    stage_list = [test_000, test_001, stage_000, stage_001, stage_002, stage_003, stage_004, stage_005]
 
+}
+
+const stage_settings = {
+    init: init,
+    stage: 7,
+    scale: 3,
+    list: stage_list
 }
 
 export async function init() {
     await sinit.load_sprite();
     var pool = new EntityPool();
     pool.add(sinit.add_player());
-    pool.add(sinit.add_schedule(1));
+    pool.add(stage_list[stage_settings.stage](stage_settings.scale));
     eval("window.debug_info.pool = pool");
+    eval("window.debug_info.stage = stage_settings");
+
 }

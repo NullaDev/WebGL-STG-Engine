@@ -5,6 +5,7 @@ async function main() {
     //pf.test_fps();
     pf.setup_canvas();
     await stg.init();
+    require("./platform/buttons");
     pf.mainloop_start();
     window.debug_info.stg = {
         fps: pf.test_fps,
