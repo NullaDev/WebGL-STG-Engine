@@ -5,19 +5,22 @@ import { AbilityEntry, AbstractAbility } from "./AbstractAbility";
 class SlowAbility extends AbstractAbility {
 
     constructor() {
-        super(120);
+        super(240);
     }
 
     public update(): void {
-        EntityPool.INSTANCE.special_effects.time_slowdown(0.5);
-        this.special_remain -= EntityPool.INSTANCE.special_effects.time_rate;
+        this.special_remain--;
     }
-    public onActivate(): void {
+    public onActivate(): boolean {
+        if (EntityPool.INSTANCE.special_effects.list.length > 0)
+            return false;
+        EntityPool.INSTANCE.special_effects.time_slowdown(0.5, 240);
+        return true;
     }
 
 };
 
-export const ability_slow : AbilityEntry = {
-    name:"slow",
-    init: ()=>new SlowAbility()
+export const ability_slow: AbilityEntry = {
+    name: "slow",
+    init: () => new SlowAbility()
 }

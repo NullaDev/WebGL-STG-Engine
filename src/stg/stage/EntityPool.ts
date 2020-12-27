@@ -2,22 +2,26 @@ import * as BASE from "../entity/Entity";
 import { collide } from "../util/Shape";
 import { CUSTOM, RenderType, RENDER_TYPE, SpriteManager } from "../util/SpriteManager";
 
+type Effect = {
+    rate: number,
+    duration: number
+}
+
 export class SpecialEffects {
 
     public time_rate: number = 1;
-
-    time_rate_next: number = 1;
+    public list: Effect[] = [];
 
     constructor() {
     }
 
     public process() {
-        this.time_rate = this.time_rate_next;
-        this.time_rate_next = 1;
+        this.time_rate =this.list.reduce((n,e)=>n*e.rate,1);
+        this.list = this.list.filter(e=>e.duration--);
     }
 
-    public time_slowdown(rate: number) {
-        this.time_rate_next *= rate;
+    public time_slowdown(rate: number, duration: number) {
+        this.list.push({ rate: rate, duration: duration });
     }
 
 };

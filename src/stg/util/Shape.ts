@@ -10,7 +10,7 @@ export abstract class Shape<SI> {
 
 export abstract class ShapePoint extends Shape<SIPoint<any>> {
 
-    public abstract exitScreen(self: SIPoint<any>, rw: number, rh: number): boolean;
+    public abstract exitScreen(self: SIPoint<any>): number;
 
 }
 
@@ -23,9 +23,9 @@ export class ShapeCircle extends ShapePoint {
         this.radius = r;
     }
 
-    public exitScreen(self: SIPoint<any>, rw: number, rh: number): boolean {
+    public exitScreen(self: SIPoint<any>): number {
         const r = Math.sqrt(self.shaped_sprite.w ** 2 + self.shaped_sprite.h ** 2);
-        return Math.abs(self.px) > rw + r * self.magn || Math.abs(self.py) > rh + r * self.magn;
+        return r * self.magn;
     }
 
     public distanceTo(self: SIPoint<any>, px: number, py: number): number {
@@ -65,9 +65,9 @@ export class ShapeDualArc extends ShapePoint {
         this.rad = rad;
     }
 
-    public exitScreen(self: SIPoint<any>, rw: number, rh: number) {
+    public exitScreen(self: SIPoint<any>) {
         const r = Math.sqrt(self.shaped_sprite.w ** 2 + self.shaped_sprite.h ** 2);
-        return Math.abs(self.px) > rw + r * self.magn || Math.abs(self.py) > rh + r * self.magn;
+        return r * self.magn;
     }
 
     public distanceTo(self: SIPoint<any>, px: number, py: number) {

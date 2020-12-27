@@ -21,7 +21,7 @@ export abstract class AbstractAbility implements AbilityPrototype {
 
     public abstract update(self: SelfMachine): void;
 
-    public abstract onActivate(self: SelfMachine): void;
+    public abstract onActivate(self: SelfMachine): boolean;
 
     updateEnable(self: SelfMachine, special: boolean) {
         if (this.special_remain > 0) {
@@ -29,10 +29,9 @@ export abstract class AbstractAbility implements AbilityPrototype {
         }
         if (this.special_remain > 0)
             return false;
-        if (special && self.ability_count > 0) {
+        if (special && self.ability_count > 0 &&  this.onActivate(self)) {
             self.ability_count--;
             this.special_remain = this.special_duration;
-            this.onActivate(self);
             return false;
         }
         return false;

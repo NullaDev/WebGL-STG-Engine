@@ -9,16 +9,19 @@ class StopAbility extends AbstractAbility {
     }
 
     public update(): void {
-        EntityPool.INSTANCE.special_effects.time_slowdown(0);
-        this.special_remain --;
+        this.special_remain--;
     }
-    public onActivate(): void {
+    public onActivate(): boolean {
+        if (EntityPool.INSTANCE.special_effects.list.length > 0)
+            return false;
+            EntityPool.INSTANCE.special_effects.time_slowdown(0, 120);
+        return true;
     }
 
 };
 
 
-export const ability_stop : AbilityEntry = {
-    name:"stop",
-    init: ()=>new StopAbility()
+export const ability_stop: AbilityEntry = {
+    name: "stop",
+    init: () => new StopAbility()
 }

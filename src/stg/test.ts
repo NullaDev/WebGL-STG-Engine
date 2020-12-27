@@ -23,8 +23,8 @@ const sm_abi: PlayerAbility = {
 
 const stage_settings = {
     init: init,
-    stage: 1,
-    scale: 3,
+    stage: 6,
+    scale: 1,
     ability: 1,
     stage_list: stage_list,
     ability_list: ability_list

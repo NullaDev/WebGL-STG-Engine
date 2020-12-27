@@ -120,16 +120,28 @@ export class MovePoint<S extends ShapePoint> extends SIPoint<S> implements Entit
             if (this.config.auto_direction)
                 this.dir = Math.atan2(this.vy, this.vx);
         }
-        if(this.shaped_sprite?.sprite?.omega)
+        if (this.shaped_sprite?.sprite?.omega)
             this.dir = this.time * this.shaped_sprite.sprite.omega;
         this.config.listener?.onPostMotion?.forEach(e => e(this, rate));
     }
 
     public postUpdate(_: MovePoint<S>) {
-        if (this.shaped_sprite?.shape?.exitScreen(this, SCR_HALF_WIDTH, SCR_HALF_HEIGHT)) {
-            if (this.config.kill_on_exit)
+        const sr = this.shaped_sprite?.shape?.exitScreen(this);
+        var x0 = this.px > SCR_HALF_WIDTH + sr;
+        var x1 = -this.px > SCR_HALF_WIDTH + sr;
+        var y0 = this.py > SCR_HALF_HEIGHT + sr;
+        var y1 = -this.py > SCR_HALF_HEIGHT + sr;
+        if (!this.motion) {
+            x0 &&= this.vx > 0;
+            x1 &&= this.vx < 0;
+            y0 &&= this.vy > 0;
+            y1 &&= this.vy < 0;
+        }
+        if (x0 || x1 || y0 || y1) {
+            if (this.config.kill_on_exit) {
                 this.state = State.LEAVING;
-            this.config.listener?.onExitScreen?.forEach(e => e(this));
+                this.config.listener?.onExitScreen?.forEach(e => e(this));
+            }
         }
         if (this.config.life && this.time >= this.config.life)
             this.state = State.LEAVING;

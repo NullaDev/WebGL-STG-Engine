@@ -14,7 +14,8 @@ class InvincAbility extends AbstractAbility {
         self.magn = this.special_remain > 0 ? 0 : 1;
     }
 
-    public onActivate(): void {
+    public onActivate() {
+        return true;
     }
 
 };
