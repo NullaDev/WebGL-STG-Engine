@@ -1,22 +1,10 @@
-import { AbilityPrototype, PlayerAbility, PlayerPrototype, SelfMachine } from "./entity/SelfMachine";
-import { SpriteManager } from "./util/SpriteManager";
-import * as Res from "./util/sprites";
-import * as SRes from "./util/shaped_sprites";
+import { PlayerAbility, PlayerPrototype, SelfMachine } from "./entity/SelfMachine";
 import { EntityPool } from "./stage/EntityPool";
-import { StageEntry, StageInit } from "./stage/StageInit";
-import { SlowAbility } from "./data/SlowAbility";
-import { StopAbility } from "./data/StopAbility";
-import { stage_000 } from "./data/stage/stage/stage_000";
-import { stage_001 } from "./data/stage/stage/stage_001";
-import { stage_002 } from "./data/stage/stage/stage_002";
-import { stage_003 } from "./data/stage/stage/stage_003";
-import { stage_004 } from "./data/stage/stage/stage_004";
-import { stage_005 } from "./data/stage/stage/stage_005";
-import { test_000 } from "./data/stage/test/test_000";
-import { test_001 } from "./data/stage/test/test_001";
-
-const abilities: (() => AbilityPrototype)[] = [() => new SlowAbility(), () => new StopAbility()];
-const stage_list: StageEntry[] = [stage_000, stage_001, stage_002, stage_003, stage_004, stage_005, test_000, test_001];
+import { StageInit } from "./stage/StageInit";
+import * as SRes from "./util/shaped_sprites";
+import * as Res from "./util/sprites";
+import { SpriteManager } from "./util/SpriteManager";
+import { stage_list, ability_list } from "./data/index"
 
 const sm_abi: PlayerAbility = {
     pre_miss: 30,
@@ -37,14 +25,15 @@ const stage_settings = {
     stage: 1,
     scale: 3,
     ability: 1,
-    list: stage_list
+    stage_list: stage_list,
+    ability_list: ability_list
 }
 
 const sinit: StageInit = {
     load_sprite: () => SpriteManager.get(Res.res_000.path).load(),
     add_player: () => new SelfMachine(
         SRes.getSSCircle(Res.self_machine_foreground, 1),
-        new PlayerPrototype(null, null, abilities[stage_settings.ability]()),
+        new PlayerPrototype(null, null, ability_list[stage_settings.ability].init()),
         sm_abi, 0, -192),
     add_schedule: null
 }

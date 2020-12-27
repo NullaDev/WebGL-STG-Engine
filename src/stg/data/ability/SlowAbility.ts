@@ -1,8 +1,8 @@
 
-import { EntityPool } from "../stage/EntityPool";
-import { AbstractAbility } from "./AbstractAbility";
+import { EntityPool } from "stg/stage/EntityPool";
+import { AbilityEntry, AbstractAbility } from "./AbstractAbility";
 
-export class SlowAbility extends AbstractAbility {
+class SlowAbility extends AbstractAbility {
 
     constructor() {
         super(120);
@@ -16,3 +16,8 @@ export class SlowAbility extends AbstractAbility {
     }
 
 };
+
+export const ability_slow : AbilityEntry = {
+    name:"slow",
+    init: ()=>new SlowAbility()
+}

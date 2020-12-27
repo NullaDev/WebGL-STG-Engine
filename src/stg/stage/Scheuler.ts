@@ -39,7 +39,7 @@ export type MoverConfig = {
 
 export class Mover extends ScheduleEntry {
 
-    public static random(target: SIPoint<any>, config: MoverConfig) {
+    public static random(target: {px:number,py:number}, config: MoverConfig) {
         return () => new Mover((self: Mover) => {
             const minx = Math.max(config.px0 - target.px, -config.dx1);
             const maxx = Math.min(config.px1 - target.px, config.dx1);
@@ -57,7 +57,7 @@ export class Mover extends ScheduleEntry {
         });
     }
 
-    public target: SIPoint<any>;
+    public target: {px:number,py:number};
     public duration: number;
     public dx: number;
     public dy: number;

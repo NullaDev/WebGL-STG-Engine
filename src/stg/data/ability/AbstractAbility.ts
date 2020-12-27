@@ -1,10 +1,10 @@
-import * as gl from "../../platform/gl"
-import { GLHelper } from "../../platform/gl_ui";
-import * as Res from "./../util/sprites";
-import * as SRes from "./../util/shaped_sprites";
-import { AbilityPrototype, SelfMachine } from "../entity/SelfMachine";
-import { SpriteManager } from "../util/SpriteManager";
-import { RL_BG } from "../entity/Entity";
+import * as gl from "platform/gl"
+import { GLHelper } from "stg/../platform/gl_ui";
+import * as Res from "stg/util/sprites";
+import * as SRes from "stg/util/shaped_sprites";
+import { AbilityPrototype, SelfMachine } from "stg/entity/SelfMachine";
+import { SpriteManager } from "stg/util/SpriteManager";
+import { RL_BG } from "stg/entity/Entity";
 
 const bright_alpha = 0.7;
 const full_alpha = 0.5;
@@ -73,3 +73,8 @@ export abstract class AbstractAbility implements AbilityPrototype {
         return [RL_BG + 50];
     }
 };
+
+export type AbilityEntry = {
+    name: string,
+    init: ()=>AbilityPrototype
+}

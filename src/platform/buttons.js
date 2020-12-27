@@ -1,20 +1,33 @@
 const start = document.getElementById("stage_start");
-const dec = document.getElementById("stage_dec");
-const inc = document.getElementById("stage_inc");
+const stage_dec = document.getElementById("stage_dec");
+const stage_inc = document.getElementById("stage_inc");
+const ability = document.getElementById("ability_set");
+const ability_dec = document.getElementById("ability_dec");
+const ability_inc = document.getElementById("ability_inc");
 const st = debug_info.stage;
 const update = () => {
-    dec.disabled = st.stage == 0;
-    inc.disabled = st.stage == st.list.length - 1;
-    start.value = `start stage ${st.list[st.stage].name}`;
+    stage_dec.disabled = st.stage == 0;
+    stage_inc.disabled = st.stage == st.stage_list.length - 1;
+    start.value = `${st.stage_list[st.stage].name}`;
+    ability_dec.disabled = st.ability == 0;
+    ability_inc.disabled = st.ability == st.ability_list.length - 1;
+    ability.value = `${st.ability_list[st.ability].name}`;
+    st.scale = st.stage_list[st.stage].default_scale;
 }
-dec.onclick = () => {
-    if (st.stage > 0)
-        st.stage--;
+stage_dec.onclick = () => {
+    st.stage--;
     update();
 }
-inc.onclick = () => {
-    if (st.stage < st.list.length)
-        st.stage++;
+stage_inc.onclick = () => {
+    st.stage++;
+    update();
+}
+ability_dec.onclick = () => {
+    st.ability--;
+    update();
+}
+ability_inc.onclick = () => {
+    st.ability++;
     update();
 }
 update();

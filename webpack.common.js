@@ -13,6 +13,10 @@ module.exports = {
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
+        modules: [
+            path.resolve(__dirname, 'src'),
+            "node_modules"
+        ]
     },
     output: {
         filename: 'bundle.js',
