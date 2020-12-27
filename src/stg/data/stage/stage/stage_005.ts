@@ -1,15 +1,13 @@
-import { MovePoint, template_config_bullet, MovePointConfig, Motion } from "../../entity/MovePoint";
-import { Mover, MoverConfig, Repeat, RepeatSupplier, Scheduler, SchedulerParam } from "../../stage/Scheuler";
-import { SpriteManager } from "../../util/SpriteManager";
-import * as Res from "../../util/sprites";
-import * as SRes from "../../util/shaped_sprites";
-import { EntityPool } from "../../stage/EntityPool";
-import { StageEntry, StageInit } from "../../stage/StageInit";
-import { ShapeCircle, ShapeDualArc, ShapePoint, SIPoint, SSPoint } from "../../util/Shape";
-import { clone } from "../../entity/Entity";
-import { RayLaser, RayLaserConfig, RayLaserMotion, SSRay } from "../../entity/RayLaser";
-import { move_point_event_listener_template, ray_laser_event_listener_template, reflect_config_default, reflect_disable, reflect_linear, reflect_rl, RLReflectConfig, rl_reflect_config_default } from "../../entity/ComplexListener";
-import { repeat } from "./StageBase";
+import { ray_laser_event_listener_template, reflect_rl, RLReflectConfig, rl_reflect_config_default } from "stg/entity/ComplexListener";
+import { clone } from "stg/entity/Entity";
+import { template_config_bullet } from "stg/entity/MovePoint";
+import { RayLaser, RayLaserConfig, SSRay } from "stg/entity/RayLaser";
+import { EntityPool } from "stg/stage/EntityPool";
+import { Scheduler } from "stg/stage/Scheuler";
+import { StageEntry } from "stg/stage/StageInit";
+import * as SRes from "stg/util/shaped_sprites";
+import * as Res from "stg/util/sprites";
+import { repeat } from "../StageBase";
 
 export const stage_005: StageEntry = {
     name: "reflect laser",

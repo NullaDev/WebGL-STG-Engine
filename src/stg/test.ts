@@ -4,19 +4,19 @@ import * as Res from "./util/sprites";
 import * as SRes from "./util/shaped_sprites";
 import { EntityPool } from "./stage/EntityPool";
 import { StageEntry, StageInit } from "./stage/StageInit";
-
 import { SlowAbility } from "./data/SlowAbility";
 import { StopAbility } from "./data/StopAbility";
-import { stage_000 } from "./data/stage/stage_000";
-import { stage_001 } from "./data/stage/stage_001";
-import { stage_002 } from "./data/stage/stage_002";
-import { stage_003 } from "./data/stage/stage_003";
-import { stage_004 } from "./data/stage/stage_004";
-import { stage_005 } from "./data/stage/stage_005";
-import { test_000 } from "./data/stage/test_000";
+import { stage_000 } from "./data/stage/stage/stage_000";
+import { stage_001 } from "./data/stage/stage/stage_001";
+import { stage_002 } from "./data/stage/stage/stage_002";
+import { stage_003 } from "./data/stage/stage/stage_003";
+import { stage_004 } from "./data/stage/stage/stage_004";
+import { stage_005 } from "./data/stage/stage/stage_005";
+import { test_000 } from "./data/stage/test/test_000";
+import { test_001 } from "./data/stage/test/test_001";
 
 const abilities: (() => AbilityPrototype)[] = [() => new SlowAbility(), () => new StopAbility()];
-const stage_list: StageEntry[] = [stage_000, stage_001, stage_002, stage_003, stage_004, stage_005, test_000, test_000];
+const stage_list: StageEntry[] = [stage_000, stage_001, stage_002, stage_003, stage_004, stage_005, test_000, test_001];
 
 const sm_abi: PlayerAbility = {
     pre_miss: 30,
