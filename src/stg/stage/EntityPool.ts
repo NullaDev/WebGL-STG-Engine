@@ -16,8 +16,8 @@ export class SpecialEffects {
     }
 
     public process() {
-        this.time_rate =this.list.reduce((n,e)=>n*e.rate,1);
-        this.list = this.list.filter(e=>e.duration--);
+        this.time_rate = this.list.reduce((n, e) => n * e.rate, 1);
+        this.list = this.list.filter(e => --e.duration > 0);
     }
 
     public time_slowdown(rate: number, duration: number) {
