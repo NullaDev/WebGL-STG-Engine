@@ -40,7 +40,9 @@ const sinit: StageInit = {
 }
 
 export async function init() {
+    console.log("classes loaded");
     await sinit.load_sprite();
+    console.log("texture loaded");
     var pool = new EntityPool();
     pool.add(sinit.add_player());
     pool.add(stage_list[stage_settings.stage].init(stage_settings.scale));

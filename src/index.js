@@ -20,3 +20,5 @@ async function main() {
 }
 
 window.onload = main;
+
+console.log("start");
