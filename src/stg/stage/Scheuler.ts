@@ -1,5 +1,5 @@
 import { CG_GHOST, CM_GHOST, Config, Entity, EntityAny, RL_INVISIBLE, State } from "../entity/Entity";
-import { SINull, SIPoint } from "../util/Shape";
+import { SINull } from "../util/Shape";
 import { EntityPool } from "./EntityPool";
 
 abstract class ScheduleEntry {

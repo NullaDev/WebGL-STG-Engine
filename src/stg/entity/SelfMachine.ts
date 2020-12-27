@@ -15,6 +15,7 @@ export type PlayerAction = {
 }
 
 export type PlayerAbility = {
+    readonly radius: number,
     readonly pre_miss: number,
     readonly miss_time: number,
     readonly bomb_time: number,
@@ -109,6 +110,7 @@ export class SelfMachine extends ShapedInstance<SelfMachine, RENDER_TYPE.CUSTOM,
     bomb_count: number;
     life_count: number;
     ability_count: number;
+    magn: number = 1;
 
     constructor(ss: SSPoint<ShapeCircle>, proto: PlayerPrototype, abi: PlayerAbility, x: number, y: number) {
         super(RENDER_TYPE.CUSTOM, null);
@@ -221,9 +223,10 @@ export class SelfMachine extends ShapedInstance<SelfMachine, RENDER_TYPE.CUSTOM,
             const y = this.py + (this.prey - this.py) * i / num;
             min = Math.min(min, s.distanceTo(x, y));
         }
-        if (min - this.shaped_sprite.shape.radius < this.ability.graze_radius)
+        const rad = this.sprite.shape.radius * this.ability.radius * this.magn;
+        if (min - rad < this.ability.graze_radius)
             this.grazed = true;
-        return min < this.shaped_sprite.shape.radius;
+        return min < rad;
     }
 
     public layers() {

@@ -7,6 +7,7 @@ import { SpriteManager } from "./util/SpriteManager";
 import { stage_list, ability_list } from "./data/index"
 
 const sm_abi: PlayerAbility = {
+    radius: 1,
     pre_miss: 30,
     miss_time: 60,
     bomb_time: 60,

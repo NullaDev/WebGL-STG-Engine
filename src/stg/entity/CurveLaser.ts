@@ -1,5 +1,5 @@
 import { EntityPool } from "../stage/EntityPool";
-import { PointCurve, ShapeCurve, SICurve, SSCurve } from "../util/Curve";
+import { PointCurve, SICurve, SSCurve } from "../util/Curve";
 import { RENDER_TYPE } from "../util/SpriteManager";
 import { CG_GHOST, CM_GHOST, Config, Entity, EntityAny, RL_BULLET, State } from "./Entity";
 import { MovePoint } from "./MovePoint";

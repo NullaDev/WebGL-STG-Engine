@@ -1,9 +1,8 @@
 import { SCR_HALF_HEIGHT, SCR_HALF_WIDTH } from "../../platform/Screen";
 import { EntityPool } from "../stage/EntityPool";
-import { ShapeCircle } from "../util/Shape";
 import { State } from "./Entity";
 import { MovePoint, MovePointEventListener } from "./MovePoint";
-import { RayLaser, RayLaserConfig, RayLaserEventListener, RayLaserMotion, RayLaserState, SSRay } from "./RayLaser";
+import { RayLaser, RayLaserConfig, RayLaserEventListener, RayLaserMotion, SSRay } from "./RayLaser";
 
 export const move_point_event_listener_template: () => MovePointEventListener = () => ({
     onInit: [],
