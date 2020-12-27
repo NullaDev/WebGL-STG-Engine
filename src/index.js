@@ -2,9 +2,12 @@ import * as stg from "./stg/test"
 import * as pf from "./platform/platform_init"
 
 async function main() {
+    console.log("window loaded");
     //pf.test_fps();
     pf.setup_canvas();
+    console.log("canvas setup");
     await stg.init();
+    console.log("stage initialized");
     require("./platform/buttons");
     pf.mainloop_start();
     window.debug_info.stg = {
