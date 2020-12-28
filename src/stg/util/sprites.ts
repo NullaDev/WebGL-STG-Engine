@@ -33,6 +33,14 @@ const rot = Math.PI * 2 / 600;
 
 export const res_000: SpriteSource = { path: "assets/bullet_000.png", w: 516, h: 772 };
 
+function texTransform(s: Sprite) {
+    s.tx += 0.5;
+    s.ty += 0.5;
+    s.tw -= 1;
+    s.th -= 1;
+    return s;
+}
+
 export function get_small(type: S_Type, color: S_Color, mode: Sprite_Mode): Sprite {
     const tx =
         type < 12 ? 1 + color * 16 :
@@ -43,7 +51,7 @@ export function get_small(type: S_Type, color: S_Color, mode: Sprite_Mode): Spri
             color < 15 ? 515 + color * 16 : 449;
     const tw = type < 12 ? 16 : type < 14 ? 8 : type < 15 ? 256 : 16;
     const th = type < 12 ? 16 : type < 14 ? 8 : 16;
-    return {
+    return texTransform({
         sprite: res_000,
         tx: tx,
         ty: ty,
@@ -54,13 +62,13 @@ export function get_small(type: S_Type, color: S_Color, mode: Sprite_Mode): Spri
         type: type,
         color: color,
         omega: s_rot[type] * rot
-    };
+    });
 }
 
 export function get_middle(type: M_Type, color: M_Color, mode: Sprite_Mode): Sprite {
     const tx = (type < 7 ? 1 : 258) + color * 32;
     const ty = type == 0 ? 209 : type < 7 ? 226 + type * 32 : 257;
-    return {
+    return texTransform({
         sprite: res_000,
         tx: tx,
         ty: ty,
@@ -71,11 +79,11 @@ export function get_middle(type: M_Type, color: M_Color, mode: Sprite_Mode): Spr
         type: type,
         color: color,
         omega: m_rot[type] * rot
-    };
+    });
 }
 
 export function get_large(type: L_Type, color: L_Color, mode: Sprite_Mode): Sprite {
-    return {
+    return texTransform({
         sprite: res_000,
         tx: (type == 0 ? 1 : 258) + color * 64,
         ty: type == 0 ? 449 : 290,
@@ -86,29 +94,29 @@ export function get_large(type: L_Type, color: L_Color, mode: Sprite_Mode): Spri
         type: type,
         color: color,
         omega: rot
-    };
+    });
 }
 
-export const self_machine_foreground: Sprite = {
+export const self_machine_foreground: Sprite = texTransform({
     sprite: res_000,
     tx: 258, ty: 17, tw: 64, th: 64,
     mode: Sprite_Mode.Overlay,
     category: Category.Special,
     type: 0, color: 0, omega: rot
-};
+});
 
-export const self_machine_background: Sprite = {
+export const self_machine_background: Sprite = texTransform({
     sprite: res_000,
     tx: 322, ty: 17, tw: 64, th: 64,
     mode: Sprite_Mode.Overlay,
     category: Category.Special,
     type: 1, color: 0, omega: rot
-};
+});
 
-export const boss_background: Sprite = {
+export const boss_background: Sprite = texTransform({
     sprite: res_000,
     tx: 386, ty: 81, tw: 128, th: 128,
     mode: Sprite_Mode.Overlay,
     category: Category.Special,
     type: 2, color: 0, omega: rot
-};
+});

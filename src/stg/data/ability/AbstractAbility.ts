@@ -13,7 +13,7 @@ const ability_alpha = 1;
 const resolutoon = 32;
 const graze_ss = SRes.getSSCircle(Res.boss_background, 1);
 
-export abstract class AbstractAbility implements AbilityPrototype {
+export abstract class AbstractAbility implements AbilityPrototype<number> {
 
     constructor(public readonly special_duration: number) { }
 
@@ -25,16 +25,17 @@ export abstract class AbstractAbility implements AbilityPrototype {
 
     updateEnable(self: SelfMachine, special: boolean) {
         if (this.special_remain > 0) {
+            this.special_remain--;
             this.update(self);
         }
         if (this.special_remain > 0)
-            return false;
+            return 0;
         if (special && self.ability_count > 0 &&  this.onActivate(self)) {
             self.ability_count--;
             this.special_remain = this.special_duration;
-            return false;
+            return 0;
         }
-        return false;
+        return 0;
     }
 
     render(layer: number, self: SelfMachine) {
@@ -73,7 +74,7 @@ export abstract class AbstractAbility implements AbilityPrototype {
     }
 };
 
-export type AbilityEntry = {
+export type AbilityEntry<T> = {
     name: string,
-    init: () => AbilityPrototype
+    init: () => AbilityPrototype<T>
 }

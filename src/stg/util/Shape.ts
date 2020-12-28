@@ -25,7 +25,7 @@ export class ShapeCircle extends ShapePoint {
 
     public exitScreen(self: SIPoint<any>): number {
         const r = Math.sqrt(self.shaped_sprite.w ** 2 + self.shaped_sprite.h ** 2);
-        return r * self.magn;
+        return Math.max(0,r * self.magn);
     }
 
     public distanceTo(self: SIPoint<any>, px: number, py: number): number {

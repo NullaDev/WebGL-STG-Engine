@@ -23,11 +23,11 @@ export class GLHelper {
 
     public fan([da, oa, ox, oy, or, ta, tx, ty, trw, trh, alpha]: number[], n: number) {
         const num = Math.ceil(Math.abs(da) / (Math.PI * 2) * n);
-        const f0 = (x: number, y: number, rw: number, rh:number,  a: number) => [x + rw * Math.cos(a), y + rh * Math.sin(a)];
-        const f1 = (x: number, y: number, rw: number, rh:number, a: number, b: number) => [...f0(x, y, 0, 0, 0), ...f0(x, y, rw, rh, a), ...f0(x, y, rw, rh, b)];
+        const f1 = (list: number[], x: number, y: number, rw: number, rh: number, a: number, b: number) => list.push(
+            x, y, x + rw * Math.cos(a), y + rh * Math.sin(a), x + rw * Math.cos(b), y + rh * Math.sin(b));
         for (let i = 0; i < num; i++) {
-            this.ver.push(...f1(ox, oy, or, or, oa + da / num * i, oa + da / num * (i + 1)));
-            this.tex.push(...f1(tx, ty, trw, trh, ta + da / num * i, ta + da / num * (i + 1)));
+            f1(this.ver, ox, oy, or, or, oa + da / num * i, oa + da / num * (i + 1));
+            f1(this.tex, tx, ty, trw, trh, ta + da / num * i, ta + da / num * (i + 1));
             this.alp.push(alpha, alpha, alpha);
         }
         this.n += num * 3;

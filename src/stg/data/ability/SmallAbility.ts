@@ -10,7 +10,6 @@ class InvincAbility extends AbstractAbility {
     }
 
     public update(self: SelfMachine): void {
-        this.special_remain -= EntityPool.INSTANCE.special_effects.time_rate;
         self.magn = this.special_remain > 0 ? 0 : 1;
     }
 
@@ -20,7 +19,7 @@ class InvincAbility extends AbstractAbility {
 
 };
 
-export const ability_small: AbilityEntry = {
+export const ability_small: AbilityEntry<number> = {
     name: "small hitbox",
     init: () => new InvincAbility()
 }

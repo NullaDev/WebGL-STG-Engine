@@ -31,6 +31,7 @@ export const stage_006: StageEntry = {
         const t0 = 2 * time_scale;
         const t1 = 6 * time_scale;
         const rate = 4;
+        const angle = Math.PI/3;
 
         type S_DATA = {
             host: MovePoint<any>,
@@ -85,7 +86,7 @@ export const stage_006: StageEntry = {
             30 * time_scale,
             repeat((i0) => [
                 () => EntityPool.INSTANCE.special_effects.time_slowdown(1 / rate, (n * t1 + l1 / v0) * rate),
-                adder(i0 % 2 * 2 - 1, Math.PI / 3),
+                adder(i0 % 2 * 2 - 1, angle),
                 240 * time_scale
             ])
         ]);

@@ -57,20 +57,21 @@ export function getRayLaser(type: RayLaserType, scolor: S_Color, mcolor: M_Color
 
 export function getCurveLaser<S extends ShapeCurve<S, CN>, CN extends CurveNode>(color: S_Color, mode: Sprite_Mode, shape: S): SSCurve<S, CN> {
     const sprite = get_small(S_Type.Curve, color, mode);
-    const w = radiusTransform(radius[Category.Small][S_Type.Curve]);
+    const w = radiusTransform(radius[Category.Small][S_Type.Curve]) * mag;
     return {
         sprite: sprite,
         shape: shape,
         renderType: RENDER_TYPE.STRIP,
         w: w,
+        sp_w: sprite.th * mag,
         radius: (start, len, i) => {
             const a = w * 16;
-            if (i / len * 16 < 0.5 || i / len * 16 > 15.5)
+            if (len <= 2 || i / (len - 1) * 16 < 0.5 || i / (len - 1) * 16 > 15.5)
                 return -Infinity;
-            const x = (i + 0.5) / len * w * 16;
+            const x = ((i + 0.5) / len - 0.5) * w * 16;
             const o = 255 * w / 2;
             const y = Math.sqrt((o + w) ** 2 - x ** 2) - o;
-            return y * mag;
+            return y / w;
         }
     };
 }

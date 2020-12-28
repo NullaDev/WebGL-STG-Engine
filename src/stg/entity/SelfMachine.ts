@@ -18,7 +18,6 @@ export type PlayerAbility = {
     readonly radius: number,
     readonly pre_miss: number,
     readonly miss_time: number,
-    readonly bomb_time: number,
     readonly graze_radius: number,
     readonly max_graze: number,
     readonly init_bomb: number,
@@ -29,8 +28,8 @@ export type PlayerAbility = {
     readonly max_ability: number
 }
 
-export interface AbilityPrototype {
-    updateEnable(self: SelfMachine, enable: boolean): boolean;
+export interface AbilityPrototype<T> {
+    updateEnable(self: SelfMachine, enable: boolean): T;
     render(layer: number, self: SelfMachine): void;
     layers(): number[];
 }
@@ -38,21 +37,21 @@ export interface AbilityPrototype {
 export class PlayerPrototype {
 
     constructor(
-        public shoot: AbilityPrototype,
-        public bomb: AbilityPrototype,
-        public ability: AbilityPrototype
+        public shoot: AbilityPrototype<void>,
+        public bomb: AbilityPrototype<number>,
+        public ability: AbilityPrototype<number>
     ) { }
 
-    updateShoot(self: SelfMachine, shoot: boolean): boolean {
-        return this.shoot?.updateEnable(self, shoot);
+    updateShoot(self: SelfMachine, shoot: boolean): void {
+        this.shoot?.updateEnable(self, shoot);
     }
 
-    updateBomb(self: SelfMachine, bomb: boolean): boolean {
+    updateBomb(self: SelfMachine, bomb: boolean): number {
         return this.bomb?.updateEnable(self, bomb);
 
     }
 
-    updateAbility(self: SelfMachine, ability: boolean): boolean {
+    updateAbility(self: SelfMachine, ability: boolean): number {
         return this.ability?.updateEnable(self, ability);
 
     }
@@ -93,7 +92,7 @@ export class SelfMachine extends ShapedInstance<SelfMachine, RENDER_TYPE.CUSTOM,
     readonly sprite: SSPoint<ShapeCircle>;
 
     missed: boolean = false;
-    bombed: boolean = false;
+    bombed: number = 0;
     grazed: boolean = false;
     post_grazed: boolean = false;
     pre_miss: number = 0;
@@ -145,9 +144,10 @@ export class SelfMachine extends ShapedInstance<SelfMachine, RENDER_TYPE.CUSTOM,
         if (this.py > Screen.SCR_HALF_HEIGHT)
             this.py = Screen.SCR_HALF_HEIGHT;
         this.dir = this.time * this.sprite.sprite.omega;
-        this.bombed = this.proto.updateShoot(this, SelfMachine.action.key_z);
-        this.bombed ||= this.proto.updateBomb(this, SelfMachine.action.key_x);
-        this.bombed ||= this.proto.updateAbility(this, SelfMachine.action.key_c);
+        this.proto.updateShoot(this, SelfMachine.action.key_z);
+        this.bombed = this.proto.updateBomb(this, SelfMachine.action.key_x);
+        if (!this.bombed)
+            this.bombed = this.proto.updateAbility(this, SelfMachine.action.key_c);
     }
 
     postUpdate(_: SME): void {
@@ -179,8 +179,8 @@ export class SelfMachine extends ShapedInstance<SelfMachine, RENDER_TYPE.CUSTOM,
             this.pre_miss = this.ability.pre_miss;
         }
         if (this.bombed) {
-            this.bombed = false;
-            this.miss_time = this.ability.bomb_time;
+            this.miss_time = this.bombed;
+            this.bombed = 0;
             if (this.pre_miss > 0) {
                 // bomb after miss
                 console.log("bomb after miss");

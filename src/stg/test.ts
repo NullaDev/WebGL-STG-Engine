@@ -10,7 +10,6 @@ const sm_abi: PlayerAbility = {
     radius: 1,
     pre_miss: 30,
     miss_time: 60,
-    bomb_time: 60,
     graze_radius: 24,
     max_graze: 600,
     init_bomb: 3,

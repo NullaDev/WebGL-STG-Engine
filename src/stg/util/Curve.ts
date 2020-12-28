@@ -12,53 +12,8 @@ export abstract class ShapeCurve<S extends ShapeCurve<S, N>, N extends CurveNode
 
 }
 
-export abstract class PointCurve extends ShapeCurve<PointCurve, CurveNode> {
-
-    protected _distanceTo(curve: SICurve<PointCurve, CurveNode>, start: number, len: number, x: number, y: number): number {
-        var min = Infinity;
-        for (var i = 0; i < len; i++) {
-            var node = curve.list[i + start];
-            var dis = Math.sqrt((node.px - x) * (node.px - x) + (node.py - y) * (node.py - y));
-            min = Math.min(min, dis - curve.shaped_sprite.radius(start, len, i));
-        }
-        return min;
-    }
-
-}
-
-export class ShapeLine extends Shape<DDLine> {
-
-    public static INS: ShapeLine = new ShapeLine();
-
-    public distanceTo(line: DDLine, x: number, y: number) {
-        const rl = Math.sqrt((line.x0 - line.x1) * (line.x0 - line.x1) + (line.y0 - line.y1) * (line.y0 - line.y1));
-        const dis = Math.abs((line.x1 - line.x0) * (line.y0 - y) - (line.x0 - x) * (line.y1 - line.y0));
-        const d0 = Math.sqrt((line.x0 - x) * (line.x0 - x) + (line.y0 - y) * (line.y0 - y));
-        const d1 = Math.sqrt((line.x1 - x) * (line.x1 - x) + (line.y1 - y) * (line.y1 - y));
-        return Math.min(dis / rl, d0, d1) - line.r;
-    }
-
-}
-
-export abstract class LineCurve extends ShapeCurve<LineCurve, CurveNode> {
-
-    protected _distanceTo(curve: SICurve<LineCurve, CurveNode>, start: number, len: number, x: number, y: number): number {
-        var min = Infinity;
-        const ddl = { x0: 0, x1: 0, y0: 0, y1: 0, r: 0 };
-        for (var i = 0; i < len - 1; i++) {
-            ddl.x0 = curve.list[start + i].px;
-            ddl.y0 = curve.list[start + i].py;
-            ddl.x1 = curve.list[start + i + 1].px;
-            ddl.y1 = curve.list[start + i + 1].py;
-            ddl.r = (curve.shaped_sprite.radius(start, len, i) + curve.shaped_sprite.radius(start, len, i + 1)) / 2;
-            min = Math.min(min, ShapeLine.INS.distanceTo(ddl, x, y));
-        }
-        return min;
-    }
-
-}
-
 export class SSCurve<S extends ShapeCurve<S, CN>, CN extends CurveNode> extends ShapedSprite<SSCurve<S, CN>, RENDER_TYPE.STRIP, SICurve<S, CN>, S>{
+    public sp_w: number;
     public w: number;
     public radius: (start: number, len: number, ind: number) => number;
 }
@@ -90,7 +45,7 @@ export class CurveFilter {
             this.exist = true;
             this.count++;
         }
-        else {
+        else if (this.exist) {
             this.exist = false;
             this.list.push({ start: this.start, len: this.count });
             this.count = 0;

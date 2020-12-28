@@ -115,11 +115,19 @@ export function mainloop_terminate() {
     started = false;
 }
 
+var t0, t1;
+
 function mainloop_update() {
+    t0 = performance.now();
+    if (t0 - t1 > 33)
+        console.log(`Violation: interval takes ${Math.round((t0 - t1) * 100) / 100} ms`);
     page_update();
     keys_update();
     if (started)
         requestAnimationFrame(mainloop_update);
+    t1 = performance.now();
+    if (t1 - t0 > 16)
+        console.log(`Violation: loop takes ${Math.round((t1 - t0) * 100) / 100} ms`);
 }
 
 function keys_update() {

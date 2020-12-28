@@ -62,8 +62,9 @@ export class SpriteManager {
                 const s = <STRIP><RenderType<STRIP, RENDER_TYPE.STRIP>>e;
                 const ss = s.getSprite();
                 const sp = ss.sprite;
+                gl.setMode(sp.mode);
                 for (var a of s.render())
-                    gl.drawSnake(a, ss.w, a.length / 2, sp.tx, sp.ty, sp.tw, sp.th, this.img);
+                    gl.drawSnake(a, ss.sp_w, a.length / 2, sp.tx/sp.sprite.w, sp.ty/sp.sprite.h, sp.tw/sp.sprite.w, sp.th/sp.sprite.h, this.img);
             }
     }
 

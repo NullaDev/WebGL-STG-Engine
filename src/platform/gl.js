@@ -203,9 +203,12 @@ export function drawRects(xyrwh, size, texture) {
 }
 
 export function drawSnake(xy, w, size, tx, ty, tw, th, texture) {
+    if (size <= 1)
+        return;
     const ver = new Float32Array(size * 6);
     const len = new Float32Array(size);
     const tex = new Float32Array(size * 6);
+    const alp = new Float32Array(size * 3);
     const ind = new Int16Array((size - 1) * 2);
     var tot = 0;
     for (var i = 0; i < size - 1; i++) {
@@ -228,10 +231,10 @@ export function drawSnake(xy, w, size, tx, ty, tw, th, texture) {
         ver[i * 6 + 5] = oy - (ox - px) / l * w;
     }
     scrCoord_to_GLCoord(ver);
-    tot -= len[0] / 2 + len[size - 1] / 2;
+    tot -= len[0] / 2 + len[size - 2] / 2;
 
     var sta = -len[0] / 2;
-    for (var i = 1; i < size; i++) {
+    for (var i = 0; i < size-1; i++) {
         tex[i * 6 + 0] = tx + tw * sta / tot;
         tex[i * 6 + 1] = ty + th / 2;
         sta += len[i] / 2;
@@ -241,6 +244,10 @@ export function drawSnake(xy, w, size, tx, ty, tw, th, texture) {
         tex[i * 6 + 5] = ty + th;
         sta += len[i] / 2;
     }
+
+    for (var i = 0; i < size * 3; i++)
+        alp[i] = 1;
+
     for (var i = 0; i < size - 1; i++) {
         ind[i * 2 + 0] = i * 3 + 1;
         ind[i * 2 + 1] = i * 3 + 3;
@@ -254,6 +261,13 @@ export function drawSnake(xy, w, size, tx, ty, tw, th, texture) {
     gl.bufferData(gl.ARRAY_BUFFER, ver, gl.STATIC_DRAW);
     gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(coord);
+
+    const alp_buffer = gl.createBuffer();
+    const alpc = global_gl.shader.attribute.alpha;
+    gl.bindBuffer(gl.ARRAY_BUFFER, alp_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, alp, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(alpc, 1, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(alpc);
 
     const tex_buffer = gl.createBuffer();
     const texc = global_gl.shader.attribute.tex;

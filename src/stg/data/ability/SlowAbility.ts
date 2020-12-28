@@ -9,18 +9,16 @@ class SlowAbility extends AbstractAbility {
     }
 
     public update(): void {
-        this.special_remain--;
     }
+
     public onActivate(): boolean {
-        if (EntityPool.INSTANCE.special_effects.list.length > 0)
-            return false;
         EntityPool.INSTANCE.special_effects.time_slowdown(0.5, 240);
         return true;
     }
 
 };
 
-export const ability_slow: AbilityEntry = {
+export const ability_slow: AbilityEntry<number> = {
     name: "slow",
     init: () => new SlowAbility()
 }
