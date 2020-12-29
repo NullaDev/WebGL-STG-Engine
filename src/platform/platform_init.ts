@@ -1,17 +1,20 @@
 'use strict'
 
+import { AbilityEntry } from "../stg/data/ability/AbstractAbility";
+import { EntityPool } from "../stg/stage/EntityPool";
+import { StageEntry } from "../stg/stage/StageInit";
 import * as gl from "./gl";
 import { page_setup, page_update } from "./page";
 import * as Screen from "./Screen";
 
-var test_n = 240;
+var test_n = 30;
 var fps_start = 0;
 var fps_total = 0;
-var resolver = null;
+var resolver: (val: number) => void = null;
 export var devicePixelRatio = 1;
 export var last_update_rate = 1;
-export var canvas_width;
-export var canvas_height;
+export var canvas_width: number;
+export var canvas_height: number;
 
 export function test_fps() {
     fps_start = performance.now();
@@ -34,14 +37,11 @@ function fps_update() {
 }
 
 export var mouse = { x: 0, y: 0 };
-export var keys = {};
+export var keys: { [keys: string]: 0 | 1 | 2 | 3 } = {};
 
 function setup_listener() {
-    document.onmousemove = (event) => {
-        mouse.x = event.pageX;
-        mouse.y = event.pageY;
-    }
 
+    /*
     document.ontouchstart = (event) => {
         keys["_touch"] = 3;
         mouse.x = event.pageX;
@@ -60,6 +60,12 @@ function setup_listener() {
         mouse.x = event.pageX;
         mouse.y = event.pageY;
         event.preventDefault();
+    }
+    */
+
+    document.onmousemove = (event) => {
+        mouse.x = event.pageX;
+        mouse.y = event.pageY;
     }
 
     document.onmousedown = (event) => {
@@ -90,7 +96,7 @@ export function setup_canvas() {
     var winw = window.innerWidth;
     var winh = window.innerHeight;
     var winr = Math.min(winw / Screen.SCR_HALF_WIN_WIDTH, winh / Screen.SCR_HALF_WIN_HEIGHT) * 0.95;
-    var canvas = document.getElementById("glcanvas");
+    var canvas = <HTMLCanvasElement>document.getElementById("glcanvas");
     canvas_width = winr * Screen.SCR_HALF_WIN_WIDTH;
     canvas_height = winr * Screen.SCR_HALF_WIN_HEIGHT;
     canvas.style.width = canvas_width + "px";
@@ -115,11 +121,11 @@ export function mainloop_terminate() {
     started = false;
 }
 
-var t0, t1;
+var t0: number = 0, t1: number = 0;
 
 function mainloop_update() {
     t0 = performance.now();
-    if (t0 - t1 > 33)
+    if (t1 && t0 - t1 > 33)
         console.log(`Violation: interval takes ${Math.round((t0 - t1) * 100) / 100} ms`);
     page_update();
     keys_update();
@@ -141,4 +147,20 @@ function keys_update() {
 
 export const KEY_PRESS = 2;
 export const KEY_CLICK = 3;
-export const container = window;
+
+const container = <any>window;
+export const debug_info: {
+    pool: EntityPool,
+    stage: {
+        init: () => Promise<void>,
+        stage: number,
+        scale: number,
+        ability: number,
+        stage_list: StageEntry[],
+        ability_list: AbilityEntry<number>[]
+    }
+} = {
+    pool: null,
+    stage: null,
+};
+container.debug_info = debug_info;

@@ -61,12 +61,12 @@ export const test_001: StageEntry = {
                 Mover.random(data, rm)
             ])
         ];
-        return new Scheduler([
+        return [new Scheduler([
             60 * time_scale,
             repeat((i) => [
                 nonblock(adder(i)),
                 150 * time_scale
             ], 4)
-        ]);
+        ])];
     }
 }

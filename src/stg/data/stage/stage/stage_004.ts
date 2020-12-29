@@ -60,8 +60,7 @@ export const stage_004: StageEntry = {
             ti1
         ], n1);
 
-        return new Scheduler([
-            () => EntityPool.INSTANCE.add(boss),
+        return [boss, new Scheduler([
             30 * time_scale,
             repeat((ix) => [
                 () => a0 = Math.random() * Math.PI * 2,
@@ -72,6 +71,6 @@ export const stage_004: StageEntry = {
                 ti0 * 20,
                 Mover.random(boss, rm)
             ])
-        ]);
+        ])];
     }
 }

@@ -40,7 +40,7 @@ export const test_000: StageEntry = {
         const n = 10;
         const w0 = 0 * Math.PI * 2 / 240 / time_scale;
 
-        return new Scheduler([
+        return [new Scheduler([
             30 * time_scale,
             repeat((i0) => [
                 repeat((i1) => [
@@ -49,6 +49,6 @@ export const test_000: StageEntry = {
                 ], n),
                 6000 * time_scale
             ])
-        ]);
+        ])];
     }
 }

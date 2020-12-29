@@ -5,7 +5,7 @@ import * as SRes from "./util/shaped_sprites";
 import * as Res from "./util/sprites";
 import { SpriteManager } from "./util/SpriteManager";
 import { stage_list, ability_list } from "./data/index"
-import { container } from "../platform/platform_init";
+import { debug_info } from "../platform/platform_init";
 
 const sm_abi: PlayerAbility = {
     radius: 1,
@@ -21,7 +21,7 @@ const sm_abi: PlayerAbility = {
     max_ability: 5
 }
 
-const stage_settings = {
+export const stage_settings = {
     init: init,
     stage: 6,
     scale: 1,
@@ -41,11 +41,10 @@ const sinit: StageInit = {
 
 export async function init() {
     await sinit.load_sprite();
-    container.debug_info.load_sprites();
     var pool = new EntityPool();
     pool.add(sinit.add_player());
-    pool.add(stage_list[stage_settings.stage].init(stage_settings.scale));
-    container.debug_info.pool = pool;
-    container.debug_info.stage = stage_settings;
+    stage_list[stage_settings.stage].init(stage_settings.scale).forEach((e) => pool.add(e));
+    debug_info.pool = pool;
+    debug_info.stage = stage_settings;
 
 }

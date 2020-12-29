@@ -1,10 +1,12 @@
-const start = document.getElementById("stage_start");
-const stage_dec = document.getElementById("stage_dec");
-const stage_inc = document.getElementById("stage_inc");
-const ability = document.getElementById("ability_set");
-const ability_dec = document.getElementById("ability_dec");
-const ability_inc = document.getElementById("ability_inc");
-const st = debug_info.stage;
+import { stage_settings } from "../stg/test";
+
+const start = <HTMLButtonElement>document.getElementById("stage_start");
+const stage_dec = <HTMLButtonElement>document.getElementById("stage_dec");
+const stage_inc = <HTMLButtonElement>document.getElementById("stage_inc");
+const ability = <HTMLButtonElement>document.getElementById("ability_set");
+const ability_dec = <HTMLButtonElement>document.getElementById("ability_dec");
+const ability_inc = <HTMLButtonElement>document.getElementById("ability_inc");
+const st = stage_settings;
 const update = () => {
     stage_dec.disabled = st.stage == 0;
     stage_inc.disabled = st.stage == st.stage_list.length - 1;

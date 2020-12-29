@@ -42,8 +42,7 @@ export const stage_003: StageEntry = {
             .setMotion((e) => (e.dir = e.time * Math.PI * 2 / 600, false)).simpleInit(0, 64, 0, 0);
 
         var a0 = 0;
-        return new Scheduler([
-            () => EntityPool.INSTANCE.add(boss),
+        return [boss,new Scheduler([
             30 * time_scale,
             repeat((i0) => [
                 () => a0 = Math.random() * Math.PI * 2,
@@ -66,6 +65,6 @@ export const stage_003: StageEntry = {
                 ti0 * m,
                 Mover.random(boss, rm)
             ])
-        ]);
+        ])];
     }
 }

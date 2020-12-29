@@ -82,13 +82,13 @@ export const stage_006: StageEntry = {
 
 
 
-        return new Scheduler([
+        return [new Scheduler([
             30 * time_scale,
             repeat((i0) => [
                 () => EntityPool.INSTANCE.special_effects.time_slowdown(1 / rate, (n * t1 + l1 / v0) * rate),
                 adder(i0 % 2 * 2 - 1, angle),
                 240 * time_scale
             ])
-        ]);
+        ])];
     }
 }

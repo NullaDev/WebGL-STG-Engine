@@ -53,7 +53,7 @@ export const stage_005: StageEntry = {
             ti
         ], n0);
 
-        return new Scheduler([
+        return [new Scheduler([
             30 * time_scale,
             repeat((i0) => [
                 adder(20, 0, 3, (i0 % 2 * 2 - 1) * w * 0.0678, t0 * 6, Math.random() * 2 * Math.PI),
@@ -61,6 +61,6 @@ export const stage_005: StageEntry = {
                 adder(120, 1, 1, (i0 % 2 * 2 - 1) * w * 0.0234, t0, Math.random() * 2 * Math.PI),
                 100 * time_scale
             ]),
-        ]);
+        ])];
     }
 }

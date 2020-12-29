@@ -56,7 +56,7 @@ export const stage_001: StageEntry = {
             ], n0 * nx)
         ]));
 
-        return new Scheduler([
+        return [new Scheduler([
             () => EntityPool.INSTANCE.add(boss),
             30 * time_scale,
             repeat((i0) => [
@@ -67,6 +67,6 @@ export const stage_001: StageEntry = {
                 () => adder(i0 % 2 * 2 - 1, 1, ssg(Res.S_Color.Cyan), ssg(Res.S_Color.Pink)),
                 Mover.random(boss, rm)
             ])
-        ]);
+        ])];
     }
 }

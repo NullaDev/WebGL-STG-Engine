@@ -14,7 +14,7 @@ export const stage_000: StageEntry = {
         const sprite = Res.get_middle(Res.M_Type.Oval, Res.M_Color.Red, Res.Sprite_Mode.Overlay);
         const ss = SRes.getSSCircle(sprite, 1);
 
-        return new Scheduler([
+        return [new Scheduler([
             30 * time_scale,
             repeat((i0) => [
                 repeat((i1) => [
@@ -23,6 +23,6 @@ export const stage_000: StageEntry = {
                 ], n),
                 1 * time_scale
             ], Infinity)
-        ])
+        ])]
     }
 }
