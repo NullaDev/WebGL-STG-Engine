@@ -11,6 +11,20 @@ npm install
 - `serve`: host local hot-update webpack server in development mode
 - `local`: host local server
 
+# How to Play
+
+moving:
+1. WASD (use shift for precise control)
+2. 4 arrow keys (use shift for precise control)
+3. mouse: press and drag
+4. Shift + mouse motion (don't need to press mouse)
+
+control:
+`Esc` for pause
+`c` for special abilities
+
+Note: this engine detects frame rate automatically, if the page is not active during loading, it will have a very slow frame rate and thus update multiple cycles per frame, making the engine goes insanely fast. If this happens, please refresh.
+
 # Structure of Project File:
 1. define all config ans shaped sprites
 2. define boss object, global variables, and local variable types
@@ -18,6 +32,28 @@ npm install
 4. return Scheduler object
 
 # Types:
+
+## Resources
+
+In general, you can refer to files in `src/stg/data/stage/**/*` for reference. They contains demo of all features of this engine.
+
+### Sprite and ShapedSprite
+
+Sprite: sprite of a prototype of bullet, laser, or curve laser. use `sprites.get_small`, `sprites.get_middle`, `sprites.get_large` to get coresponding bullet sprites. use `S_Type`, `M_Type`, `L_Type`, `S_Color`, `M_Color`, `L_Color`, and `Sprite_Mode` to choose the shape (type), color, and blending mode (Overlay for normal sprite or AddBlend for glowing sprite).
+
+ShapedSprite: sprite and shape of a prototype of bullet, laser, or curve laser. Use `shaped_sprites.getSSCircle` to get round bullet, `shaped_sprites.getLongBullet` to get bar-like bullet, `shaped_sprites.getRayLaser` to get Laser SS, and `shaped_sprites.getCurveLaser` to get Curve Laser SS.
+
+You need ShapedSprite for most instances.
+
+### EntityPool
+
+EntityPool contains all instances. You can call `EntityPool.INSTANCE` to refer to it, add things to it, or get information.
+
+`EntityPool.INSTANCE.special_effects` contains information of active special effects, currently there is only one, time rate. It can be used to slow the engine down.
+
+### SelfMachine
+
+use `SelfMachine.INSTANCE` to get player information.
 
 ## Input
 `Input` defines the elements of project tree
@@ -47,12 +83,37 @@ nonblock takes the same argument as Scheduler, it offers non-blocking execution,
 Note that nonblock has 1 frame delay, as what it actually does it adding a new Scheduler.
 
 # Caveat: Arrow Function or Not
+
+## Common Mistake
+1. When you are using `()=>{}` as code blocks for only one line, please don't use `() => a = b`, as it will be interpreted as `()=>number` and makes your stage weird. Use `() => { a = b }` to prevent unwanted behavior. You can solve this issue by using eslint.
+
+2. When the delay time is variable, please don't use it directly. For example, 
+```
+repeat((i0)=>[
+    i0,
+    ()=>{...}
+])
+```
+will work correctly, but
+```
+repeat((i0)=>[
+    ()=>{a=i0}
+    a,
+    ()=>{...}
+])
+```
+will not.
+
+It will be explained in the following section.
+
+## Scope and Initialization Time
+
 The values and parameters of elements are specified at the entry of the enclosing lambda function. For example:
 ```ts
 a = 5;
 
 repeat([
-    () => a = 10,
+    () => { a = 10 },
     a,
     () => {...}
 ])
@@ -62,7 +123,7 @@ will wait 5 frames each loop, because the value of a is specified statically.
 a = 5;
 
 repeat([
-    () => a = 10,
+    () => { a = 10 },
     () => a,
     () => {...}
 ])
@@ -72,7 +133,7 @@ will wait 10 frames each loop, because the value of a is specified at execution.
 a = 5;
 
 repeat(()=>[
-    () => a = 10,
+    () => { a = 10 },
     a,
     () => {...}
 ])
@@ -83,7 +144,7 @@ a = 100;
 
 () => a = 5,
 repeat([
-    () => a = 10,
+    () => { a = 10 },
     a,
     () => {...}
 ])
@@ -94,7 +155,7 @@ a = 100;
 
 () => a = 5,
 repeat(() => [
-    () => a = 10,
+    () => { a = 10 },
     a,
     () => {...}
 ])
