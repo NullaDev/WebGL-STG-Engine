@@ -14,8 +14,8 @@ var ref_scr_y = 0;
 var last_x = 0;
 var last_y = 0;
 
-var ui_bg: gl.GLTEXTURE;
-var scene_bg: gl.GLTEXTURE;
+var ui_bg: any;
+var scene_bg: any;
 
 export async function page_setup() {
     ui_bg = gl.loadTexture(await gl.loadImage("assets/ui_bg.png"), false, true);

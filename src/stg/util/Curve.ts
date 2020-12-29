@@ -66,17 +66,9 @@ export class SICurve<S extends ShapeCurve<S, CN>, CN extends CurveNode> extends 
         return this.list.reduce((n, e, i) => n.reduce(e, i), new CurveFilter()).reduce(null, 0);
     }
 
-    public render(): Array<Float32Array> {
+    public preRender() {
         const cf = this.getStat();
-        const ans = new Array<Float32Array>(cf.list.length);
-        for (var i = 0; i < ans.length; i++) {
-            ans[i] = new Float32Array(cf.list[i].len * 2);
-            for (var j = 0; j < cf.list[i].len; j++) {
-                ans[i][j * 2 + 0] = this.list[cf.list[i].start + j].px;
-                ans[i][j * 2 + 1] = this.list[cf.list[i].start + j].py;
-            }
-        }
-        return ans;
+        return { curve: this, list: cf.list };
     }
 
     getSprite(): SSCurve<S, CN> {

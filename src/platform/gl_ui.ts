@@ -9,7 +9,7 @@ export class GLHelper {
     private img: any;
     private n: number = 0;
 
-    public bind(texture: gl.GLTEXTURE) {
+    public bind(texture: any) {
         this.img = texture;
     }
 
@@ -31,7 +31,6 @@ export class GLHelper {
             this.alp.push(alpha, alpha, alpha);
         }
         this.n += num * 3;
-        eval("window.debug_info.fver = this.ver");
     }
 
     public flush() {

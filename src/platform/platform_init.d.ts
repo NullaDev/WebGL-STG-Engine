@@ -10,3 +10,4 @@ export var mouse: { x: number, y: number };
 export var keys: { [key: string]: number };
 export const KEY_PRESS: number;
 export const KEY_CLICK: number;
+export const container: any;

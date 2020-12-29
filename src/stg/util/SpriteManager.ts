@@ -1,6 +1,6 @@
 import * as gl from "../../platform/gl";
 import { EntityAny } from "../entity/Entity";
-import { SSCurve } from "./Curve";
+import { CurveNode, SICurve, SSCurve } from "./Curve";
 import { Sprite_Mode } from "./sprites";
 
 export const enum RENDER_TYPE {
@@ -19,13 +19,13 @@ export interface RECT extends RenderType<RECT, RENDER_TYPE.RECT> {
 }
 
 export interface STRIP extends RenderType<STRIP, RENDER_TYPE.STRIP> {
-    render(): Array<Float32Array>;
+    preRender(): { curve: SICurve<any, CurveNode>, list: { start: number, len: number }[] };
     getSprite(): SSCurve<any, any>;
 }
 
 export interface CUSTOM extends RenderType<CUSTOM, RENDER_TYPE.CUSTOM> {
     render(layer: number): void;
-    layers():number[];
+    layers(): number[];
 }
 
 export class SpriteManager {
@@ -33,7 +33,7 @@ export class SpriteManager {
     private static INS: { [key: string]: SpriteManager } = {};
     private path: string;
 
-    public img: gl.GLTEXTURE = null;
+    public img: any = null;
 
     constructor(url: string) {
         this.path = url;
@@ -57,15 +57,9 @@ export class SpriteManager {
     public draw(list: EntityAny[]) {
         this.drawRect(list, Sprite_Mode.Overlay);
         this.drawRect(list, Sprite_Mode.AddBlend);
-        for (var e of list)
-            if (e.renderType == RENDER_TYPE.STRIP) {
-                const s = <STRIP><RenderType<STRIP, RENDER_TYPE.STRIP>>e;
-                const ss = s.getSprite();
-                const sp = ss.sprite;
-                gl.setMode(sp.mode);
-                for (var a of s.render())
-                    gl.drawSnake(a, ss.sp_w, a.length / 2, sp.tx/sp.sprite.w, sp.ty/sp.sprite.h, sp.tw/sp.sprite.w, sp.th/sp.sprite.h, this.img);
-            }
+        this.drawCurve(list, Sprite_Mode.Overlay);
+        this.drawCurve(list, Sprite_Mode.AddBlend);
+
     }
 
     private drawRect(list: EntityAny[], mode: Sprite_Mode) {
@@ -84,6 +78,37 @@ export class SpriteManager {
                 i += r.rectCount();
             }
         gl.drawRects(xyrwh, rectn, this.img);
+    }
+
+    private drawCurve(list: EntityAny[], mode: Sprite_Mode) {
+        const l = list.filter(e => e.renderType == RENDER_TYPE.STRIP && e.shaped_sprite.sprite.mode == mode);
+        const rs = (<STRIP[]><RenderType<STRIP, RENDER_TYPE.STRIP>[]>l).map((e: STRIP) => e.preRender());
+        const stat = rs.reduce((n, e) => e.list.reduce((m, x) => x.len <= 1 ? m : m + x.len, n), 0);
+        if (stat == 0)
+            return;
+        gl.setMode(mode);
+        const xys = new Float32Array(stat * 2);
+        var i = 0;
+        for (var r of rs) {
+            for (var s of r.list) {
+                if (s.len <= 1)
+                    continue;
+                for (var j = 0; j < s.len; j++) {
+                    xys[i++] = r.curve.list[j + s.start].px;
+                    xys[i++] = r.curve.list[j + s.start].py;
+                }
+            }
+        }
+        const obj = rs.map(e => ({
+            w: e.curve.shaped_sprite.sp_w,
+            len: e.list.map(x => x.len).filter(a => a > 1),
+            tx: e.curve.shaped_sprite.sprite.tx / e.curve.shaped_sprite.sprite.sprite.w,
+            ty: e.curve.shaped_sprite.sprite.ty / e.curve.shaped_sprite.sprite.sprite.h,
+            tw: e.curve.shaped_sprite.sprite.tw / e.curve.shaped_sprite.sprite.sprite.w,
+            th: e.curve.shaped_sprite.sprite.th / e.curve.shaped_sprite.sprite.sprite.h
+        })).filter(e => e.len.length > 0);
+        gl.drawSnake(xys, obj, this.img);
+
     }
 
 }

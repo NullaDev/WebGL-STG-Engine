@@ -141,3 +141,4 @@ function keys_update() {
 
 export const KEY_PRESS = 2;
 export const KEY_CLICK = 3;
+export const container = window;

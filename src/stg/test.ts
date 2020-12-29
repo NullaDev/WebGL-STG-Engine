@@ -5,6 +5,7 @@ import * as SRes from "./util/shaped_sprites";
 import * as Res from "./util/sprites";
 import { SpriteManager } from "./util/SpriteManager";
 import { stage_list, ability_list } from "./data/index"
+import { container } from "../platform/platform_init";
 
 const sm_abi: PlayerAbility = {
     radius: 1,
@@ -40,11 +41,11 @@ const sinit: StageInit = {
 
 export async function init() {
     await sinit.load_sprite();
-    eval("window.debug_info.load_sprites();");
+    container.debug_info.load_sprites();
     var pool = new EntityPool();
     pool.add(sinit.add_player());
     pool.add(stage_list[stage_settings.stage].init(stage_settings.scale));
-    eval("window.debug_info.pool = pool");
-    eval("window.debug_info.stage = stage_settings");
+    container.debug_info.pool = pool;
+    container.debug_info.stage = stage_settings;
 
 }

@@ -17,7 +17,8 @@ export const test_002: StageEntry = {
         const ssc = SRes.getCurveLaser(Res.S_Color.Red, Res.Sprite_Mode.AddBlend, null);
         const cfb = clone(template_config_bullet);
         const cfc = clone(template_config_curve_mask);
-        cfb.kill_on_exit = true;
+        cfb.init_stall = 5*time_scale;
+        cfb.exit_margin = 50;
         ssb.sprite = null;
 
         const motion = (a0: number, da: number, w0: number) => (self: MovePoint<any>, time_rate: number) => {

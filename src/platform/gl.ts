@@ -1,3 +1,4 @@
+import { Sprite_Mode } from "../stg/util/sprites";
 import { scrCoord_to_GLCoord_x, scrCoord_to_GLCoord_y } from "./Screen";
 
 const vertexCode = `
@@ -27,7 +28,7 @@ void main() {
 `;
 
 export const global_gl = {
-    gl: null,
+    gl: <any>null,
     shader: {
         program: 0,
         attribute: {
@@ -42,7 +43,7 @@ export const global_gl = {
 }
 
 export function setup() {
-    var canvas = document.getElementById('glcanvas');
+    var canvas: any = document.getElementById('glcanvas');
     var gl = canvas.getContext('webgl');
     if (gl === null) {
         alert("Unable to initialize WebGL. Your browser or machine may not support it.");
@@ -75,15 +76,15 @@ export function setup() {
     gl.viewport(0, 0, canvas.width, canvas.height);
 }
 
-export function setMode(mode) {
+export function setMode(mode: Sprite_Mode) {
     const gl = global_gl.gl;
-    if (mode == 0)
+    if (mode == Sprite_Mode.Overlay)
         gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     else
         gl.blendFuncSeparate(gl.ONE, gl.ONE, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 }
 
-export function loadImage(src) {
+export function loadImage(src: string) {
     return new Promise((resolve, reject) => {
         let img = new Image()
         img.onload = () => resolve(img)
@@ -92,7 +93,7 @@ export function loadImage(src) {
     })
 }
 
-export function draw(ver_arr, tex_arr, alp_arr, texture, size) {
+export function draw(ver_arr: Float32Array, tex_arr: Float32Array, alp_arr: Float32Array, texture: any, size: number) {
     const gl = global_gl.gl;
 
     const ver_buffer = gl.createBuffer();
@@ -123,34 +124,7 @@ export function draw(ver_arr, tex_arr, alp_arr, texture, size) {
     gl.drawArrays(gl.TRIANGLES, 0, size);
 }
 
-export function drawStrip(ver_arr, tex_arr, ind_arr, texture, size) {
-    const gl = global_gl.gl;
-    const ver_buffer = gl.createBuffer();
-    const coord = global_gl.shader.attribute.coord;
-    gl.bindBuffer(gl.ARRAY_BUFFER, ver_buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, ver_arr, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(coord);
-
-    const tex_buffer = gl.createBuffer();
-    const tex = global_gl.shader.attribute.tex;
-    gl.bindBuffer(gl.ARRAY_BUFFER, tex_buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, tex_arr, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(tex, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(tex);
-
-    const ind_buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ind_buffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, ind_arr, gl.STATIC_DRAW);
-
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.uniform1i(global_gl.shader.uniform.uSampler, 0);
-
-    gl.drawElements(gl.TRIANGLE_STRIP, size, gl.UNSIGNED_SHORT, 0);
-}
-
-export function loadTexture(image, interpolate = true, wrap = false) {
+export function loadTexture(image: any, interpolate = true, wrap = false) {
     const gl = global_gl.gl;
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -175,14 +149,14 @@ const very = [-1, 1, 1, -1, -1, 1];
 const texx = [0, 0, 1, 0, 1, 1];
 const texy = [0, 1, 1, 0, 0, 1];
 
-function scrCoord_to_GLCoord(fa) {
+function scrCoord_to_GLCoord(fa: Float32Array) {
     for (var i = 0; i < fa.length / 2; i++) {
         fa[i * 2] = scrCoord_to_GLCoord_x(fa[i * 2]);
         fa[i * 2 + 1] = scrCoord_to_GLCoord_y(fa[i * 2 + 1]);
     }
 }
 
-export function drawRects(xyrwh, size, texture) {
+export function drawRects(xyrwh: Float32Array, size: number, texture: any) {
     const ver = new Float32Array(size * 12);
     const tex = new Float32Array(size * 12);
     const alp = new Float32Array(size * 6);
@@ -202,57 +176,93 @@ export function drawRects(xyrwh, size, texture) {
     draw(ver, tex, alp, texture, size * 6);
 }
 
-export function drawSnake(xy, w, size, tx, ty, tw, th, texture) {
-    if (size <= 1)
-        return;
-    const ver = new Float32Array(size * 6);
-    const len = new Float32Array(size);
-    const tex = new Float32Array(size * 6);
-    const alp = new Float32Array(size * 3);
-    const ind = new Int16Array((size - 1) * 2);
-    var tot = 0;
-    for (var i = 0; i < size - 1; i++) {
-        const px = xy[i * 2];
-        const py = xy[i * 2 + 1];
-        const nx = xy[i * 2 + 2];
-        const ny = xy[i * 2 + 3];
-        const ox = (px + nx) / 2;
-        const oy = (py + ny) / 2;
+export type Snake = {
+    w: number, len: number[], tx: number, ty: number, tw: number, th: number
+}
 
-        const l = Math.sqrt((nx - px) * (nx - px) + (ny - py) * (ny - py));
-        len[i] = l;
-        tot += l;
-
-        ver[i * 6 + 0] = px;
-        ver[i * 6 + 1] = py;
-        ver[i * 6 + 2] = ox - (oy - py) / l * w;
-        ver[i * 6 + 3] = oy + (ox - px) / l * w;
-        ver[i * 6 + 4] = ox + (oy - py) / l * w;
-        ver[i * 6 + 5] = oy - (ox - px) / l * w;
+function fillSnake(ver: Float32Array,
+    ind: number, o: number, i: number,
+    px: number, py: number,
+    ox0: number, oy0: number,
+    ox1: number, oy1: number) {
+    const st = ind * 2 + i * 4;
+    const en = ind * 2 + (o - 1) * 8 - (i + 1) * 4;
+    ver[st + 0] = ox0;
+    ver[st + 1] = oy0;
+    ver[en + 0] = ox1;
+    ver[en + 1] = oy1;
+    if (i == 0) {
+        if (st > 0) {
+            ver[st - 2] = ox0;
+            ver[st - 1] = oy0;
+        }
+        ver[en + 2] = ver[st + 0];
+        ver[en + 3] = ver[st + 1];
+        ver[en + 4] = ver[st + 0];
+        ver[en + 5] = ver[st + 1];
+    } else if (i == o - 2) {
+        ver[st - 2] = px;
+        ver[st - 1] = py;
+        ver[en + 2] = px;
+        ver[en + 3] = py;
+        ver[st + 2] = ver[en + 0];
+        ver[st + 3] = ver[en + 1];
+    } else {
+        ver[st - 2] = px;
+        ver[st - 1] = py;
+        ver[en + 2] = px;
+        ver[en + 3] = py;
     }
-    scrCoord_to_GLCoord(ver);
-    tot -= len[0] / 2 + len[size - 2] / 2;
+}
 
-    var sta = -len[0] / 2;
-    for (var i = 0; i < size-1; i++) {
-        tex[i * 6 + 0] = tx + tw * sta / tot;
-        tex[i * 6 + 1] = ty + th / 2;
-        sta += len[i] / 2;
-        tex[i * 6 + 2] = tx + tw * sta / tot;
-        tex[i * 6 + 3] = ty;
-        tex[i * 6 + 4] = tx + tw * sta / tot;
-        tex[i * 6 + 5] = ty + th;
-        sta += len[i] / 2;
+export function drawSnake(xy: Float32Array, obj: Snake[], texture: any) {
+    const size = obj.reduce((n, e) => e.len.reduce((m, x) => m + (x - 1) * 4 + 2, n), 0);
+    const ver = new Float32Array(size * 2);
+    const tex = new Float32Array(size * 2);
+    const alp = new Float32Array(size);
+    const len = new Float32Array(obj.reduce((n, e) => e.len.reduce((m, x) => Math.max(m, x), n), 0));
+    var ind_xy = 0;
+    var ind_ver = 0;
+    for (var os of obj) {
+        for (var o of os.len) {
+            var tot = 0;
+            for (var i = 0; i < o - 1; i++) {
+                const px = xy[ind_xy * 2 + i * 2];
+                const py = xy[ind_xy * 2 + i * 2 + 1];
+                const nx = xy[ind_xy * 2 + i * 2 + 2];
+                const ny = xy[ind_xy * 2 + i * 2 + 3];
+                const ox = (px + nx) / 2;
+                const oy = (py + ny) / 2;
+
+                const l = Math.sqrt((nx - px) * (nx - px) + (ny - py) * (ny - py));
+                len[i] = l;
+                tot += l;
+
+                fillSnake(ver, ind_ver, o, i,
+                    px, py,
+                    ox - (oy - py) / l * os.w,
+                    oy + (ox - px) / l * os.w,
+                    ox + (oy - py) / l * os.w,
+                    oy - (ox - px) / l * os.w
+                );
+            }
+            tot -= len[0] / 2 + len[o - 2] / 2;
+            var sta = -len[0] / 2;
+            for (var i = 0; i < o - 1; i++) {
+                fillSnake(tex, ind_ver, o, i,
+                    os.tx + os.tw * sta / tot, os.ty + os.th / 2,
+                    os.tx + os.tw * (sta + len[i] / 2) / tot, os.ty,
+                    os.tx + os.tw * (sta + len[i] / 2) / tot, os.ty + os.th);
+                sta += len[i];
+            }
+            ind_xy += o;
+            ind_ver += (o - 1) * 4 + 2;
+        }
     }
-
-    for (var i = 0; i < size * 3; i++)
+    for (var i = 0; i < size; i++)
         alp[i] = 1;
 
-    for (var i = 0; i < size - 1; i++) {
-        ind[i * 2 + 0] = i * 3 + 1;
-        ind[i * 2 + 1] = i * 3 + 3;
-    }
-    ind[size * 2 - 3]--;
+    scrCoord_to_GLCoord(ver);
 
     const gl = global_gl.gl;
     const ver_buffer = gl.createBuffer();
@@ -262,13 +272,6 @@ export function drawSnake(xy, w, size, tx, ty, tw, th, texture) {
     gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(coord);
 
-    const alp_buffer = gl.createBuffer();
-    const alpc = global_gl.shader.attribute.alpha;
-    gl.bindBuffer(gl.ARRAY_BUFFER, alp_buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, alp, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(alpc, 1, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(alpc);
-
     const tex_buffer = gl.createBuffer();
     const texc = global_gl.shader.attribute.tex;
     gl.bindBuffer(gl.ARRAY_BUFFER, tex_buffer);
@@ -276,35 +279,18 @@ export function drawSnake(xy, w, size, tx, ty, tw, th, texture) {
     gl.vertexAttribPointer(texc, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(texc);
 
+    const alp_buffer = gl.createBuffer();
+    const alpc = global_gl.shader.attribute.alpha;
+    gl.bindBuffer(gl.ARRAY_BUFFER, alp_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, alp, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(alpc, 1, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(alpc);
+
+
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.uniform1i(global_gl.shader.uniform.uSampler, 0);
 
-    const ind_buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ind_buffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, ind, gl.STATIC_DRAW);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, size - 2);
 
-    gl.drawElements(gl.TRIANGLE_STRIP, size * 2 - 2, gl.UNSIGNED_SHORT, 0);
-
-    for (var i = 0; i < size - 1; i++) {
-        ind[i * 2 + 0] = i * 3;
-        ind[i * 2 + 1] = i * 3 + 2;
-    }
-    ind[0]++;
-
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, ind, gl.STATIC_DRAW);
-
-    gl.drawElements(gl.TRIANGLE_STRIP, size * 2 - 2, gl.UNSIGNED_SHORT, 0);
-
-}
-
-window.debug_info = {};
-window.debug_info.global_gl = global_gl;
-window.debug_info.gl_func = {
-    setup: setup,
-    clear: clear,
-    draw: draw,
-    drawStrip: drawStrip,
-    drawRects: drawRects,
-    drawSnake: drawSnake
 }

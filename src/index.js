@@ -20,3 +20,4 @@ async function main() {
 }
 
 window.onload = main;
+window.debug_info = {};

@@ -16,6 +16,8 @@ export interface MovePointEventListener {
 }
 
 export type MovePointConfig = Config & {
+    init_stall: number,
+    exit_margin: number,
     kill_on_exit: boolean,
     kill_by: (group: CollideGroup) => boolean,
     auto_direction: boolean,
@@ -27,6 +29,8 @@ export const template_config_bullet: MovePointConfig = {
     render_layer: RL_BULLET,
     collide_group: CG_BULLET,
     collide_mask: CG_BULLET,
+    init_stall: 0,
+    exit_margin: 0,
     kill_on_exit: true,
     kill_by: (group) => group == CG_BOMB || group == CG_PLAYER,
     auto_direction: true,
@@ -115,8 +119,10 @@ export class MovePoint<S extends ShapePoint> extends SIPoint<S> implements Entit
         this.time += rate;
         this.config.listener?.onUpdate?.forEach(e => e(this, rate));
         if (this.motion(this, rate)) {
-            this.px += this.vx * rate;
-            this.py += this.vy * rate;
+            if (this.time > this.config.init_stall) {
+                this.px += this.vx * rate;
+                this.py += this.vy * rate;
+            }
             if (this.config.auto_direction)
                 this.dir = Math.atan2(this.vy, this.vx);
         }
@@ -126,7 +132,7 @@ export class MovePoint<S extends ShapePoint> extends SIPoint<S> implements Entit
     }
 
     public postUpdate(_: MovePoint<S>) {
-        const sr = this.shaped_sprite?.shape?.exitScreen(this);
+        const sr = this.shaped_sprite?.shape?.exitScreen(this) + this.config.exit_margin;
         var x0 = this.px > SCR_HALF_WIDTH + sr;
         var x1 = -this.px > SCR_HALF_WIDTH + sr;
         var y0 = this.py > SCR_HALF_HEIGHT + sr;
