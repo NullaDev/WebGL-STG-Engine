@@ -32,10 +32,18 @@ export const RL_PLAYER: RenderLayer = 700;
 export const RL_UI: RenderLayer = 800;
 export const RL_MAX: RenderLayer = 1000;
 
+export const enum DamageType { SHOOT, BOMB }
+
+export type DamageInfo = {
+    damage: number,
+    type: DamageType
+}
+
 export type Config = {
     render_layer: RenderLayer,
     collide_group: CollideGroup,
     collide_mask: CollideMask,
+    damage_info: DamageInfo,
 }
 
 export const enum State {
@@ -69,17 +77,20 @@ export interface Entity<
 export const template_config_player: Config = {
     render_layer: RL_PLAYER,
     collide_group: CG_PLAYER,
-    collide_mask: CM_PLAYER
+    collide_mask: CM_PLAYER,
+    damage_info: null
 }
 
 export const template_config_boss: Config = {
     render_layer: RL_BOSS,
     collide_group: CG_BOSS,
-    collide_mask: CM_BOSS
+    collide_mask: CM_BOSS,
+    damage_info: null
 }
 
 export const template_config_enemy: Config = {
     render_layer: RL_ENEMY,
     collide_group: CG_ENEMY,
-    collide_mask: CM_ENEMY
+    collide_mask: CM_ENEMY,
+    damage_info: null
 }

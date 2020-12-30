@@ -4,28 +4,6 @@ import { State } from "./Entity";
 import { MovePoint, MovePointEventListener } from "./MovePoint";
 import { RayLaser, RayLaserConfig, RayLaserEventListener, RayLaserMotion, SSRay } from "./RayLaser";
 
-export const move_point_event_listener_template: () => MovePointEventListener = () => ({
-    onInit: [],
-    onUpdate: [],
-    onPostMotion: [],
-    onPostUpdate: [],
-    onAttack: [],
-    onDestroy: [],
-    onExitScreen: [],
-    onKill: []
-});
-
-export const ray_laser_event_listener_template: () => RayLaserEventListener = () => ({
-    onInit: [],
-    onUpdate: [],
-    onPostMotion: [],
-    onStateChange: [],
-    onPostUpdate: [],
-    onAttack: [],
-    onContact: [],
-    onDestroy: []
-});
-
 export type Adder<Config> = (config: Config) => (lst: MovePointEventListener) => void;
 export type RLAdder<Config> = (config: Config) => (lst: RayLaserEventListener) => void;
 

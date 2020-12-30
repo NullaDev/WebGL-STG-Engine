@@ -4,25 +4,25 @@ import { SCR_HALF_HEIGHT, SCR_HALF_WIDTH } from "../../platform/Screen";
 import { ShapePoint, SIPoint, SSPoint } from "../util/Shape";
 import { RENDER_TYPE } from "../util/SpriteManager";
 
-export interface MovePointEventListener {
-    onInit: ((self: MovePoint<any>) => void)[],
-    onUpdate: ((self: MovePoint<any>, rate: number) => void)[],
-    onPostMotion: ((self: MovePoint<any>, rate: number) => void)[],
-    onPostUpdate: ((self: MovePoint<any>) => void)[],
-    onExitScreen: ((self: MovePoint<any>) => void)[],
-    onDestroy: ((self: MovePoint<any>) => void)[],
-    onKill: ((self: MovePoint<any>, source: EntityAny) => void)[],
-    onAttack: ((self: MovePoint<any>, target: EntityAny) => void)[],
+export class MovePointEventListener {
+    onInit: ((self: MovePoint<any>) => void)[] = [];
+    onUpdate: ((self: MovePoint<any>, rate: number) => void)[] = [];
+    onPostMotion: ((self: MovePoint<any>, rate: number) => void)[] = [];
+    onPostUpdate: ((self: MovePoint<any>) => void)[] = [];
+    onExitScreen: ((self: MovePoint<any>) => void)[] = [];
+    onDestroy: ((self: MovePoint<any>) => void)[] = [];
+    onDamaged: ((self: MovePoint<any>, source: EntityAny) => void)[] = [];
+    onAttack: ((self: MovePoint<any>, target: EntityAny) => void)[] = [];
 }
 
-export type MovePointConfig = Config & {
+export type MovePointConfig<LST extends MovePointEventListener = MovePointEventListener> = Config & {
     init_stall: number,
     exit_margin: number,
     kill_on_exit: boolean,
-    kill_by: (group: CollideGroup) => boolean,
+    damaged_by: (group: CollideGroup) => boolean,
     auto_direction: boolean,
-    life: number,
-    listener: MovePointEventListener
+    lifetime: number,
+    listener: LST
 }
 
 export const template_config_bullet: MovePointConfig = {
@@ -32,9 +32,10 @@ export const template_config_bullet: MovePointConfig = {
     init_stall: 0,
     exit_margin: 0,
     kill_on_exit: true,
-    kill_by: (group) => group == CG_BOMB || group == CG_PLAYER,
+    damaged_by: (group) => group == CG_BOMB || group == CG_PLAYER,
     auto_direction: true,
-    life: 0,
+    lifetime: 0,
+    damage_info: null,
     listener: null
 }
 
@@ -71,9 +72,9 @@ export const motion_orbit: (center: SIPoint<any>, a0: number, w: number, r: numb
         return false;
     });
 
-export class MovePoint<S extends ShapePoint> extends SIPoint<S> implements Entity<MovePoint<S>, RENDER_TYPE.RECT, S, SSPoint<S>> {
+export class MovePoint<S extends ShapePoint, CF extends MovePointConfig = MovePointConfig> extends SIPoint<S> implements Entity<MovePoint<S>, RENDER_TYPE.RECT, S, SSPoint<S>> {
 
-    public readonly config: MovePointConfig;
+    public readonly config: CF;
 
     public state: State = State.PRE_ENTRY;
     public motion: Motion = motion_default;
@@ -83,7 +84,7 @@ export class MovePoint<S extends ShapePoint> extends SIPoint<S> implements Entit
     public vy: number;
     public time: number;
 
-    constructor(shaped_shape: SSPoint<S>, bc: MovePointConfig) {
+    constructor(shaped_shape: SSPoint<S>, bc: CF) {
         super(shaped_shape);
         this.config = bc;
         this.time = 0;
@@ -149,7 +150,7 @@ export class MovePoint<S extends ShapePoint> extends SIPoint<S> implements Entit
                 this.config.listener?.onExitScreen?.forEach(e => e(this));
             }
         }
-        if (this.config.life && this.time >= this.config.life)
+        if (this.config.lifetime && this.time >= this.config.lifetime)
             this.state = State.LEAVING;
         this.config.listener?.onPostUpdate?.forEach(e => e(this));
         if (this.state == State.LEAVING) {
@@ -164,9 +165,9 @@ export class MovePoint<S extends ShapePoint> extends SIPoint<S> implements Entit
     }
 
     public damaged(_: MovePoint<S>, s: EntityAny) {
-        if (this.config.kill_by(s.config.collide_group)) {
+        if (this.config.damaged_by(s.config.collide_group)) {
             this.state = State.LEAVING;
-            this.config.listener?.onKill?.forEach(e => e(this, s));
+            this.config.listener?.onDamaged?.forEach(e => e(this, s));
             return true;
         }
         return false;

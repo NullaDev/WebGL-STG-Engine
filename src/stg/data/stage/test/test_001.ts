@@ -1,6 +1,5 @@
-import { move_point_event_listener_template } from "stg/entity/ComplexListener";
 import { clone } from "stg/entity/Entity";
-import { MovePoint, template_config_bullet } from "stg/entity/MovePoint";
+import { MovePoint, MovePointEventListener, template_config_bullet } from "stg/entity/MovePoint";
 import { EntityPool } from "stg/stage/EntityPool";
 import { Mover, MoverConfig, Scheduler } from "stg/stage/Scheuler";
 import { StageEntry } from "stg/stage/StageInit";
@@ -14,7 +13,7 @@ export const test_001: StageEntry = {
     init: (time_scale: number) => {
         type BulletStore = { callback: () => void };
         const cf = clone(template_config_bullet);
-        cf.listener = move_point_event_listener_template();
+        cf.listener = new MovePointEventListener();
         cf.listener.onAttack.push((self) => (<BulletStore>self.custom_fields).callback());
         const ss0 = SRes.getSSCircle(Res.get_small(Res.S_Type.Ball, Res.S_Color.Blue, Res.Sprite_Mode.Overlay), 1);
         const ss1 = SRes.getSSCircle(Res.get_large(Res.L_Type.Ball, Res.L_Color.Blue, Res.Sprite_Mode.AddBlend), 1);

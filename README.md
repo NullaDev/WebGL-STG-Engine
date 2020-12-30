@@ -193,7 +193,7 @@ const reflect_config = clone(reflect_config_default);
 reflect_config.max = 2; // set max reflection to 2
 reflect_config.h0 = -Infinity; // disable the lower refection boundary
 const bullet_config = clone(template_config_bullet);
-bullet_config = move_point_event_listener_template();
+bullet_config = new MovePointEventListener();
 reflect_linear(reflect_config)(bullet_config.listener)
 ```
 

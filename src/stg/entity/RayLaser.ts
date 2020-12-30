@@ -61,15 +61,15 @@ export const enum RayLaserState {
     CLOSING
 }
 
-export interface RayLaserEventListener {
-    onInit: ((self: RayLaser) => void)[],
-    onStateChange: ((self: RayLaser) => void)[],
-    onUpdate: ((self: RayLaser, rate: number) => void)[],
-    onPostMotion: ((self: RayLaser, rate: number) => void)[],
-    onPostUpdate: ((self: RayLaser) => void)[],
-    onDestroy: ((self: RayLaser) => void)[],
-    onAttack: ((self: RayLaser, target: EntityAny) => void)[],
-    onContact: ((self: RayLaser, other: EntityAny) => void)[],
+export class RayLaserEventListener {
+    onInit: ((self: RayLaser) => void)[] = [];
+    onStateChange: ((self: RayLaser) => void)[] = [];
+    onUpdate: ((self: RayLaser, rate: number) => void)[] = [];
+    onPostMotion: ((self: RayLaser, rate: number) => void)[] = [];
+    onPostUpdate: ((self: RayLaser) => void)[] = [];
+    onDestroy: ((self: RayLaser) => void)[] = [];
+    onAttack: ((self: RayLaser, target: EntityAny) => void)[] = [];
+    onContact: ((self: RayLaser, other: EntityAny) => void)[] = [];
 }
 
 export type RayLaserConfig = Config & {

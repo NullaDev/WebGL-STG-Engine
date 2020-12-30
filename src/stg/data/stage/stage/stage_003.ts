@@ -1,6 +1,6 @@
-import { move_point_event_listener_template, reflect_config_default, reflect_disable, reflect_linear } from "stg/entity/ComplexListener";
+import { reflect_config_default, reflect_disable, reflect_linear } from "stg/entity/ComplexListener";
 import { clone } from "stg/entity/Entity";
-import { MovePoint, template_config_bullet } from "stg/entity/MovePoint";
+import { MovePoint, MovePointEventListener, template_config_bullet } from "stg/entity/MovePoint";
 import { EntityPool } from "stg/stage/EntityPool";
 import { Mover, MoverConfig, Scheduler } from "stg/stage/Scheuler";
 import { StageEntry } from "stg/stage/StageInit";
@@ -14,7 +14,7 @@ export const stage_003: StageEntry = {
     init: (time_scale: number) => {
         const ss = SRes.getSSCircle(Res.get_small(Res.S_Type.Grain, Res.S_Color.Red, Res.Sprite_Mode.Overlay), 1);
         const cf = clone(template_config_bullet);
-        cf.listener = move_point_event_listener_template();
+        cf.listener = new MovePointEventListener();
         const refcf = clone(reflect_config_default);
         refcf.max = 100;
         reflect_linear(refcf)(cf.listener);
@@ -42,7 +42,7 @@ export const stage_003: StageEntry = {
             .setMotion((e) => (e.dir = e.time * Math.PI * 2 / 600, false)).simpleInit(0, 64, 0, 0);
 
         var a0 = 0;
-        return [boss,new Scheduler([
+        return [boss, new Scheduler([
             30 * time_scale,
             repeat((i0) => [
                 () => a0 = Math.random() * Math.PI * 2,

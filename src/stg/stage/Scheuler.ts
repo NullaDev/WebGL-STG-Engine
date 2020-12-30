@@ -158,7 +158,8 @@ export class RepeatSupplier extends ScheduleSupplier {
 export const template_config_scheduler: Config = {
     render_layer: RL_INVISIBLE,
     collide_group: CG_GHOST,
-    collide_mask: CM_GHOST
+    collide_mask: CM_GHOST,
+    damage_info: null,
 }
 
 export type SchedulerParam = Input[] | ((parent: Scheduler) => Input[]);

@@ -14,6 +14,7 @@ export const template_config_curve_mask: CurveMaskConfig = {
     collide_group: CG_GHOST,
     collide_mask: CM_GHOST,
     render_layer: RL_BULLET,
+    damage_info: null,
     kill_on_empty: true,
     protect: 0,
     life: 0

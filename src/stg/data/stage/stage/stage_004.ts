@@ -1,6 +1,6 @@
-import { move_point_event_listener_template, reflect_config_default, reflect_linear } from "stg/entity/ComplexListener";
+import { reflect_config_default, reflect_linear } from "stg/entity/ComplexListener";
 import { clone } from "stg/entity/Entity";
-import { MovePoint, MovePointConfig, template_config_bullet } from "stg/entity/MovePoint";
+import { MovePoint, MovePointConfig, MovePointEventListener, template_config_bullet } from "stg/entity/MovePoint";
 import { EntityPool } from "stg/stage/EntityPool";
 import { Mover, MoverConfig, Scheduler } from "stg/stage/Scheuler";
 import { StageEntry } from "stg/stage/StageInit";
@@ -18,8 +18,8 @@ export const stage_004: StageEntry = {
         const sss = [ss0, ss1];
         const cf0 = clone(template_config_bullet);
         const cf1 = clone(template_config_bullet);
-        cf0.listener = move_point_event_listener_template();
-        cf1.listener = move_point_event_listener_template();
+        cf0.listener = new MovePointEventListener();
+        cf1.listener = new MovePointEventListener();
         const refcf0 = clone(reflect_config_default);
         const refcf1 = clone(reflect_config_default);
         refcf0.max = 2;

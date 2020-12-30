@@ -21,9 +21,9 @@ export const stage_006: StageEntry = {
         const ss0l = SRes.getSSCircle(Res.get_large(Res.L_Type.Ball, Res.L_Color.Red, Res.Sprite_Mode.AddBlend), 1);
         const cf0 = template_config_bullet;
         const cf1 = clone(template_config_bullet);
-        cf1.life = 160 * time_scale;
+        cf1.lifetime = 160 * time_scale;
         cf1.kill_on_exit = false;
-        cf1.kill_by = () => false;
+        cf1.damaged_by = () => false;
 
         const n = 8, l0 = 160, l1 = 160, l2 = 240;
         const v0 = 6 / time_scale;

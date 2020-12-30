@@ -1,7 +1,7 @@
-import { ray_laser_event_listener_template, reflect_rl, RLReflectConfig, rl_reflect_config_default } from "stg/entity/ComplexListener";
+import { reflect_rl, RLReflectConfig, rl_reflect_config_default } from "stg/entity/ComplexListener";
 import { clone } from "stg/entity/Entity";
 import { template_config_bullet } from "stg/entity/MovePoint";
-import { RayLaser, RayLaserConfig, SSRay } from "stg/entity/RayLaser";
+import { RayLaser, RayLaserConfig, RayLaserEventListener, SSRay } from "stg/entity/RayLaser";
 import { EntityPool } from "stg/stage/EntityPool";
 import { Scheduler } from "stg/stage/Scheuler";
 import { StageEntry } from "stg/stage/StageInit";
@@ -25,10 +25,11 @@ export const stage_005: StageEntry = {
                 open_time: 0,
                 alive_time: Infinity,
                 close_time: 0,
-                listener: null
+                listener: null,
+                damage_info: null
             };
             const bcf = clone(cf);
-            cf.listener = ray_laser_event_listener_template();
+            cf.listener = new RayLaserEventListener();
             const rlcf = clone(rl_reflect_config_default);
             rlcf.max = 2;
             rlcf.v = 8 / time_scale;

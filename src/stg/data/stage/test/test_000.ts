@@ -32,7 +32,8 @@ export const test_000: StageEntry = {
             open_time: 10 * time_scale,
             alive_time: 6000 * time_scale,
             close_time: 10 * time_scale,
-            listener: null
+            listener: null,
+            damage_info: null,
         };
 
         const motion: (w: number) => RayLaserMotion = (w: number) => (self: RayLaser, time_rate: number) => self.dir += time_rate * w;

@@ -24,7 +24,7 @@ export const stage_001: StageEntry = {
             });
         const ssg = (c: Res.S_Color) => SRes.getSSCircle(Res.get_small(Res.S_Type.Scale, c, Res.Sprite_Mode.Overlay), 1);
         const cf1: MovePointConfig = clone(template_config_bullet);
-        cf1.life = 180 * time_scale;
+        cf1.lifetime = 180 * time_scale;
         cf1.kill_on_exit = false;
 
         const rm: MoverConfig = {
