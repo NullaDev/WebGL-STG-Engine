@@ -64,7 +64,7 @@ export class SpriteManager {
 
     private drawRect(list: EntityAny[], mode: Sprite_Mode) {
         var rectn = list.reduce((n, e) =>
-            e.renderType == RENDER_TYPE.RECT && e.shaped_sprite.sprite.mode == mode ?
+            e.renderType == RENDER_TYPE.RECT && e.shaped_sprite.sprite.sprite.mode == mode ?
                 n + (<RECT><RenderType<RECT, RENDER_TYPE.RECT>>e).rectCount() : n, 0);
         if (rectn)
             gl.setMode(mode);
@@ -72,7 +72,7 @@ export class SpriteManager {
         var xyrwh = new Float32Array(rectn * 10);
         var i = 0;
         for (var e of list)
-            if (e.renderType == RENDER_TYPE.RECT && e.shaped_sprite.sprite.mode == mode) {
+            if (e.renderType == RENDER_TYPE.RECT && e.shaped_sprite.sprite.sprite.mode == mode) {
                 const r = <RECT><RenderType<RECT, RENDER_TYPE.RECT>>e;
                 r.render(xyrwh, i);
                 i += r.rectCount();
@@ -81,7 +81,7 @@ export class SpriteManager {
     }
 
     private drawCurve(list: EntityAny[], mode: Sprite_Mode) {
-        const l = list.filter(e => e.renderType == RENDER_TYPE.STRIP && e.shaped_sprite.sprite.mode == mode);
+        const l = list.filter(e => e.renderType == RENDER_TYPE.STRIP && e.shaped_sprite.sprite.sprite.mode == mode);
         const rs = (<STRIP[]><RenderType<STRIP, RENDER_TYPE.STRIP>[]>l).map((e: STRIP) => e.preRender());
         const stat = rs.reduce((n, e) => e.list.reduce((m, x) => x.len <= 1 ? m : m + x.len, n), 0);
         if (stat == 0)
@@ -99,14 +99,12 @@ export class SpriteManager {
                 }
             }
         }
-        const obj = rs.map(e => ({
+        
+        const obj = rs.map(e => (e.curve.shaped_sprite.sprite.setXYWH({
             w: e.curve.shaped_sprite.sp_w,
             len: e.list.map(x => x.len).filter(a => a > 1),
-            tx: e.curve.shaped_sprite.sprite.tx / e.curve.shaped_sprite.sprite.sprite.w,
-            ty: e.curve.shaped_sprite.sprite.ty / e.curve.shaped_sprite.sprite.sprite.h,
-            tw: e.curve.shaped_sprite.sprite.tw / e.curve.shaped_sprite.sprite.sprite.w,
-            th: e.curve.shaped_sprite.sprite.th / e.curve.shaped_sprite.sprite.sprite.h
-        })).filter(e => e.len.length > 0);
+            tx: 0,ty: 0,tw: 0,th: 0
+        }, e.curve.time))).filter(e => e.len.length > 0);
         gl.drawSnake(xys, obj, this.img);
 
     }

@@ -1,47 +1,19 @@
-import { reflect_rl, RLReflectConfig, rl_reflect_config_default } from "stg/entity/ComplexListener";
-import { clone } from "stg/entity/Entity";
-import { template_config_bullet } from "stg/entity/MovePoint";
-import { RayLaser, RayLaserConfig, RayLaserEventListener, SSRay } from "stg/entity/RayLaser";
+import { RayLaser } from "stg/entity/RayLaser";
 import { EntityPool } from "stg/stage/EntityPool";
 import { Scheduler } from "stg/stage/Scheuler";
 import { StageEntry } from "stg/stage/StageInit";
-import * as SRes from "stg/util/shaped_sprites";
 import * as Res from "stg/util/sprites";
-import { repeat } from "../StageBase";
+import { reflect_laser, repeat } from "../StageBase";
 
 export const stage_005: StageEntry = {
     name: "reflect laser",
     default_scale: 3,
     init: (time_scale: number) => {
-        const magn = 0.75;
 
-        const gen: (c0: Res.S_Color, c1: Res.M_Color) => [SSRay, RayLaserConfig, RLReflectConfig] = (c0: Res.S_Color, c1: Res.M_Color) => {
-            const rlbody = SRes.getRayLaser(SRes.RayLaserType.Grain, c0, c1, Res.Sprite_Mode.AddBlend, 1, 1, magn);
-            const cf: RayLaserConfig = {
-                render_layer: template_config_bullet.render_layer,
-                collide_group: template_config_bullet.collide_group,
-                collide_mask: template_config_bullet.collide_mask,
-                warning_time: 0,
-                open_time: 0,
-                alive_time: Infinity,
-                close_time: 0,
-                listener: null,
-                damage_info: null
-            };
-            const bcf = clone(cf);
-            cf.listener = new RayLaserEventListener();
-            const rlcf = clone(rl_reflect_config_default);
-            rlcf.max = 2;
-            rlcf.v = 8 / time_scale;
-            rlcf.maxlen = 128;
-            rlcf.body = rlbody;
-            rlcf.cf = bcf;
-            rlcf.name = `${c0}-${c1}`;
-            reflect_rl(rlcf)(cf.listener);
-            return [rlbody, cf, rlcf];
-        }
-
-        const data = [gen(Res.S_Color.Blue, Res.M_Color.Blue), gen(Res.S_Color.Red, Res.M_Color.Red)];
+        const data = [
+            reflect_laser(8 / time_scale, 128, 2, Res.M_Color.Blue),
+            reflect_laser(8 / time_scale, 128, 2, Res.M_Color.Red)
+        ];
 
         const w = Math.PI * 2 / time_scale;
         const t0 = time_scale;

@@ -170,7 +170,6 @@ export class Scheduler extends SINull implements Entity<Scheduler, null, null, n
     public custom_fields: any = {};
     config: Config = template_config_scheduler;
     state: State = State.PRE_ENTRY;
-    time: number = 0;
 
     constructor(input: SchedulerParam) {
         super();

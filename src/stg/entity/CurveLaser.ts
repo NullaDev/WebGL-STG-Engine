@@ -24,7 +24,6 @@ export class CurveMask extends SICurve<null, MovePoint<any>> implements Entity<C
 
     public config: CurveMaskConfig;
     public state: State = State.PRE_ENTRY;
-    public time: number = 0;
 
     constructor(ss: SSCurve<null, MovePoint<any>>, config: CurveMaskConfig) {
         super(ss);

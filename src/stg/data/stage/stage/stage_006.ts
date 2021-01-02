@@ -8,9 +8,6 @@ import { Scheduler } from "../../../stage/Scheuler";
 import { StageEntry } from "../../../stage/StageInit";
 import { nonblock, repeat } from "../StageBase";
 
-
-
-
 export const stage_006: StageEntry = {
     name: "Test Special Effect",
     default_scale: 1,
@@ -80,14 +77,12 @@ export const stage_006: StageEntry = {
             t1
         ], n);
 
-
-
         return [new Scheduler([
             30 * time_scale,
             repeat((i0) => [
                 () => EntityPool.INSTANCE.special_effects.time_slowdown(1 / rate, (n * t1 + l1 / v0) * rate),
                 adder(i0 % 2 * 2 - 1, angle),
-                240 * time_scale
+                300 * time_scale
             ])
         ])];
     }

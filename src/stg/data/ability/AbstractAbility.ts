@@ -30,7 +30,7 @@ export abstract class AbstractAbility implements AbilityPrototype<number> {
         }
         if (this.special_remain > 0)
             return 0;
-        if (special && self.ability_count > 0 &&  this.onActivate(self)) {
+        if (special && self.ability_count > 0 && this.onActivate(self)) {
             self.ability_count--;
             this.special_remain = this.special_duration;
             return 0;
@@ -45,13 +45,14 @@ export abstract class AbstractAbility implements AbilityPrototype<number> {
         gl.setMode(Res.Sprite_Mode.Overlay);
 
         const sp = graze_ss.sprite;
+        const tox = <any>sp.setXYWH({}, self.time);
         const ts = [
-            (sp.tx + sp.tw / 2) / sp.sprite.w,
-            (sp.ty + sp.th / 2) / sp.sprite.h,
-            sp.tw / 2 / sp.sprite.w,
-            sp.th / 2 / sp.sprite.h
+            tox.tx + tox.tw / 2,
+            tox.ty + tox.th / 2,
+            tox.tw / 2,
+            tox.th / 2
         ];
-        helper.bind(SpriteManager.get(sp.sprite.path).img);
+        helper.bind(SpriteManager.get(sp.sprite.sprite.path).img);
         if (this.special_remain == 0) {
             const da0 = Math.PI * 2 * self.ability_count / (self.ability.max_ability + 1);
             const da1 = Math.PI * 2 * (self.graze_current / self.ability.max_graze) / (self.ability.max_ability + 1);

@@ -2,7 +2,7 @@ import { ShapeRay, SSRay } from "../entity/RayLaser";
 import { CurveNode, ShapeCurve, SSCurve } from "./Curve";
 import { ShapeCircle, ShapeDualArc, SSPoint } from "./Shape";
 import { RENDER_TYPE } from "./SpriteManager";
-import { Sprite, get_small, S_Type, S_Color, Sprite_Mode, Category, get_middle, M_Type, M_Color } from "./sprites";
+import { Category, get_middle, get_small, M_Color, M_Type, SpriteRenderer, Sprite_Mode, S_Color, S_Type } from "./sprites";
 
 export const enum RayLaserType { Laser = S_Type.Laser, Scale = S_Type.Scale, Grain = S_Type.Grain }
 
@@ -13,32 +13,34 @@ function radiusTransform(r: number) {
     return Math.sqrt(r ** 2 + 3 ** 2) - 3;
 }
 
-export function getSSCircle(sprite: Sprite, magn: number): SSPoint<ShapeCircle> {
+export function getSSCircle(sprite: SpriteRenderer, magn: number, shape_mag = 1): SSPoint<ShapeCircle> {
     magn *= mag;
+    const iden = sprite.sprite;
     return {
         sprite: sprite,
-        shape: new ShapeCircle(radiusTransform(radius[sprite.category][sprite.type]) * magn),
-        w: sprite.tw * magn,
-        h: sprite.th * magn,
+        shape: new ShapeCircle(radiusTransform(radius[iden.category][iden.type]) * magn * shape_mag),
+        w: iden.tw * magn,
+        h: iden.th * magn,
         renderType: RENDER_TYPE.RECT
     };
 }
 
-export function getLongBullet(color: S_Color, mode: Sprite_Mode, len: number): SSPoint<ShapeDualArc> {
+export function getLongBullet(color: S_Color, mode: Sprite_Mode, len: number, shape_mag = 1): SSPoint<ShapeDualArc> {
     const sprite = get_small(S_Type.Grain, color, mode);
     return {
         sprite: sprite,
-        shape: new ShapeDualArc(len, radiusTransform(radius[Category.Small][S_Type.Grain]) * mag),
+        shape: new ShapeDualArc(len, radiusTransform(radius[Category.Small][S_Type.Grain]) * mag * shape_mag),
         renderType: RENDER_TYPE.RECT,
-        w: sprite.tw * mag,
+        w: sprite.sprite.tw * mag,
         h: len * 1.25
     }
 }
 
-export function getRayLaser(type: RayLaserType, scolor: S_Color, mcolor: M_Color, mode: Sprite_Mode, head: number, end: number, magn: number): SSRay {
+export function getRayLaser(type: RayLaserType, scolor: S_Color, mcolor: M_Color, mode: Sprite_Mode, head: number, end: number, magn: number, shape_mag = 1): SSRay {
     const sprite = get_small(<number>type, scolor, mode);
-    sprite.ty += type == RayLaserType.Laser ? 4 : type == RayLaserType.Grain ? 1 : type == RayLaserType.Scale ? 1 : NaN;
-    sprite.th -= type == RayLaserType.Laser ? 8 : type == RayLaserType.Grain ? 2 : type == RayLaserType.Scale ? 1 : NaN;
+    const iden = sprite.sprite;
+    iden.ty += type == RayLaserType.Laser ? 4 : type == RayLaserType.Grain ? 1 : type == RayLaserType.Scale ? 1 : NaN;
+    iden.th -= type == RayLaserType.Laser ? 8 : type == RayLaserType.Grain ? 2 : type == RayLaserType.Scale ? 1 : NaN;
     return {
         sprite: sprite,
         shape: new ShapeRay(
@@ -47,11 +49,11 @@ export function getRayLaser(type: RayLaserType, scolor: S_Color, mcolor: M_Color
                     type == RayLaserType.Grain ? ShapeRay.double_arc :
                         null),
         renderType: RENDER_TYPE.RECT,
-        sprite_width: sprite.tw * mag / 2 * magn,
-        hitbox_width: radiusTransform(2.4) * mag * magn,
+        sprite_width: iden.tw * mag / 2 * magn,
+        hitbox_width: radiusTransform(2.4) * mag * magn * shape_mag,
         l_ratio: type == RayLaserType.Laser ? 1 : end > 0 ? 1 : type == RayLaserType.Grain ? 1.15 : type == RayLaserType.Scale ? 1.2 : NaN,
-        base: getSSCircle(get_middle(M_Type.Light, mcolor, mode), head * magn),
-        end: getSSCircle(get_middle(M_Type.Light, mcolor, mode), end * magn)
+        base: getSSCircle(get_middle(M_Type.Light, mcolor, mode), head * magn, shape_mag),
+        end: getSSCircle(get_middle(M_Type.Light, mcolor, mode), end * magn, shape_mag)
     }
 }
 
@@ -63,7 +65,7 @@ export function getCurveLaser<S extends ShapeCurve<S, CN>, CN extends CurveNode>
         shape: shape,
         renderType: RENDER_TYPE.STRIP,
         w: w,
-        sp_w: sprite.th * mag,
+        sp_w: sprite.sprite.th * mag,
         radius: (start, len, i) => {
             const a = w * 16;
             if (len <= 2 || i / (len - 1) * 16 < 0.5 || i / (len - 1) * 16 > 15.5)

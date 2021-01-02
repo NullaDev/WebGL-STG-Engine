@@ -115,10 +115,7 @@ export class SIRay extends ShapedInstance<SIRay, RENDER_TYPE.RECT, ShapeRay, SSR
         xyrwh[i * 10 + 3] = Math.max(1, this.shaped_sprite.sprite_width * this.w);
         xyrwh[i * 10 + 4] = l;
         var sprite = this.shaped_sprite.sprite;
-        xyrwh[i * 10 + 5] = sprite.tx / sprite.sprite.w;
-        xyrwh[i * 10 + 6] = sprite.ty / sprite.sprite.h;
-        xyrwh[i * 10 + 7] = sprite.tw / sprite.sprite.w;
-        xyrwh[i * 10 + 8] = sprite.th / sprite.sprite.h;
+        sprite.injectXYWH(xyrwh, i * 10 + 5, this.time);
         xyrwh[i * 10 + 9] = 1;
 
         i++;
@@ -130,10 +127,7 @@ export class SIRay extends ShapedInstance<SIRay, RENDER_TYPE.RECT, ShapeRay, SSR
         xyrwh[i * 10 + 3] = ss.w / 2;
         xyrwh[i * 10 + 4] = ss.h / 2;
         sprite = ss.sprite;
-        xyrwh[i * 10 + 5] = sprite.tx / sprite.sprite.w;
-        xyrwh[i * 10 + 6] = sprite.ty / sprite.sprite.h;
-        xyrwh[i * 10 + 7] = sprite.tw / sprite.sprite.w;
-        xyrwh[i * 10 + 8] = sprite.th / sprite.sprite.h;
+        sprite.injectXYWH(xyrwh, i * 10 + 5, this.time);
         xyrwh[i * 10 + 9] = 1;
 
 
@@ -146,10 +140,7 @@ export class SIRay extends ShapedInstance<SIRay, RENDER_TYPE.RECT, ShapeRay, SSR
         xyrwh[i * 10 + 3] = ss.w / 2;
         xyrwh[i * 10 + 4] = ss.h / 2;
         sprite = ss.sprite;
-        xyrwh[i * 10 + 5] = sprite.tx / sprite.sprite.w;
-        xyrwh[i * 10 + 6] = sprite.ty / sprite.sprite.h;
-        xyrwh[i * 10 + 7] = sprite.tw / sprite.sprite.w;
-        xyrwh[i * 10 + 8] = sprite.th / sprite.sprite.h;
+        sprite.injectXYWH(xyrwh, i * 10 + 5, this.time);
         xyrwh[i * 10 + 9] = 1;
     }
 
@@ -161,7 +152,6 @@ export class RayLaser extends SIRay implements Entity<RayLaser, RENDER_TYPE.RECT
     public rstate: RayLaserState = RayLaserState.WARNING;
     public config: RayLaserConfig;
     public motion: RayLaserMotion;
-    public time: number = 0;
     public custom_fields: any = {};
 
     constructor(shaped_shape: SSRay, cf: RayLaserConfig, m: RayLaserMotion) {

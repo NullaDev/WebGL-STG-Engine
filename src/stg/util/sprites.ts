@@ -20,6 +20,60 @@ export type Sprite = {
     omega: number
 };
 
+export class SpriteRenderer {
+
+    public readonly sprite: Sprite;
+    private readonly sw: number;
+    private readonly sh: number;
+    public texs: { x: number, y: number }[];
+    public rate: number;
+
+    constructor(s: Sprite, texs: { x: number, y: number }[], rate: number) {
+        this.sprite = s;
+        this.sw = s.sprite.w;
+        this.sh = s.sprite.h;
+        this.texs = texs;
+        this.rate = rate;
+    }
+
+    public setAlternation(texs: { x: number, y: number }[], rate: number) {
+        this.texs = texs;
+        this.rate = rate;
+    }
+
+    public injectXYWH(arr: Float32Array, index: number, time: number): void {
+        const tex = this.texs[Math.floor(time / this.rate) % this.texs.length];
+        const tx = this.sprite.tx + tex.x;
+        const ty = this.sprite.ty + tex.y;
+        arr[index + 0] = tx / this.sw;
+        arr[index + 1] = ty / this.sh;
+        arr[index + 2] = this.sprite.tw / this.sw;
+        arr[index + 3] = this.sprite.th / this.sh;
+    }
+
+    public pushXYWH(arr: number[], time: number): void {
+        const tex = this.texs[Math.floor(time / this.rate) % this.texs.length];
+        const tx = this.sprite.tx + tex.x;
+        const ty = this.sprite.ty + tex.y;
+        arr.push(tx / this.sw);
+        arr.push(ty / this.sh);
+        arr.push(this.sprite.tw / this.sw);
+        arr.push(this.sprite.th / this.sh);
+    }
+
+    public setXYWH(obj: any, time: number): any {
+        const tex = this.texs[Math.floor(time / this.rate) % this.texs.length];
+        const tx = this.sprite.tx + tex.x;
+        const ty = this.sprite.ty + tex.y;
+        obj.tx = tx / this.sw;
+        obj.ty = ty / this.sh;
+        obj.tw = this.sprite.tw / this.sw;
+        obj.th = this.sprite.th / this.sh;
+        return obj;
+    }
+
+}
+
 export const enum S_Color { Grey, RedX, Red, PinkX, Pink, BlueX, Blue, CyanX, Cyan, GreenX, Green, Lemon, YellowX, Yellow, Orange, White }
 export const enum S_Type { Laser, Scale, Ring, Ball, Grain, Niddle, Knife, Spell, Bullet, Germ, Star, Planet, S_Cross, S_Ball, Curve, Drop }
 export const enum M_Color { Grey, Red, Pink, Blue, Cyan, Green, Yellow, White }
@@ -38,10 +92,10 @@ function texTransform(s: Sprite) {
     s.ty += 0.5;
     s.tw -= 1;
     s.th -= 1;
-    return s;
+    return new SpriteRenderer(s, [{ x: 0, y: 0 }], 1);
 }
 
-export function get_small(type: S_Type, color: S_Color, mode: Sprite_Mode): Sprite {
+export function get_small(type: S_Type, color: S_Color, mode: Sprite_Mode): SpriteRenderer {
     const tx =
         type < 12 ? 1 + color * 16 :
             type < 14 ? 1 + color % 8 * 8 :
@@ -65,7 +119,7 @@ export function get_small(type: S_Type, color: S_Color, mode: Sprite_Mode): Spri
     });
 }
 
-export function get_middle(type: M_Type, color: M_Color, mode: Sprite_Mode): Sprite {
+export function get_middle(type: M_Type, color: M_Color, mode: Sprite_Mode): SpriteRenderer {
     const tx = (type < 7 ? 1 : 258) + color * 32;
     const ty = type == 0 ? 209 : type < 7 ? 226 + type * 32 : 257;
     return texTransform({
@@ -82,7 +136,7 @@ export function get_middle(type: M_Type, color: M_Color, mode: Sprite_Mode): Spr
     });
 }
 
-export function get_large(type: L_Type, color: L_Color, mode: Sprite_Mode): Sprite {
+export function get_large(type: L_Type, color: L_Color, mode: Sprite_Mode): SpriteRenderer {
     return texTransform({
         sprite: res_000,
         tx: (type == 0 ? 1 : 258) + color * 64,
@@ -97,7 +151,7 @@ export function get_large(type: L_Type, color: L_Color, mode: Sprite_Mode): Spri
     });
 }
 
-export const self_machine_foreground: Sprite = texTransform({
+export const self_machine_foreground: SpriteRenderer = texTransform({
     sprite: res_000,
     tx: 258, ty: 17, tw: 64, th: 64,
     mode: Sprite_Mode.Overlay,
@@ -105,7 +159,7 @@ export const self_machine_foreground: Sprite = texTransform({
     type: 0, color: 0, omega: rot
 });
 
-export const self_machine_background: Sprite = texTransform({
+export const self_machine_background: SpriteRenderer = texTransform({
     sprite: res_000,
     tx: 322, ty: 17, tw: 64, th: 64,
     mode: Sprite_Mode.Overlay,
@@ -113,7 +167,7 @@ export const self_machine_background: Sprite = texTransform({
     type: 1, color: 0, omega: rot
 });
 
-export const boss_background: Sprite = texTransform({
+export const boss_background: SpriteRenderer = texTransform({
     sprite: res_000,
     tx: 386, ty: 81, tw: 128, th: 128,
     mode: Sprite_Mode.Overlay,

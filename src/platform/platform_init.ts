@@ -33,6 +33,8 @@ function fps_update() {
     }
     var rate = (performance.now() - fps_start) / test_n;
     last_update_rate = Math.round(rate / (1000.0 / 60));
+    if (last_update_rate > 2)
+        last_update_rate = 1;
     resolver(last_update_rate);
 }
 
@@ -121,7 +123,11 @@ export function mainloop_terminate() {
     started = false;
 }
 
-var t0: number = 0, t1: number = 0;
+var t0 = 0, t1 = 0, t2 = 0;
+const tn = 60;
+var ti = 0;
+var tsum = 0;
+const arr = new Float32Array(tn);
 
 function mainloop_update() {
     t0 = performance.now();
@@ -129,11 +135,17 @@ function mainloop_update() {
         console.log(`Violation: interval takes ${Math.round((t0 - t1) * 100) / 100} ms`);
     page_update();
     keys_update();
-    if (started)
-        requestAnimationFrame(mainloop_update);
+    t2 = t1;
     t1 = performance.now();
     if (t1 - t0 > 16)
         console.log(`Violation: loop takes ${Math.round((t1 - t0) * 100) / 100} ms`);
+    tsum -= arr[ti];
+    tsum += t1 - t2;
+    arr[ti] = t1 - t2;
+    ti = (ti + 1) % tn;
+    document.title = `WebGL stg engine | fps = ${Math.round(tn * 100000 / tsum) / 100}`;
+    if (started)
+        requestAnimationFrame(mainloop_update);
 }
 
 function keys_update() {

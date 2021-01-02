@@ -86,7 +86,6 @@ export class SelfMachine extends ShapedInstance<SelfMachine, RENDER_TYPE.CUSTOM,
 
     config: Config = template_config_player;
     state: State = State.ALIVE;
-    time: number = 0;
     readonly proto: PlayerPrototype;
     readonly ability: PlayerAbility;
     readonly sprite: SSPoint<ShapeCircle>;
@@ -143,7 +142,7 @@ export class SelfMachine extends ShapedInstance<SelfMachine, RENDER_TYPE.CUSTOM,
             this.py = -Screen.SCR_HALF_HEIGHT;
         if (this.py > Screen.SCR_HALF_HEIGHT)
             this.py = Screen.SCR_HALF_HEIGHT;
-        this.dir = this.time * this.sprite.sprite.omega;
+        this.dir = this.time * this.sprite.sprite.sprite.omega;
         this.proto.updateShoot(this, SelfMachine.action.key_z);
         this.bombed = this.proto.updateBomb(this, SelfMachine.action.key_x);
         if (!this.bombed)
@@ -244,13 +243,10 @@ export class SelfMachine extends ShapedInstance<SelfMachine, RENDER_TYPE.CUSTOM,
             xyrwh.push(ss.w / 2);
             xyrwh.push(ss.h / 2);
             const sprite = ss.sprite;
-            xyrwh.push(sprite.tx / sprite.sprite.w);
-            xyrwh.push(sprite.ty / sprite.sprite.h);
-            xyrwh.push(sprite.tw / sprite.sprite.w);
-            xyrwh.push(sprite.th / sprite.sprite.h);
+            sprite.pushXYWH(xyrwh,this.time);
             xyrwh.push(alpha);
             i++;
-            img = SpriteManager.get(sprite.sprite.path).img;
+            img = SpriteManager.get(sprite.sprite.sprite.path).img;
         }
         this.proto.render(layer, this);
         if (layer == RL_PLAYER && this.shaped_sprite?.sprite) {

@@ -119,7 +119,7 @@ export class EntityPool {
                 if (!map.has(entity.config.render_layer))
                     map.set(entity.config.render_layer, new Map());
                 const submap = map.get(entity.config.render_layer);
-                const path = entity.shaped_sprite?.sprite?.sprite?.path;
+                const path = entity.shaped_sprite?.sprite?.sprite.sprite?.path;
                 if (!submap.has(path))
                     submap.set(path, []);
                 submap.get(path).push(entity);
